@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { jobs } from "@/lib/data/jobs"
-import { appliedJobs } from "@/lib/data/applied-jobs"
+import { appliedJobs } from "@/lib/data/jobs"
 
 interface JobListProps {
   searchQuery: string
-  type: "all" | "applied" | "favorites"
+  type: "all" | "applied" | "saved"
 }
 
 const statusStyles = {
@@ -76,22 +76,19 @@ export function JobList({ searchQuery, type }: JobListProps) {
               </div>
             </TableCell>
             <TableCell>
-              {type === "applied" ? 
-                (job as typeof appliedJobs[number]).appliedDate : 
-                job.postedDate
-              }
+              {type === "applied" ? job.appliedDate : job.postedDate}
             </TableCell>
             <TableCell>
               <Badge 
                 variant="secondary" 
                 className={
                   type === "applied" 
-                    ? statusStyles[(job as typeof appliedJobs[number]).status]
+                    ? statusStyles[job.status]
                     : "bg-green-100 text-green-800"
                 }
               >
                 {type === "applied" 
-                  ? statusLabels[(job as typeof appliedJobs[number]).status]
+                  ? statusLabels[job.status]
                   : "Active"
                 }
               </Badge>
@@ -99,7 +96,7 @@ export function JobList({ searchQuery, type }: JobListProps) {
             <TableCell className="text-right">
               <Button 
                 variant="link" 
-                onClick={() => router.push(`/dashboard/${type === "applied" ? "applied" : "find-jobs"}/${job.id}`)}
+                onClick={() => router.push(`/candidate/dashboard/${type === "applied" ? "applied" : "find-jobs"}/${job.id}`)}
               >
                 View Details
               </Button>
