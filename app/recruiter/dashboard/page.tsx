@@ -1,5 +1,5 @@
 import connectToDatabase from '@/lib/mongodb'
-import Job from '@/models/jobs'
+import Job from '@/models/Job'
 import { Card } from "@/components/ui/card"
 import { RecruiterStats } from "@/components/recruiter/dashboard/recruiter-stats"
 import { ApplicationChart } from "@/components/recruiter/dashboard/application-chart"

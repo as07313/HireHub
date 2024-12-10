@@ -12,7 +12,6 @@ const sidebarItems = [
   { icon: Bell, label: "Job Alerts", href: "/candidate/dashboard/alerts" },
   { icon: Settings, label: "Settings", href: "/candidate/dashboard/settings" },
 ]
-
 export default function CandidateLayout({
   children,
 }: {

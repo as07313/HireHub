@@ -5,7 +5,7 @@
   "insert-dummy-jobs": "ts-node insert.ts",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "nodemon --watch models --exec next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -75,6 +75,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }

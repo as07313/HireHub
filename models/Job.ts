@@ -8,18 +8,14 @@ interface IJob extends Document {
   status: string;
   applicants: number;
   postedDate: Date;
-  salary: string;
+  salary: {
+    min: string;
+    max: string;
+  };
   experience: string;
-  employmentType: string;
-  workplaceType: string;
-  teamSize: string;
-  education: string;
-  logo: string;
-  companyDescription: string;
-  benefits: string[];
-  skills: string[];
   description: string;
-  requirements: string[];
+  requirements: string;
+  benefits: string;
 }
 
 const JobSchema: Schema = new Schema({
@@ -30,18 +26,14 @@ const JobSchema: Schema = new Schema({
   status: { type: String, required: true, enum: ['active', 'inactive'], default: 'active' },
   applicants: { type: Number, default: 0 },
   postedDate: { type: Date, default: Date.now },
-  salary: { type: String, required: true },
+  salary: {
+    min: { type: String, required: true },
+    max: { type: String, required: true },
+  },
   experience: { type: String, required: true },
-  employmentType: { type: String, required: true },
-  workplaceType: { type: String, required: true },
-  teamSize: { type: String, required: true },
-  education: { type: String, required: true },
-  logo: { type: String, required: true },
-  companyDescription: { type: String, required: true },
-  benefits: { type: [String], required: true },
-  skills: { type: [String], required: true },
   description: { type: String, required: true },
-  requirements: { type: [String], required: true },
+  requirements: { type: String, required: true },
+  benefits: { type: String, required: true },
 });
 
 const Job: Model<IJob> = mongoose.models.Job || mongoose.model<IJob>('Job', JobSchema);

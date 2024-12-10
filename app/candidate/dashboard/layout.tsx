@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
-  { icon: Search, label: "Find Jobs", href: "candidate/dashboard/find-jobs" },
-  { icon: Briefcase, label: "Applied Jobs", href: "candidate/dashboard/applied" },
-  { icon: Heart, label: "Favorite Jobs", href: "candidate/dashboard/favorites" },
-  { icon: Bell, label: "Job Alerts", href: "candidate/dashboard/alerts" },
-  { icon: Settings, label: "Settings", href: "candidate/dashboard/settings" },
+  { icon: Search, label: "Find Jobs", href: "/candidate/dashboard/find-jobs" },
+  { icon: Briefcase, label: "Applied Jobs", href: "/candidate/dashboard/applied" },
+  { icon: Heart, label: "Saved Jobs", href: "/candidate/dashboard/saved" },
+  { icon: Bell, label: "Job Alerts", href: "/candidate/dashboard/alerts" },
+  { icon: Settings, label: "Settings", href: "/candidate/dashboard/settings" },
 ]
+
 
 export default function DashboardLayout({
   children,
@@ -67,7 +68,7 @@ export default function DashboardLayout({
         </aside>
 
         {/* Main content */}
-        <main className="ml-64 flex-1 p-8">{children}</main>
+        <main className="flex-1">{children}</main>
       </div>
     </div>
   )
