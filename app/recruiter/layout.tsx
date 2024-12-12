@@ -61,6 +61,10 @@ export default function RecruiterLayout({
   const router = useRouter()
   const pathname = usePathname()
 
+  if (pathname?.startsWith("/recruiter/auth")) {
+    return children
+  }
+
   return (
     <div className="min-h-screen bg-secondary/10">
       <div className="flex">
@@ -124,7 +128,7 @@ export default function RecruiterLayout({
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => router.push("/auth/login")}
+                onClick={() => router.push("recruiter/auth/login")}
               >
                 <LogOut className="h-4 w-4" />
                 Log out

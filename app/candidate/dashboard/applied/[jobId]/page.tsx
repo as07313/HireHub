@@ -21,7 +21,7 @@ export default function AppliedJobDetailsPage({ params }: { params: { jobId: str
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">
-      <Link href="candidate/dashboard/applied" className="mb-8 inline-flex items-center text-sm text-muted-foreground hover:text-primary">
+      <Link href="/candidate/dashboard/applied" className="mb-8 inline-flex items-center text-sm text-muted-foreground hover:text-primary">
         <ArrowLeft className="mr-2 h-4 w-4" />
         Back to Applied Jobs
       </Link>

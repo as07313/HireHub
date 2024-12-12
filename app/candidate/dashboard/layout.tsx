@@ -1,28 +1,40 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { Briefcase, Heart, Bell, Settings, LogOut, Search } from "lucide-react"
+import { useRouter, usePathname } from "next/navigation"
+import { useNavigate } from "react-router-dom"
+import { Briefcase, Heart, Bell, Settings, LogOut, Search, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
+  { 
+    icon: LayoutDashboard, 
+    label: "Overview", 
+    href: "/candidate/dashboard",
+    description: "View recruitment analytics and insights"
+  },
   { icon: Search, label: "Find Jobs", href: "/candidate/dashboard/find-jobs" },
   { icon: Briefcase, label: "Applied Jobs", href: "/candidate/dashboard/applied" },
   { icon: Heart, label: "Saved Jobs", href: "/candidate/dashboard/saved" },
   { icon: Bell, label: "Job Alerts", href: "/candidate/dashboard/alerts" },
   { icon: Settings, label: "Settings", href: "/candidate/dashboard/settings" },
 ]
-
-
-export default function DashboardLayout({
+export default function CandidateLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
+
+
+  // Don't show sidebar for auth pages
+  if (pathname?.startsWith("/candidate/auth")) {
+    return children
+  }
 
   return (
-    <div className="min-h-screen bg-secondary/30">
+    <div className="min-h-screen bg-white">
       <div className="flex">
         {/* Sidebar */}
         <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-white shadow-sm">
@@ -36,13 +48,16 @@ export default function DashboardLayout({
             <nav className="flex-1 space-y-1 px-3 py-4">
               {sidebarItems.map((item) => {
                 const Icon = item.icon
+                const isActive = pathname === item.href
+                
                 return (
                   <Button
                     key={item.href}
-                    variant="ghost"
+                    variant={isActive ? "secondary" : "ghost"}
                     className={cn(
                       "w-full justify-start gap-3 text-muted-foreground hover:bg-secondary hover:text-primary",
-                      "transition-colors duration-200"
+                      "transition-colors duration-200",
+                      isActive && "bg-primary/10 text-primary hover:bg-primary/20"
                     )}
                     onClick={() => router.push(item.href)}
                   >
@@ -58,6 +73,7 @@ export default function DashboardLayout({
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 text-muted-foreground hover:bg-secondary hover:text-primary"
+                
                 onClick={() => router.push("/auth/login")}
               >
                 <LogOut className="h-4 w-4" />
@@ -68,7 +84,7 @@ export default function DashboardLayout({
         </aside>
 
         {/* Main content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 p-1 bg-white">{children}</main>
       </div>
     </div>
   )

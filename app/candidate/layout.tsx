@@ -1,11 +1,18 @@
 "use client"
 
 import { useRouter, usePathname } from "next/navigation"
-import { Briefcase, Heart, Bell, Settings, LogOut, Search } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { Briefcase, Heart, Bell, Settings, LogOut, Search, LayoutDashboard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const sidebarItems = [
+  { 
+    icon: LayoutDashboard, 
+    label: "Overview", 
+    href: "/candidate/dashboard",
+    description: "View recruitment analytics and insights"
+  },
   { icon: Search, label: "Find Jobs", href: "/candidate/dashboard/find-jobs" },
   { icon: Briefcase, label: "Applied Jobs", href: "/candidate/dashboard/applied" },
   { icon: Heart, label: "Saved Jobs", href: "/candidate/dashboard/saved" },
@@ -19,6 +26,7 @@ export default function CandidateLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
+
 
   // Don't show sidebar for auth pages
   if (pathname?.startsWith("/candidate/auth")) {
@@ -65,7 +73,8 @@ export default function CandidateLayout({
               <Button
                 variant="ghost"
                 className="w-full justify-start gap-3 text-muted-foreground hover:bg-secondary hover:text-primary"
-                onClick={() => router.push("/candidate/auth/login")}
+                
+                onClick={() => router.push("/auth/login")}
               >
                 <LogOut className="h-4 w-4" />
                 Log out

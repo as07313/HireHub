@@ -99,7 +99,7 @@ export function JobList({ searchQuery, type }: JobListProps) {
             <TableCell className="text-right">
               <Button 
                 variant="link" 
-                onClick={() => router.push(`/dashboard/${type === "applied" ? "applied" : "find-jobs"}/${job.id}`)}
+                onClick={() => router.push(`${type === "applied" ? "applied" : "find-jobs"}/${job.id}`)}
               >
                 View Details
               </Button>

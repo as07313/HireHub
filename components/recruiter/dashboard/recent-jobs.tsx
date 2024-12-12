@@ -13,7 +13,20 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { MoreVertical } from "lucide-react"
 
-export function RecentJobs({ jobs }) {
+interface Job {
+  _id: string;
+  title: string;
+  type: string;
+  timeLeft: string;
+  status: string;
+  applications: number;
+}
+
+interface RecentJobsProps {
+  jobs: Job[];
+}
+
+export function RecentJobs({ jobs }: RecentJobsProps) {
   return (
     <Card>
       <div className="flex items-center justify-between p-6 border-b">

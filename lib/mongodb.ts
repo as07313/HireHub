@@ -1,3 +1,4 @@
+// lib/mongodb.ts
 import mongoose from 'mongoose'
 
 const MONGODB_URI = process.env.MONGODB_URI
@@ -12,7 +13,8 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null }
 }
 
-async function connectToDatabase() {
+// Change to default export
+const connectToDatabase = async () => {
   if (cached.conn) {
     console.log('Using existing MongoDB connection')
     return cached.conn
@@ -27,9 +29,6 @@ async function connectToDatabase() {
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('MongoDB connected')
       return mongoose
-    }).catch((error) => {
-      console.error('MongoDB connection error:', error)
-      throw error
     })
   }
   cached.conn = await cached.promise

@@ -1,8 +1,10 @@
+// components/settings/resume-manager.tsx
 "use client"
 
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import { FileText, Upload, MoreVertical, Download, Pencil, Trash } from "lucide-react"
 import {
   DropdownMenu,
@@ -17,32 +19,85 @@ interface Resume {
   name: string
   size: string
   lastModified: string
+  progress?: number
+  status: 'uploading' | 'completed' | 'error'
 }
 
 export function ResumeManager() {
-  const [resumes, setResumes] = useState<Resume[]>([
-    {
-      id: "1",
-      name: "Software_Engineer_Resume.pdf",
-      size: "245 KB",
-      lastModified: "2024-01-15",
-    },
-    {
-      id: "2",
-      name: "Frontend_Developer_Resume.pdf",
-      size: "180 KB",
-      lastModified: "2024-01-10",
-    },
-  ])
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [uploading, setUploading] = useState(false)
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleUpload = () => {
-    // TODO: Implement resume upload logic
-    toast.success("Resume uploaded successfully")
-  }
+    // Validate file type
+    if (!["application/pdf", "application/msword", 
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
+          .includes(file.type)) {
+      toast.error("Please upload a PDF or Word document");
+      return;
+    }
 
-  const handleDelete = (id: string) => {
-    setResumes((prev) => prev.filter((resume) => resume.id !== id))
-    toast.success("Resume deleted successfully")
+    try {
+
+      setUploading(true);
+      const newResume: Resume = {
+        id: Date.now().toString(),
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(0)} KB`,
+        lastModified: new Date().toLocaleDateString(),
+        progress: 0,
+        status: 'uploading'
+      };
+      
+      setResumes(prev => [...prev, newResume]);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const token = localStorage.getItem('token')
+    
+      const response = await fetch('/api/resume/parse', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload resume');
+      }
+
+      const result = await response.json();
+
+      setResumes(prev => prev.map(r => 
+        r.id === newResume.id 
+          ? { ...r, progress: 100, status: 'completed' }
+          : r
+      ));
+
+      toast.success("Resume uploaded successfully");
+
+    } catch (error) {
+      toast.error(error.message || "Failed to upload resume");
+      setResumes(prev => prev.filter(r => r.id !== newResume.id));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      // Call API to delete resume
+      await fetch(`/api/resume/${id}`, { method: 'DELETE' })
+      
+      setResumes((prev) => prev.filter((resume) => resume.id !== id))
+      toast.success("Resume deleted successfully")
+    } catch (error) {
+      toast.error("Failed to delete resume")
+    }
   }
 
   return (
@@ -55,7 +110,10 @@ export function ResumeManager() {
               Upload and manage your resumes
             </p>
           </div>
-          <Button onClick={handleUpload}>
+          <Button 
+            onClick={() => document.getElementById('resume-upload')?.click()}
+            disabled={uploading}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Upload Resume
           </Button>
@@ -76,6 +134,9 @@ export function ResumeManager() {
                   <p className="text-sm text-muted-foreground">
                     {resume.size} • Last modified {resume.lastModified}
                   </p>
+                  {resume.status === 'uploading' && (
+                    <Progress value={resume.progress} className="mt-2 h-1.5" />
+                  )}
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -107,6 +168,14 @@ export function ResumeManager() {
           ))}
         </div>
       </div>
+
+      <input
+        id="resume-upload"
+        type="file"
+        className="hidden"
+        accept=".pdf,.doc,.docx"
+        onChange={handleUpload}
+      />
     </Card>
   )
 }

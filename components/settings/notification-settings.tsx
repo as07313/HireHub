@@ -42,7 +42,7 @@ export function NotificationSettings() {
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between space-x-2">
+          {/* <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="email-alerts" className="flex flex-col space-y-1">
               <span>Email Alerts</span>
               <span className="font-normal text-sm text-muted-foreground">
@@ -56,7 +56,7 @@ export function NotificationSettings() {
                 setSettings((prev) => ({ ...prev, emailAlerts: checked }))
               }
             />
-          </div>
+          </div> */}
 
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="job-matches" className="flex flex-col space-y-1">
@@ -93,7 +93,7 @@ export function NotificationSettings() {
             />
           </div>
 
-          <div className="flex items-center justify-between space-x-2">
+          {/* <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="marketing-emails" className="flex flex-col space-y-1">
               <span>Marketing Emails</span>
               <span className="font-normal text-sm text-muted-foreground">
@@ -107,9 +107,9 @@ export function NotificationSettings() {
                 setSettings((prev) => ({ ...prev, marketingEmails: checked }))
               }
             />
-          </div>
+          </div> */}
 
-          <div className="flex items-center justify-between space-x-2">
+          {/* <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="profile-views" className="flex flex-col space-y-1">
               <span>Profile Views</span>
               <span className="font-normal text-sm text-muted-foreground">
@@ -123,7 +123,7 @@ export function NotificationSettings() {
                 setSettings((prev) => ({ ...prev, profileViews: checked }))
               }
             />
-          </div>
+          </div> */}
 
           <div className="flex items-center justify-between space-x-2">
             <Label htmlFor="new-messages" className="flex flex-col space-y-1">
