@@ -1,6 +1,8 @@
+// app/candidate/dashboard/applied/page.tsx
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
@@ -11,17 +13,30 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { JobList } from "@/components/dashboard/job-list"
+import { JobList } from "@/components/candidate/dashboard/job-list"
+import { appliedJobs } from "@/lib/data/applied-jobs"
 
 export default function AppliedJobsPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // Filter jobs based on status
+  const filteredJobs = statusFilter === "all" 
+    ? appliedJobs 
+    : appliedJobs.filter(job => job.status === statusFilter)
+
+  const handleViewDetails = (jobId: string) => {
+    router.push(`/candidate/dashboard/applied/${jobId}`)
+  }
 
   return (
     <div className="container max-w-6xl py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Applied Jobs</h1>
-        <p className="text-muted-foreground">Track and manage your job applications</p>
+        <p className="text-muted-foreground">
+          Track and manage your job applications
+        </p>
       </div>
 
       <Card className="mb-6 p-4">
@@ -53,7 +68,13 @@ export default function AppliedJobsPage() {
         </div>
       </Card>
 
-      <JobList searchQuery={searchQuery} type="applied" />
+      <JobList 
+        jobs={filteredJobs}
+        type="applied"
+        searchQuery={searchQuery}
+        onViewDetails={handleViewDetails}
+        showStatus={true}
+      />
     </div>
   )
 }

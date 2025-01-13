@@ -1,7 +1,7 @@
 // pages/api/auth/recruiter/login.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
-import { Recruiter } from '@/models/User';
+import  connectToDatabase  from '@/lib/mongodb';
+import  { Recruiter }  from '@/models/User';
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

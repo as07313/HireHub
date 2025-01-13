@@ -1,21 +1,74 @@
+// app/dashboard/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Briefcase, Heart, Bell } from "lucide-react"
 import { JobList } from "@/components/dashboard/job-list"
 
+interface UserData {
+  fullName: string;
+  email: string;
+  profileComplete: boolean;
+  stats: {
+    appliedJobs: number;
+    favoriteJobs: number;
+    jobAlerts: number;
+  };
+}
+
 export default function DashboardPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("")
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          router.push('/auth/login');
+          return;
+        }
+
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Hello, Vania Imran</h1>
+          <h1 className="text-2xl font-semibold">
+            Hello, {userData?.fullName || 'User'}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Here is your daily activities and job alerts
           </p>
@@ -33,7 +86,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Applied Jobs
               </p>
-              <h2 className="text-2xl font-bold">589</h2>
+              <h2 className="text-2xl font-bold">{userData?.stats.appliedJobs || 0}</h2>
             </div>
           </div>
         </Card>
@@ -46,7 +99,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Favorite Jobs
               </p>
-              <h2 className="text-2xl font-bold">238</h2>
+              <h2 className="text-2xl font-bold">{userData?.stats.favoriteJobs || 0}</h2>
             </div>
           </div>
         </Card>
@@ -59,34 +112,46 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Job Alerts
               </p>
-              <h2 className="text-2xl font-bold">574</h2>
+              <h2 className="text-2xl font-bold">{userData?.stats.jobAlerts || 0}</h2>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Profile Alert */}
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription className="flex items-center justify-between">
-          <span>
-            Your profile editing is not completed.
-            <br />
-            <span className="text-sm opacity-70">
-              Complete your profile editing & build your custom Resume
+      {/* Profile Alert - Show only if profile is incomplete */}
+      {!userData?.profileComplete && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              Your profile editing is not completed.
+              <br />
+              <span className="text-sm opacity-70">
+                Complete your profile editing & build your custom Resume
+              </span>
             </span>
-          </span>
-          <Button variant="outline" size="sm" className="ml-4">
-            Edit Profile
-          </Button>
-        </AlertDescription>
-      </Alert>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-4"
+              onClick={() => router.push('/candidate/profile/edit')}
+            >
+              Edit Profile
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Recent Applications */}
       <div>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Recently Applied</h2>
-          <Button variant="link">View all</Button>
+          <Button 
+            variant="link"
+            onClick={() => router.push('/candidate/applications')}
+          >
+            View all
+          </Button>
         </div>
         <JobList searchQuery={searchQuery} type="applied" />
       </div>

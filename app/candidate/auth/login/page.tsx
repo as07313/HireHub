@@ -95,7 +95,6 @@ export default function CandidateLoginPage() {
                 Sign in to your candidate account
               </p>
             </div>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -115,7 +114,6 @@ export default function CandidateLoginPage() {
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="password"
@@ -147,13 +145,11 @@ export default function CandidateLoginPage() {
                     </FormItem>
                   )}
                 />
-
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Signing in...' : 'Sign in'}
                 </Button>
               </form>
             </Form>
-
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -164,7 +160,6 @@ export default function CandidateLoginPage() {
                 </span>
               </div>
             </div>
-
             <Button variant="outline" className="w-full">
               <Github className="mr-2 h-4 w-4" />
               Github

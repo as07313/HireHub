@@ -42,7 +42,7 @@ export default function CandidateProfilePage({
   const [showStageDialog, setShowStageDialog] = useState(false)
   const [showMessageDialog, setShowMessageDialog] = useState(false)
   const [showInterviewDialog, setShowInterviewDialog] = useState(false)
-
+  
   return (
     <div className="container max-w-7xl py-8">
       <div className="mb-6">

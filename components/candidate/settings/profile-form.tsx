@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -31,19 +32,61 @@ const profileFormSchema = z.object({
 })
 
 export function ProfileForm() {
+  
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
 
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      fullName: "John Doe",
-      email: "john@example.com",
+      fullName: "",
+      email: "",
       bio: "",
       location: "",
       website: "",
       skills: "",
     },
   })
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          router.push('/auth/login')
+          return
+        }
+
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile')
+        }
+
+        const userData = await response.json()
+        
+        // Update form values with user data
+        form.reset({
+          fullName: userData.fullName,
+          email: userData.email,
+          bio: userData.bio || "",
+          location: userData.location || "",
+          website: userData.website || "",
+          skills: userData.skills?.join(", ") || "",
+        })
+      } catch (error) {
+        console.error('Error fetching profile:', error)
+        toast.error("Failed to load profile data")
+      }
+    }
+
+    fetchUserProfile()
+  }, [form, router])
 
   async function onSubmit(values: z.infer<typeof profileFormSchema>) {
     setIsLoading(true)

@@ -84,7 +84,7 @@ export default function CandidateLayout({
         </aside>
 
         {/* Main content */}
-        <main className="ml-64 flex-1 p-8">{children}</main>
+        <main className="ml-64 flex-1 p-4 bg-white">{children}</main>
       </div>
     </div>
   )

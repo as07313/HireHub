@@ -12,12 +12,30 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { jobs } from "@/lib/data/jobs"
-import { appliedJobs } from "@/lib/data/jobs"
+import { Building2, MapPin, DollarSign, Clock } from "lucide-react"
+
+interface Job {
+  id: string
+  title: string
+  company: string
+  logo: string
+  location: string
+  salary: string
+  type: string
+  postedDate: string
+  status?: string
+  appliedDate?: string
+  savedDate?: string
+}
 
 interface JobListProps {
-  searchQuery: string
+  jobs: Job[]
   type: "all" | "applied" | "saved"
+  searchQuery?: string
+  onViewDetails: (jobId: string) => void
+  onAction?: (jobId: string) => void
+  actionLabel?: string
+  showStatus?: boolean
 }
 
 const statusStyles = {
@@ -34,23 +52,52 @@ const statusLabels = {
   rejected: "Not Selected",
 }
 
-export function JobList({ searchQuery, type }: JobListProps) {
-  const router = useRouter()
-  const displayJobs = type === "applied" ? appliedJobs : jobs
+export function JobList({
+  jobs = [], // Provide default empty array
+  type,
+  searchQuery = "",
+  onViewDetails,
+  onAction,
+  actionLabel,
+  showStatus = true,
+}: JobListProps) {
+  // Add type guard to ensure jobs is an array
+  const jobsArray = Array.isArray(jobs) ? jobs : []
 
-  const filteredJobs = displayJobs.filter((job) =>
-    job.title.toLowerCase().includes(searchQuery?.toLowerCase() || "") ||
-    job.company.toLowerCase().includes(searchQuery?.toLowerCase() || "")
+  const filteredJobs = jobsArray.filter((job) =>
+    job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    job.company.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const getDateColumn = (job: Job) => {
+    switch (type) {
+      case "applied":
+        return job.appliedDate
+      case "saved":
+        return job.savedDate
+      default:
+        return job.postedDate
+    }
+  }
+
+  const getDateColumnLabel = () => {
+    switch (type) {
+      case "applied":
+        return "Date Applied"
+      case "saved":
+        return "Date Saved"
+      default:
+        return "Posted Date"
+    }
+  }
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Job</TableHead>
-          <TableHead>{type === "applied" ? "Date Applied" : "Posted Date"}</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead className="text-right">Action</TableHead>
+          <TableHead>{getDateColumnLabel()}</TableHead>
+          {showStatus && <TableHead>Status</TableHead>}
+          <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -58,7 +105,7 @@ export function JobList({ searchQuery, type }: JobListProps) {
           <TableRow key={job.id}>
             <TableCell>
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 overflow-hidden rounded-lg">
+                <div className="h-10 w-10 overflow-hidden rounded-lg border bg-white p-1">
                   <Image
                     src={job.logo}
                     alt={job.company}
@@ -69,37 +116,48 @@ export function JobList({ searchQuery, type }: JobListProps) {
                 </div>
                 <div>
                   <div className="font-medium">{job.title}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {job.location} • {job.salary}
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      {job.company}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {job.location}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      {job.salary}
+                    </span>
                   </div>
                 </div>
               </div>
             </TableCell>
             <TableCell>
-              {type === "applied" ? job.appliedDate : job.postedDate}
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {getDateColumn(job)}
+              </span>
             </TableCell>
-            <TableCell>
-              <Badge 
-                variant="secondary" 
-                className={
-                  type === "applied" 
-                    ? statusStyles[job.status]
-                    : "bg-green-100 text-green-800"
-                }
-              >
-                {type === "applied" 
-                  ? statusLabels[job.status]
-                  : "Active"
-                }
-              </Badge>
-            </TableCell>
-            <TableCell className="text-right">
-              <Button 
-                variant="link" 
-                onClick={() => router.push(`/candidate/dashboard/${type === "applied" ? "applied" : "find-jobs"}/${job.id}`)}
-              >
+            {showStatus && (
+              <TableCell>
+                <Badge 
+                  variant="secondary" 
+                  className={job.status ? statusStyles[job.status as keyof typeof statusStyles] : ""}
+                >
+                  {job.status ? statusLabels[job.status as keyof typeof statusLabels] : "Active"}
+                </Badge>
+              </TableCell>
+            )}
+            <TableCell className="text-right space-x-2">
+              <Button variant="link" onClick={() => onViewDetails(job.id)}>
                 View Details
               </Button>
+              {onAction && (
+                <Button variant="outline" onClick={() => onAction(job.id)}>
+                  {actionLabel}
+                </Button>
+              )}
             </TableCell>
           </TableRow>
         ))}

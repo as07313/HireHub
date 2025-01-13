@@ -26,6 +26,7 @@ interface Resume {
 export function ResumeManager() {
   const [resumes, setResumes] = useState<Resume[]>([])
   const [uploading, setUploading] = useState(false)
+  
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -38,11 +39,13 @@ export function ResumeManager() {
       return;
     }
 
-    try {
+    // Generate a unique ID that we'll store and reference consistently
+    const resumeId = Date.now().toString();
 
+    try {
       setUploading(true);
       const newResume: Resume = {
-        id: Date.now().toString(),
+        id: resumeId,
         name: file.name,
         size: `${(file.size / 1024).toFixed(0)} KB`,
         lastModified: new Date().toLocaleDateString(),
@@ -63,7 +66,7 @@ export function ResumeManager() {
           'Authorization': `Bearer ${token}`
         },
         body: formData
-      })
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -72,17 +75,24 @@ export function ResumeManager() {
 
       const result = await response.json();
 
+      // Update using the stored resumeId
       setResumes(prev => prev.map(r => 
-        r.id === newResume.id 
-          ? { ...r, progress: 100, status: 'completed' }
+        r.id === resumeId 
+          ? { 
+              ...r, 
+              progress: 100, 
+              status: 'completed',
+              // Add any additional data from result if needed
+            }
           : r
       ));
 
       toast.success("Resume uploaded successfully");
 
     } catch (error) {
-      toast.error(error.message || "Failed to upload resume");
-      setResumes(prev => prev.filter(r => r.id !== newResume.id));
+      // Remove the resume using the stored resumeId
+      setResumes(prev => prev.filter(r => r.id !== resumeId));
+      toast.error(error instanceof Error ? error.message : "Failed to upload resume");
     } finally {
       setUploading(false);
     }
@@ -90,15 +100,25 @@ export function ResumeManager() {
 
   const handleDelete = async (id: string) => {
     try {
-      // Call API to delete resume
-      await fetch(`/api/resume/${id}`, { method: 'DELETE' })
+      const token = localStorage.getItem('token');
       
-      setResumes((prev) => prev.filter((resume) => resume.id !== id))
-      toast.success("Resume deleted successfully")
+      const response = await fetch(`/api/resume/${id}`, { 
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete resume');
+      }
+      
+      setResumes((prev) => prev.filter((resume) => resume.id !== id));
+      toast.success("Resume deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete resume")
+      toast.error("Failed to delete resume");
     }
-  }
+  };
 
   return (
     <Card className="p-6">

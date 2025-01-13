@@ -69,7 +69,7 @@ export default function CandidateRegisterPage() {
       localStorage.setItem('userType', 'candidate');
       
       toast.success('Registration successful!');
-      router.push('/candidate/auth/dashboard');
+      router.push('/candidate/dashboard');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Registration failed');
     } finally {
@@ -203,11 +203,11 @@ export default function CandidateRegisterPage() {
                               className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                               onClick={() => setShowPassword(!showPassword)}
                             >
-                              {showPassword ? (
+                              {/* {showPassword ? (
                                 <EyeOff className="h-4 w-4" />
                               ) : (
                                 <Eye className="h-4 w-4" />
-                              )}
+                              )} */}
                             </Button>
                           </div>
                         </FormControl>

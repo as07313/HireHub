@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { JobSearchList } from "@/components/dashboard/job-search-list"
+import {JobList} from '@/components/candidate/dashboard/job-list';
+import {jobs} from '@/lib/data/jobs';
 
 export default function FindJobsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -64,7 +65,15 @@ export default function FindJobsPage() {
         </div>
       </Card>
 
-      <JobSearchList searchQuery={searchQuery} location={location} category={category} />
+      <JobList 
+        jobs={jobs}
+        type="all"
+        searchQuery={searchQuery}
+        onViewDetails={(id) => router.push(`/candidate/dashboard/find-jobs/${id}`)}
+        onAction={(id) => handleApplyToJob(id)}
+        actionLabel="Apply"
+        showStatus={false}
+      />
     </div>
   )
 }

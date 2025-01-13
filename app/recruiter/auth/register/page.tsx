@@ -56,7 +56,7 @@ export default function RecruiterRegisterPage() {
       // TODO: Implement registration logic
       console.log(values);
       toast.success('Registration successful!');
-      router.push('/recruiter/auth/onboarding');
+      router.push('/recruiter/dashboard');
     } catch (error) {
       toast.error('Registration failed');
     } finally {

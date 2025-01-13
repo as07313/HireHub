@@ -19,7 +19,7 @@ const sidebarItems = [
     icon: LayoutDashboard, 
     label: "Overview", 
     href: "/recruiter/dashboard",
-    description: "View recruitment analytics and insights"
+    description: "View analytics and insights"
   },
   { 
     icon: PlusCircle, 
@@ -69,7 +69,7 @@ export default function RecruiterLayout({
     <div className="min-h-screen bg-secondary/10">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-white">
+        <aside className="fixed left-0 top-0 z-40 h-screen border-r bg-white w-64">
           <div className="flex h-full flex-col">
             {/* Logo */}
             <div className="flex h-16 items-center border-b px-6">

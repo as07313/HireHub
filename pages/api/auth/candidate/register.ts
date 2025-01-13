@@ -1,6 +1,6 @@
 // pages/api/auth/candidate/register.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
+import  connectToDatabase  from '@/lib/mongodb';
 import { Candidate } from '@/models/User';
 import jwt from 'jsonwebtoken';
 
