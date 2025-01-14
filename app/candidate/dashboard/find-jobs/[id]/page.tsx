@@ -1,26 +1,31 @@
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
-import { JobDetails } from "@/components/jobs/job-details"
+// app/candidate/dashboard/jobs/[id]/page.tsx
+import { notFound } from 'next/navigation'
+import { JobDetails } from "@/components/candidate/jobs/job-details"
 import { jobs } from "@/lib/data/jobs"
 
-export function generateStaticParams() {
-  return jobs.map((job) => ({
-    id: job.id,
-  }))
-}
-
+// app/candidate/dashboard/jobs/[id]/page.tsx
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
-  const job = jobs.find((j) => j.id === params.id)
+  const jobData = jobs.find((j) => j.id === params.id)
 
-  if (!job) {
-    return <div>Job not found</div>
+  if (!jobData) {
+    notFound()
+  }
+
+  // Convert readonly arrays to mutable arrays
+  const job = {
+    ...jobData,
+    requirements: [...jobData.requirements],
+    responsibilities: [...jobData.responsibilities],
+    skills: [...jobData.skills],
+    benefits: [...jobData.benefits]
   }
 
   return (
     <JobDetails 
       job={job}
-      backLink="/dashboard/find-jobs"
+      backLink="/dashboard/jobs"
       backLabel="Back to Jobs"
+      showActions={false}
       showApplyButton={true}
     />
   )

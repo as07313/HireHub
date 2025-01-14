@@ -56,9 +56,7 @@ function JobDetailsContent({ jobId }: { jobId: string }) {
             job={job}
             showActions={false}
           />
-          
           <JobTabs job={job} />
-          
           <SkillsRecommendation 
             jobSkills={[...job.skills]}    
             candidateSkills={candidateSkills}
@@ -71,7 +69,6 @@ function JobDetailsContent({ jobId }: { jobId: string }) {
             job={job}
             showApplyButton={false} 
           />
-          
           <JobBenefits benefits={job.benefits} />
         </div>
       </div>

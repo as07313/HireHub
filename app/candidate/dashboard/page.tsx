@@ -65,6 +65,7 @@ export default function DashboardPage() {
   function handleViewDetails(jobId: string): void {
     router.push(`/candidate/applied/${jobId}`);
   }
+  
   return (
     <div className="space-y-8">
       {/* Header */}

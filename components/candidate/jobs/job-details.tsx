@@ -3,10 +3,10 @@
 
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { JobHeader } from "@/components/jobs/job-header"
-import { JobTabs } from "@/components/jobs/job-tabs"
-import { JobOverview } from "@/components/jobs/job-overview"
-import { JobBenefits } from "@/components/jobs/job-benefits"
+import { JobHeader } from "@/components/candidate/jobs/job-header"
+import { JobTabs } from "@/components/candidate/jobs/job-tabs"
+import { JobOverview } from "@/components/candidate/jobs/job-overview"
+import { JobBenefits } from "@/components/candidate/jobs/job-benefits"
 
 interface JobDetailsProps {
   job: {

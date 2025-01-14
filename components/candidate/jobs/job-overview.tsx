@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { BriefcaseIcon, Banknote, GraduationCap } from "lucide-react"
-import { JobApplicationDialog } from "@/components/jobs/job-application-dialog"
+import { JobApplicationDialog } from "@/components/candidate/jobs/job-application-dialog"
 
 interface JobOverviewProps {
   job: {
