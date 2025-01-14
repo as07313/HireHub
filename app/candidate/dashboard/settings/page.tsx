@@ -5,10 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProfileForm } from "@/components/settings/profile-form"
-import { SecurityForm } from "@/components/settings/security-form"
-import { NotificationSettings } from "@/components/settings/notification-settings"
-import { ResumeManager } from "@/components/settings/resume-manager"
+import { ProfileForm } from "@/components/candidate/settings/profile-form"
+import { SecurityForm } from "@/components/candidate/settings/security-form"
+import { NotificationSettings } from "@/components/candidate/settings/notification-settings"
+import { ResumeManager } from "@/components/candidate/settings/resume-manager"
 
 export default function SettingsPage() {
   return (

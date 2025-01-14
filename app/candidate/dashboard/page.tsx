@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Briefcase, Heart, Bell } from "lucide-react"
-import { JobList } from "@/components/dashboard/job-list"
+import { JobList } from "@/components/candidate/dashboard/job-list"
+import { appliedJobs } from "@/lib/data/applied-jobs"
 
 interface UserData {
   fullName: string;
@@ -61,6 +62,9 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
+  function handleViewDetails(jobId: string): void {
+    router.push(`/candidate/applied/${jobId}`);
+  }
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -153,7 +157,13 @@ export default function DashboardPage() {
             View all
           </Button>
         </div>
-        <JobList searchQuery={searchQuery} type="applied" />
+          <JobList 
+          jobs={appliedJobs.slice(0, 5)} // Show only last 5 applications
+          type="applied"
+          searchQuery={searchQuery}
+          onViewDetails={handleViewDetails}
+          showStatus={true}
+        />
       </div>
     </div>
   )

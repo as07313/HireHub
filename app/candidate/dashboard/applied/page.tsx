@@ -69,7 +69,7 @@ export default function AppliedJobsPage() {
       </Card>
 
       <JobList 
-        jobs={filteredJobs}
+        jobs={filteredJobs.slice()}
         type="applied"
         searchQuery={searchQuery}
         onViewDetails={handleViewDetails}

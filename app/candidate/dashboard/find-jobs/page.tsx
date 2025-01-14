@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, MapPin, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation" 
 import {
   Select,
   SelectContent,
@@ -16,6 +17,7 @@ import {JobList} from '@/components/candidate/dashboard/job-list';
 import {jobs} from '@/lib/data/jobs';
 
 export default function FindJobsPage() {
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [location, setLocation] = useState("")
   const [category, setCategory] = useState("")
@@ -66,11 +68,11 @@ export default function FindJobsPage() {
       </Card>
 
       <JobList 
-        jobs={jobs}
+        jobs={[...jobs]}
         type="all"
         searchQuery={searchQuery}
         onViewDetails={(id) => router.push(`/candidate/dashboard/find-jobs/${id}`)}
-        onAction={(id) => handleApplyToJob(id)}
+        // onAction={(id) => handleApplyToJob(id)}
         actionLabel="Apply"
         showStatus={false}
       />

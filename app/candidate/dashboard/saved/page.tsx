@@ -64,7 +64,7 @@ export default function SavedJobsPage() {
 
       {/* JobList component remains as is since it's reusable */}
       <JobList 
-        jobs={jobs}
+        jobs={[...jobs]}
         type="saved"
         searchQuery={searchQuery}
         onViewDetails={(id) => router.push(`/candidate/dashboard/saved/${id}`)}

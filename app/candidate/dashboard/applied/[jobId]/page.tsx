@@ -3,11 +3,11 @@ import { Suspense } from "react"
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import { JobHeader } from "@/components/jobs/job-header"
-import { JobTabs } from "@/components/jobs/job-tabs"
-import { JobOverview } from "@/components/jobs/job-overview"
-import { JobBenefits } from "@/components/jobs/job-benefits"
-import { SkillsRecommendation } from "@/components/jobs/skills-recommendation"
+import { JobHeader } from "@/components/candidate/jobs/job-header"
+import { JobTabs } from "@/components/candidate/jobs/job-tabs"
+import { JobOverview } from "@/components/candidate/jobs/job-overview"
+import { JobBenefits } from "@/components/candidate/jobs/job-benefits"
+import { SkillsRecommendation } from "@/components/candidate/jobs/skills-recommendation"
 import { appliedJobs } from '@/lib/data/applied-jobs'
 
 export function generateStaticParams() {
@@ -60,7 +60,7 @@ function JobDetailsContent({ jobId }: { jobId: string }) {
           <JobTabs job={job} />
           
           <SkillsRecommendation 
-            jobSkills={job.requiredSkills}  
+            jobSkills={[...job.skills]}    
             candidateSkills={candidateSkills}
           />
         </div>
