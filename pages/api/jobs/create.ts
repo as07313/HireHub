@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
-import Job from '@/models/Job'
+import { Job } from '@/models/Job'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {

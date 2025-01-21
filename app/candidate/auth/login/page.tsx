@@ -160,10 +160,10 @@ export default function CandidateLoginPage() {
                 </span>
               </div>
             </div>
-            <Button variant="outline" className="w-full">
-              <Github className="mr-2 h-4 w-4" />
+            {/* <Button variant="outline" className="w-full"> */}
+              {/* <Github className="mr-2 h-4 w-4" />
               Github
-            </Button>
+            </Button> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}

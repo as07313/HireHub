@@ -1,18 +1,54 @@
+// pages/api/jobs/[id].ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
-import Job from '@/models/Job'
+import { Job } from '@/models/Job'
+import { auth } from '@/lib/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await connectToDatabase()
+  try {
+    await connectToDatabase()
+    const { id } = req.query
 
-  if (req.method === 'GET') {
-    try {
-      const jobs = await Job.find({})
-      res.status(200).json(jobs)
-    } catch (error) {
-      res.status(400).json({ error: 'Failed to fetch jobs' })
+    switch (req.method) {
+      case 'GET':
+        const job = await Job.findById(id)
+          .populate('companyId', 'name logo')
+          .select('-applicants')
+
+        if (!job) {
+          return res.status(404).json({ error: 'Job not found' })
+        }
+
+        return res.status(200).json(job)
+
+      case 'PUT':
+        const { user } = await authMiddleware(req, res)
+        if (user.role !== 'recruiter') {
+          return res.status(403).json({ error: 'Not authorized' })
+        }
+
+        const updatedJob = await Job.findByIdAndUpdate(
+          id,
+          { ...req.body },
+          { new: true }
+        )
+
+        return res.status(200).json(updatedJob)
+
+      case 'DELETE':
+        const authUser = await authMiddleware(req, res)
+        if (authUser.role !== 'recruiter') {
+          return res.status(403).json({ error: 'Not authorized' })
+        }
+
+        await Job.findByIdAndUpdate(id, { status: 'closed' })
+        return res.status(200).json({ message: 'Job closed successfully' })
+
+      default:
+        return res.status(405).json({ error: 'Method not allowed' })
     }
-  } else {
-    res.status(405).end() // Method Not Allowed
+  } catch (error) {
+    console.error('Error handling job:', error)
+    return res.status(500).json({ error: 'Internal server error' })
   }
 }

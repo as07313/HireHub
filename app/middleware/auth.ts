@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getSession } from 'next-auth/react'
 import { verify } from 'jsonwebtoken'
 
-export async function authMiddleware(
+export async function auth(
   req: NextApiRequest,
   res: NextApiResponse,
   next: () => void

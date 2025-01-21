@@ -1,14 +1,18 @@
+// components/candidate/jobs/job-header.tsx
 "use client"
 
 import Image from "next/image"
 import { Building2, MapPin, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Share2, BookmarkPlus } from "lucide-react"
+import { Share2, BookmarkPlus, BookmarkX } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { useSavedJobs } from "@/hooks/use-saved-jobs"
+import { useState } from "react"
 
 interface JobHeaderProps {
   job: {
+    id: string
     logo: string
     company: string
     title: string
@@ -21,7 +25,25 @@ interface JobHeaderProps {
   showActions?: boolean
 }
 
-export function JobHeader({ job, showActions = false }: JobHeaderProps) {
+export function JobHeader({ job, showActions = true }: JobHeaderProps) {
+  const { savedJobs, saveJob, removeJob } = useSavedJobs();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isSaved = savedJobs.some(savedJob => savedJob.id === job.id);
+
+  const handleToggleSave = async () => {
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await removeJob(job.id);
+      } else {
+        await saveJob(job.id);
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-start gap-6">
@@ -58,8 +80,17 @@ export function JobHeader({ job, showActions = false }: JobHeaderProps) {
                 <Button variant="outline" size="icon">
                   <Share2 className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon">
-                  <BookmarkPlus className="h-4 w-4" />
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={handleToggleSave}
+                  disabled={isSaving}
+                >
+                  {isSaved ? (
+                    <BookmarkX className="h-4 w-4 text-red-500" />
+                  ) : (
+                    <BookmarkPlus className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             )}

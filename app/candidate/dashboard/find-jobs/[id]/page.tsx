@@ -1,31 +1,37 @@
 // app/candidate/dashboard/jobs/[id]/page.tsx
+"use client"
+import * as React from 'react'
 import { notFound } from 'next/navigation'
 import { JobDetails } from "@/components/candidate/jobs/job-details"
-import { jobs } from "@/lib/data/jobs"
+import { useJobs } from "@/hooks/use-jobs"
 
 // app/candidate/dashboard/jobs/[id]/page.tsx
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
-  const jobData = jobs.find((j) => j.id === params.id)
+  
+  const { id } = params
+  const { jobs , loading , error } = useJobs() 
 
-  if (!jobData) {
-    notFound()
+    if (loading) {
+    return <div>Loading...</div>
   }
 
+  if (error) {
+    return <div>Error loading job details</div>
+  }
+
+
+  const jobData = jobs.find((j) => j._id === id)
+
+  
   // Convert readonly arrays to mutable arrays
-  const job = {
-    ...jobData,
-    requirements: [...jobData.requirements],
-    responsibilities: [...jobData.responsibilities],
-    skills: [...jobData.skills],
-    benefits: [...jobData.benefits]
-  }
+  
 
   return (
     <JobDetails 
-      job={job}
-      backLink="/dashboard/jobs"
+      job={jobData}
+      backLink="/candidate/dashboard/find-jobs"
       backLabel="Back to Jobs"
-      showActions={false}
+      showActions={true}
       showApplyButton={true}
     />
   )

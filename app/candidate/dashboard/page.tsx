@@ -91,7 +91,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Applied Jobs
               </p>
-              <h2 className="text-2xl font-bold">{userData?.stats.appliedJobs || 0}</h2>
+              {/* <h2 className="text-2xl font-bold">{userData?.stats.appliedJobs || 0}</h2> */}
             </div>
           </div>
         </Card>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Favorite Jobs
               </p>
-              <h2 className="text-2xl font-bold">{userData?.stats.favoriteJobs || 0}</h2>
+              {/* <h2 className="text-2xl font-bold">{userData?.stats.favoriteJobs || 0}</h2> */}
             </div>
           </div>
         </Card>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Job Alerts
               </p>
-              <h2 className="text-2xl font-bold">{userData?.stats.jobAlerts || 0}</h2>
+              {/* <h2 className="text-2xl font-bold">{userData?.stats.jobAlerts || 0}</h2> */}
             </div>
           </div>
         </Card>

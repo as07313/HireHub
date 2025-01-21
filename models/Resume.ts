@@ -1,13 +1,11 @@
-// models/Resume.ts
 import mongoose, { Document, Schema } from 'mongoose';
 
 interface IResume extends Document {
-  userId: string;
+  candidateId: Schema.Types.ObjectId;
   fileName: string;
   fileSize: string;
   uploadDate: Date;
   lastModified: Date;
-  status: 'completed' | 'error';
   parsedData: {
     Name: string;
     'Contact Information': string;
@@ -23,48 +21,40 @@ interface IResume extends Document {
       Description: string;
     }>;
     Skills: string[];
-    metadata: {
-      file_name: string;
-      text_length: number;
-      has_contact: boolean;
-      education_count: number;
-      experience_count: number;
-      skills_count: number;
-    };
   };
 }
 
 const ResumeSchema = new Schema({
-  userId: { type: String, required: true },
+  candidateId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Candidate',
+    required: true
+  },
   fileName: { type: String, required: true },
   fileSize: { type: String, required: true },
   uploadDate: { type: Date, default: Date.now },
   lastModified: { type: Date, default: Date.now },
-  status: { type: String, enum: ['completed', 'error'], required: true },
   parsedData: {
-    Name: { type: String },
-    'Contact Information': { type: String },
+    Name: { type: String, required: true },
+    'Contact Information': { type: String, required: true },
     Education: [{
-      Degree: String,
-      Institution: String,
-      Year: String
+      Degree: { type: String, required: true },
+      Institution: { type: String, required: true },
+      Year: { type: String, required: true }
     }],
     'Work Experience': [{
-      'Job Title': String,
-      Company: String,
-      Duration: String,
-      Description: String
+      'Job Title': { type: String, required: true },
+      Company: { type: String, required: true },
+      Duration: { type: String, required: true },
+      Description: { type: String, required: true }
     }],
-    Skills: [String],
-    metadata: {
-      file_name: String,
-      text_length: Number,
-      has_contact: Boolean,
-      education_count: Number,
-      experience_count: Number,
-      skills_count: Number
-    }
+    Skills: { type: [String], required: true }
   }
+}, {
+  timestamps: true, // Adds createdAt and updatedAt fields
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
 
 export default mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);

@@ -53,7 +53,27 @@ const demographicsChartOptions = {
 }
 
 export default function RecruiterDashboardPage() {
-  const [jobs, setJobs] = useState([])
+
+  interface Job {
+    _id: string;
+    title: string;
+    department: string;
+    location: string;
+    type: string;
+    status: 'active' | 'inactive';
+    applicants: number;
+    postedDate: Date;
+    salary: {
+      min: string;
+      max: string;
+    };
+    experience: string;
+    description: string;
+    requirements: string;
+    benefits: string;
+  }
+
+  const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,9 +87,14 @@ export default function RecruiterDashboardPage() {
       } finally {
         setLoading(false)
       }
+      console.log(jobs)
     }
     fetchJobs()
   }, [])
+
+  
+
+  
 
   // Stats data - could be fetched from API
   const stats = [
@@ -157,7 +182,7 @@ export default function RecruiterDashboardPage() {
           <h2 className="text-lg font-semibold">Recent Jobs</h2>
         </div>
         <div className="space-y-4">
-          {jobs.slice(0, 5).map((job) => (
+          {jobs.map((job) => (
             <div key={job._id} className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <h3 className="font-medium">{job.title}</h3>

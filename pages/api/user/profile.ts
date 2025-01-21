@@ -38,12 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.status(200).json({
       fullName: user.fullName,
       email: user.email,
-      profileComplete: isProfileComplete(user),
-      stats: {
-        appliedJobs: stats[0] || 0,
-        favoriteJobs: stats[1] || 0,
-        jobAlerts: stats[2] || 0
-      }
+      profileComplete: isProfileComplete(user)
+      // stats: {
+      //   appliedJobs: stats[0] || 0,
+      //   favoriteJobs: stats[1] || 0,
+      //   jobAlerts: stats[2] || 0
+      // }
     });
 
   } catch (error) {

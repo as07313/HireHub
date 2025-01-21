@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.userId;
+    const userId = (decoded as jwt.JwtPayload).userId;
 
     const resumes = await Resume.find({ userId })
       .select('fileName fileSize lastModified status parsedData')

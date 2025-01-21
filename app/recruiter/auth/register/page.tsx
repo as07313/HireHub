@@ -270,10 +270,10 @@ export default function RecruiterRegisterPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full">
+            {/* <Button variant="outline" className="w-full">
               <Github className="mr-2 h-4 w-4" />
               Github
-            </Button>
+            </Button> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}

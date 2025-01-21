@@ -106,13 +106,13 @@ export function JobList({
             <TableCell>
               <div className="flex items-center gap-4">
                 <div className="h-10 w-10 overflow-hidden rounded-lg border bg-white p-1">
-                  <Image
+                  {/* <Image
                     src={job.logo}
                     alt={job.company}
                     width={40}
                     height={40}
                     className="h-full w-full object-contain"
-                  />
+                  /> */}
                 </div>
                 <div>
                   <div className="font-medium">{job.title}</div>

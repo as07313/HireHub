@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Github, Building2, Users } from 'lucide-react';
+import { Eye, EyeOff, Building2, Users } from 'lucide-react';
 import { useState } from 'react';
 
 const loginSchema = z.object({
@@ -166,10 +166,10 @@ export default function RecruiterLoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full">
-              <Github className="mr-2 h-4 w-4" />
-              Github
-            </Button>
+            {/* <Button variant="outline" className="w-full">
+              <Google className="mr-2 h-4 w-4" />
+              Google
+            </Button> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}

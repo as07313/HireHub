@@ -1,3 +1,4 @@
+// app/candidate/dashboard/find-jobs/page.tsx
 "use client"
 
 import { useState } from "react"
@@ -5,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, MapPin, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation" 
+import { useRouter } from "next/navigation"
 import {
   Select,
   SelectContent,
@@ -13,14 +14,61 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {JobList} from '@/components/candidate/dashboard/job-list';
-import {jobs} from '@/lib/data/jobs';
+import { JobList } from '@/components/candidate/dashboard/job-list'
+import { useJobs } from '@/hooks/use-jobs'
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function FindJobsPage() {
   const router = useRouter()
+  const { jobs, loading, error } = useJobs()
   const [searchQuery, setSearchQuery] = useState("")
   const [location, setLocation] = useState("")
   const [category, setCategory] = useState("")
+
+  // Transform jobs data to match JobList component interface
+  // const transformedJobs = jobs.map(job => ({
+  //   id: job._id,
+  //   title: job.title,
+  //   location: job.location,
+  //   salary: `$${job.salary.min}-${job.salary.max}`,
+  //   type: job.employmentType,
+  //   postedDate: new Date(job.postedDate).toLocaleDateString('en-US', {
+  //     day: 'numeric',
+  //     month: 'short',
+  //     year: 'numeric'
+  //   })
+  // }))
+  console.log(jobs)
+
+  if (loading) {
+    return (
+      <div className="container max-w-6xl py-8 space-y-8">
+        <div className="space-y-3">
+          <Skeleton className="h-8 w-[250px]" />
+          <Skeleton className="h-4 w-[450px]" />
+        </div>
+        <Card className="p-6">
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <div className="grid gap-4 md:grid-cols-3">
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+            </div>
+          </div>
+        </Card>
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className="p-6 text-center text-red-500">
+        <p>{error}</p>
+      </Card>
+    )
+  }
 
   return (
     <div className="container max-w-6xl py-8">
@@ -54,25 +102,22 @@ export default function FindJobsPage() {
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
             <SelectContent>
+              {/* <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="engineering">Engineering</SelectItem>
               <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="development">Development</SelectItem>
+              <SelectItem value="product">Product</SelectItem>
               <SelectItem value="marketing">Marketing</SelectItem>
-              <SelectItem value="sales">Sales</SelectItem>
+              <SelectItem value="sales">Sales</SelectItem> */}
             </SelectContent>
           </Select>
-          <Button>
-            <Filter className="mr-2 h-4 w-4" />
-            Filter
-          </Button>
         </div>
       </Card>
 
       <JobList 
-        jobs={[...jobs]}
+        jobs={transformedJobs}
         type="all"
         searchQuery={searchQuery}
         onViewDetails={(id) => router.push(`/candidate/dashboard/find-jobs/${id}`)}
-        // onAction={(id) => handleApplyToJob(id)}
         actionLabel="Apply"
         showStatus={false}
       />

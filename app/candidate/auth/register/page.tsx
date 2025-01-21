@@ -18,7 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Github, Briefcase } from 'lucide-react';
+import { Eye, EyeOff, Briefcase } from 'lucide-react';
 import { useState } from 'react';
 
 const registerSchema = z.object({
@@ -261,10 +261,10 @@ export default function CandidateRegisterPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full">
-              <Github className="mr-2 h-4 w-4" />
-              Github
-            </Button>
+            {/* <Button variant="outline" className="w-full">
+              <Google className="mr-2 h-4 w-4" />
+              Google
+            </Button> */}
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{' '}

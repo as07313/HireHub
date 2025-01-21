@@ -5,7 +5,7 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import Resume from '@/models/Resume';
 import connectToDatabase from '@/lib/mongodb';
-import { authMiddleware } from '@/middleware/auth.ts'
+//import { authMiddleware } from '@/middleware/auth.ts'
 import jwt from 'jsonwebtoken';
 
 export const config = {
@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-    const userId = decoded.userId
+    const userId = (decoded as jwt.JwtPayload).userId
 
     const form = formidable({
       uploadDir: path.join(process.cwd(), 'uploads'),
@@ -53,7 +53,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     // Create form data with Blob
     const formData = new FormData();
-    const blob = new Blob([fileContent], { type: file.mimetype });
+    const blob = new Blob([fileContent], { type: file.mimetype || undefined });
     formData.append('file', blob, file.originalFilename || 'file');
 
     // Call Python parser
@@ -85,6 +85,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Resume parsing error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: (error as Error).message });
   }
 }

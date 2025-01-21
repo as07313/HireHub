@@ -1,41 +1,81 @@
-import mongoose, { Document, Model, Schema } from 'mongoose';
+// models/Job.ts
+import mongoose, { Document, Schema } from 'mongoose';
 
-interface IJob extends Document {
+export interface IJob extends Document {
+  recruiterId: Schema.Types.ObjectId;
   title: string;
   department: string;
   location: string;
-  type: string;
-  status: string;
-  applicants: number;
-  postedDate: Date;
+  workplaceType: 'onsite' | 'hybrid' | 'remote';
+  employmentType: 'full-time' | 'part-time' | 'contract' | 'internship';
+  status: 'active' | 'inactive' | 'closed';
   salary: {
     min: string;
     max: string;
   };
-  experience: string;
+  experience: 'entry' | 'mid' | 'senior' | 'lead';
   description: string;
-  requirements: string;
-  benefits: string;
+  requirements: string[];
+  benefits: string[];
+  skills: string[];
+  applicants: Schema.Types.ObjectId[];
+  postedDate: Date;
 }
 
-const JobSchema: Schema = new Schema({
+const JobSchema = new Schema({
+
+  recruiterId: { 
+    type: Schema.Types.ObjectId, 
+    ref: 'Recruiter',
+    required: true 
+  },
   title: { type: String, required: true },
   department: { type: String, required: true },
   location: { type: String, required: true },
-  type: { type: String, required: true },
-  status: { type: String, required: true, enum: ['active', 'inactive'], default: 'active' },
-  applicants: { type: Number, default: 0 },
-  postedDate: { type: Date, default: Date.now },
+  workplaceType: { 
+    type: String,
+    enum: ['onsite', 'hybrid', 'remote'],
+    required: true 
+  },
+  employmentType: { 
+    type: String,
+    enum: ['full-time', 'part-time', 'contract', 'internship'],
+    required: true 
+  },
+  status: { 
+    type: String,
+    enum: ['active', 'inactive', 'closed'],
+    default: 'active' 
+  },
   salary: {
     min: { type: String, required: true },
-    max: { type: String, required: true },
+    max: { type: String, required: true }
   },
-  experience: { type: String, required: true },
+  experience: {
+    type: String,
+    enum: ['entry', 'mid', 'senior', 'lead'],
+    required: true
+  },
   description: { type: String, required: true },
-  requirements: { type: String, required: true },
-  benefits: { type: String, required: true },
+  requirements: [String],
+  benefits: [String],
+  skills: [String],
+  applicants: [{ 
+    type: Schema.Types.ObjectId,
+    ref: 'Candidate'
+  }],
+  postedDate: { 
+    type: Date,
+    default: Date.now 
+  }
+}, {
+  timestamps: true
 });
 
-const Job: Model<IJob> = mongoose.models.Job || mongoose.model<IJob>('Job', JobSchema);
+// Add indexes
+JobSchema.index({ title: 'text', description: 'text' });
+JobSchema.index({ status: 1 });
+JobSchema.index({ companyId: 1 });
+JobSchema.index({ recruiterId: 1 });
 
-export default Job;
+export const Job = mongoose.models.Job || mongoose.model<IJob>('Job', JobSchema);
