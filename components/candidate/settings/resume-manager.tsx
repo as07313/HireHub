@@ -1,7 +1,7 @@
 // components/settings/resume-manager.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -26,77 +26,69 @@ interface Resume {
 export function ResumeManager() {
   const [resumes, setResumes] = useState<Resume[]>([])
   const [uploading, setUploading] = useState(false)
-  
-  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    // Validate file type
+  // Fetch resumes on mount
+  useEffect(() => {
+    fetchResumes()
+  }, [])
+
+  const fetchResumes = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/resume', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch resumes')
+
+      const data = await response.json()
+      setResumes(data)
+    } catch (error) {
+      toast.error('Failed to load resumes')
+    }
+  }
+
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
     if (!["application/pdf", "application/msword", 
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
           .includes(file.type)) {
-      toast.error("Please upload a PDF or Word document");
-      return;
+      toast.error("Please upload a PDF or Word document")
+      return
     }
 
-    // Generate a unique ID that we'll store and reference consistently
-    const resumeId = Date.now().toString();
-
     try {
-      setUploading(true);
-      const newResume: Resume = {
-        id: resumeId,
-        name: file.name,
-        size: `${(file.size / 1024).toFixed(0)} KB`,
-        lastModified: new Date().toLocaleDateString(),
-        progress: 0,
-        status: 'uploading'
-      };
-      
-      setResumes(prev => [...prev, newResume]);
-
-      const formData = new FormData();
-      formData.append('file', file);
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
 
       const token = localStorage.getItem('token')
-    
       const response = await fetch('/api/resume/parse', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         },
         body: formData
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to upload resume');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to upload resume')
       }
 
-      const result = await response.json();
-
-      // Update using the stored resumeId
-      setResumes(prev => prev.map(r => 
-        r.id === resumeId 
-          ? { 
-              ...r, 
-              progress: 100, 
-              status: 'completed',
-              // Add any additional data from result if needed
-            }
-          : r
-      ));
-
-      toast.success("Resume uploaded successfully");
-
+      const result = await response.json()
+      await fetchResumes() // Refresh the list
+      toast.success("Resume uploaded successfully")
     } catch (error) {
-      // Remove the resume using the stored resumeId
-      setResumes(prev => prev.filter(r => r.id !== resumeId));
-      toast.error(error instanceof Error ? error.message : "Failed to upload resume");
+      toast.error(error instanceof Error ? error.message : "Failed to upload resume")
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
     try {

@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
 import { Job } from '@/models/Job'
-import { auth } from '@/lib/auth'
+import { auth }  from '@/app/middleware/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -22,10 +22,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(job)
 
       case 'PUT':
-        const { user } = await authMiddleware(req, res)
-        if (user.role !== 'recruiter') {
-          return res.status(403).json({ error: 'Not authorized' })
-        }
+        const { user } = await auth(req, res)
+        // if (user.role !== 'recruiter') {
+        //   return res.status(403).json({ error: 'Not authorized' })
+        // }
 
         const updatedJob = await Job.findByIdAndUpdate(
           id,
@@ -36,11 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(updatedJob)
 
       case 'DELETE':
-        const authUser = await authMiddleware(req, res)
-        if (authUser.role !== 'recruiter') {
-          return res.status(403).json({ error: 'Not authorized' })
-        }
-
+        //const authUser = await auth(req, res)
         await Job.findByIdAndUpdate(id, { status: 'closed' })
         return res.status(200).json({ message: 'Job closed successfully' })
 

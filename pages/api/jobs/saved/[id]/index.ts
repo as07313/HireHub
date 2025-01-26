@@ -33,13 +33,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void>
           .select('savedJobs');
         
           
-        
         return res.status(200).json({ savedJobs: user?.savedJobs || [] });
 
 
       case 'POST':
-        const jobId = "67597b9e8875a266b8612be2";
-        console.log("jobId",jobId)
+        console.log("req query", req.query);
+        console.log("Req body", req.body);
+        const { jobId } = req.body;
+        console.log(jobId)
+        if (!jobId) {
+          return res.status(401).json({ error: 'Job ID is required' });
+        }
+       
         await Candidate.findByIdAndUpdate(userId, {
           $addToSet: { savedJobs: jobId }
         });

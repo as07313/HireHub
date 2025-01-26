@@ -8,7 +8,7 @@ import { useJobs } from "@/hooks/use-jobs"
 // app/candidate/dashboard/jobs/[id]/page.tsx
 export default function JobDetailsPage({ params }: { params: { id: string } }) {
   
-  const { id } = params
+  const { id } = React.use(params)
   const { jobs , loading , error } = useJobs() 
 
     if (loading) {

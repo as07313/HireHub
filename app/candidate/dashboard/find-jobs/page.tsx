@@ -26,19 +26,20 @@ export default function FindJobsPage() {
   const [category, setCategory] = useState("")
 
   // Transform jobs data to match JobList component interface
-  // const transformedJobs = jobs.map(job => ({
-  //   id: job._id,
-  //   title: job.title,
-  //   location: job.location,
-  //   salary: `$${job.salary.min}-${job.salary.max}`,
-  //   type: job.employmentType,
-  //   postedDate: new Date(job.postedDate).toLocaleDateString('en-US', {
-  //     day: 'numeric',
-  //     month: 'short',
-  //     year: 'numeric'
-  //   })
-  // }))
-  console.log(jobs)
+  const transformedJobs = jobs?.map(job => ({
+    id: job._id,
+    title: job.title,
+    company: job.company || 'Company Name', // Add fallback
+    logo: job.logo || '/company-placeholder.png', // Add fallback
+    location: job.location,
+    salary: `$${job.salary.min}-${job.salary.max}`,
+    type: job.employmentType,
+    postedDate: new Date(job.postedDate).toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
+  })) || []
 
   if (loading) {
     return (
@@ -59,14 +60,6 @@ export default function FindJobsPage() {
         </Card>
         <Skeleton className="h-[400px] w-full" />
       </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <Card className="p-6 text-center text-red-500">
-        <p>{error}</p>
-      </Card>
     )
   }
 
@@ -101,14 +94,14 @@ export default function FindJobsPage() {
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select Category" />
             </SelectTrigger>
-            <SelectContent>
-              {/* <SelectItem value="">All Categories</SelectItem>
+            {/* <SelectContent>
+              <SelectItem value="">All Categories</SelectItem>
               <SelectItem value="engineering">Engineering</SelectItem>
               <SelectItem value="design">Design</SelectItem>
               <SelectItem value="product">Product</SelectItem>
               <SelectItem value="marketing">Marketing</SelectItem>
-              <SelectItem value="sales">Sales</SelectItem> */}
-            </SelectContent>
+              <SelectItem value="sales">Sales</SelectItem>
+            </SelectContent> */}
           </Select>
         </div>
       </Card>

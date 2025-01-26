@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
 import { Job } from '@/models/Job'
-import { auth }  from '@/middleware/auth'
+import { auth }  from '@/app/middleware/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
