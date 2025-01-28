@@ -76,7 +76,7 @@ const ApplicantSchema = new Schema({
   aiAnalysis: {
     technicalSkills: {
       score: Number,
-      strengths: [String],
+      strengths: [String], 
       gaps: [String]
     },
     experience: {

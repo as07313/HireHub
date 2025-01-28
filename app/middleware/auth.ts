@@ -1,25 +1,55 @@
-// middleware/auth.ts
+// app/middleware/auth.ts
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getSession } from 'next-auth/react'
 import { verify } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 
-export async function auth(
+// For API Routes
+export async function Apiauth(
   req: NextApiRequest,
   res: NextApiResponse,
   next: () => void
 ) {
   try {
-    // Get token from header
     const token = req.headers.authorization?.split(' ')[1]
     if (!token) {
-      throw new Error('No token provided')
+      return res.status(401).json({ error: 'No token provided' })
+    }
+
+    const decoded = verify(token, process.env.JWT_SECRET!)
+    ;(req as any).user = decoded
+    next()
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+}
+
+interface AuthUser {
+  userId: string;
+  type: 'candidate' | 'recruiter';
+}
+
+export async function auth() {
+  try {
+    // Get cookie store
+    const cookieStore = await cookies()
+    const token = await cookieStore.get('token')
+
+    if (!token || !token.value) {
+      return null;
     }
 
     // Verify token
-    const decoded = verify(token, process.env.JWT_SECRET!)
-    req.user = decoded
-    return next()
+    const decoded = verify(token.value, process.env.JWT_SECRET!) as AuthUser;
+
+    // Return user data
+    return {
+      userId: decoded.userId,
+      type: decoded.type
+    };
+
   } catch (error) {
-    return res.status(401).json({ error: 'Unauthorized' })
+    console.error('Auth error:', error);
+    return null;
   }
 }

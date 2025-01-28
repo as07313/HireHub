@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
 import { Job } from '@/models/Job'
-import { auth }  from '@/app/middleware/auth'
+import { Apiauth }  from '@/app/middleware/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       case 'POST':
         
-        const { user } = await auth(req, res);
+        const { user } = await Apiauth(req, res);
 
         const job = await Job.create({
           ...req.body,

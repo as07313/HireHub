@@ -2,7 +2,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import connectToDatabase from '@/lib/mongodb'
 import { Job } from '@/models/Job'
-import { auth }  from '@/app/middleware/auth'
+import { Apiauth }  from '@/app/middleware/auth'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(job)
 
       case 'PUT':
-        const { user } = await auth(req, res)
+        const { user } = await Apiauth(req, res)
         // if (user.role !== 'recruiter') {
         //   return res.status(403).json({ error: 'Not authorized' })
         // }

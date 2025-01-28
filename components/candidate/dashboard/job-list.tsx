@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Building2, MapPin, DollarSign, Clock } from "lucide-react"
+import { JobUI } from "@/types/job"
+
 
 interface Job {
   id: string
@@ -29,7 +31,7 @@ interface Job {
 }
 
 interface JobListProps {
-  jobs: Job[]
+  jobs: JobUI[]
   type: "all" | "applied" | "saved"
   searchQuery?: string
   onViewDetails: (jobId: string) => void

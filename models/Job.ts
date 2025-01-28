@@ -8,14 +8,14 @@ export interface IJob extends Document {
   location: string;
   workplaceType: 'onsite' | 'hybrid' | 'remote';
   employmentType: 'full-time' | 'part-time' | 'contract' | 'internship';
-  status: 'active' | 'inactive' | 'closed';
+  status: 'open' | 'closed';
   salary: {
     min: string;
     max: string;
   };
   experience: 'entry' | 'mid' | 'senior' | 'lead';
   description: string;
-  requirements: string[];
+  requirements: string[]; // description to be converted to objects 
   benefits: string[];
   skills: string[];
   applicants: Schema.Types.ObjectId[];

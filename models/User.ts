@@ -37,7 +37,7 @@ export interface ICandidate extends IBaseUser, Document {
 export interface IRecruiter extends IBaseUser, Document {
   fullName: string;
   companyId: Schema.Types.ObjectId;
-  personalEmail: string;
+  //personalEmail: string;
   jobPosts: Array<Schema.Types.ObjectId>;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -90,11 +90,11 @@ const RecruiterSchema = new Schema({
     required: true, 
     unique: true 
   },
-  personalEmail: { 
-    type: String, 
-    required: true, 
-    unique: true 
-  },
+  // personalEmail: { 
+  //   type: String, 
+  //   required: true, 
+  //   unique: true 
+  // },
   jobPosts: [{ 
     type: Schema.Types.ObjectId, 
     ref: 'Job' 

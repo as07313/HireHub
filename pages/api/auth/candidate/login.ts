@@ -33,6 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { expiresIn: '7d' }
     );
 
+    res.setHeader(
+      'Set-Cookie',
+      `token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`
+    );
+
     res.status(200).json({
       token,
       user: {
