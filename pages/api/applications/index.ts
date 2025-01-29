@@ -6,16 +6,15 @@ import { Apiauth }  from '@/app/middleware/auth'
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    try{
+    try {
         await connectToDatabase();
-
 
         switch (req.method) {
             case 'POST':
-                // const { user } = await auth(req, res);
-                // if (!user) {
-                //     return res.status(401).json({error: 'user not found'});
-                // }
+                const user = await Apiauth(req, res);
+                if (!user) {
+                    return res.status(401).json({error: 'User not found'});
+                }
 
                 const { jobId, resumeId, coverLetter } = req.body;
 
@@ -24,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
 
                 const existing = await Applicant.findOne({
-                    candidateId: user._id,
+                    candidateId: user.userId, // Use userId instead of _id
                     jobId
                 });
 
@@ -32,8 +31,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     return res.status(400).json({error: 'Already applied'})
                 }
 
-                const application = Applicant.create({
-                    candidateId: user._id,
+                const application = await Applicant.create({
+                    candidateId: user.userId,
                     jobId,
                     resumeId,
                     coverLetter,
@@ -42,16 +41,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     jobFitScore: 0
                 });
 
-                await Job.findbyIdandUpdate(jobId, {
-                    $addToSet: {applicants: user._id}
+                await Job.findByIdAndUpdate(jobId, {
+                    $addToSet: { applicants: user.userId }
                 });
 
-                return res.status(201).json(applicant);
+                return res.status(201).json(application);
 
-        default:
-            return res.status(405).json({error: 'Method not allowed'});    
+            default:
+                return res.status(405).json({error: 'Method not allowed'});    
         }
-
     } catch(error) {
         console.error('Application error', error)
         return res.status(500).json({error: 'Internal Server Error'})

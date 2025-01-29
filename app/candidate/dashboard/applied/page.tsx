@@ -22,9 +22,9 @@ export default function AppliedJobsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
 
   // Filter jobs based on status
-  // const filteredJobs = statusFilter === "all" 
-  //   ? appliedJobs 
-  //   : appliedJobs.filter(job => job.status === statusFilter)
+  const filteredJobs = statusFilter === "all" 
+    ? appliedJobs 
+    : appliedJobs.filter(job => job.status === statusFilter)
 
   const handleViewDetails = (jobId: string) => {
     router.push(`/candidate/dashboard/applied/${jobId}`)

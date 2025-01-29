@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 interface SkillsRecommendationProps {
-  jobSkills: string[];
-  candidateSkills: string[];
+  jobSkills: readonly string[];
+  candidateSkills: readonly string[];
 }
 
 interface SkillGap {
@@ -29,7 +29,7 @@ interface SkillGap {
 }
 
 // Mock data - Replace with actual API data
-const getSkillsAnalysis = (jobSkills: string[], candidateSkills: string[]) => {
+const getSkillsAnalysis = (jobSkills: readonly string[], candidateSkills: readonly string[]) => {
   return {
     matchingSkills: [
       {

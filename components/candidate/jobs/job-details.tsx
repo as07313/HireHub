@@ -69,9 +69,10 @@ export function JobDetails({
 
   if (!job) return <div>Job not found</div>;
 
-  // Fix: Check if savedJobs is an array and handle the id comparison correctly
-  const isSaved = Array.isArray(savedJobs?.savedJobs) && 
-    savedJobs.savedJobs.some(savedJob => savedJob._id === job.id);
+
+
+  const isSaved = Array.isArray(savedJobs) && 
+    savedJobs.some(savedJob => savedJob.id === job.id);
 
   const handleToggleSave = async () => {
     setIsSaving(true);
@@ -290,6 +291,7 @@ export function JobDetails({
       </div>
     </div>
         <JobApplicationDialog 
+        jobId = {job.id}
         open={showApplicationDialog}
         onOpenChange={setShowApplicationDialog}
       />

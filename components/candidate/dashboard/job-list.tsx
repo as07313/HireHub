@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Building2, MapPin, DollarSign, Clock } from "lucide-react"
-import { JobUI } from "@/types/job"
+import { JobUI } from "@/app/types/job"
 
 
 interface Job {

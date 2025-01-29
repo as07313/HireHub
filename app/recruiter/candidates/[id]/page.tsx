@@ -34,15 +34,18 @@ const candidate = {
   summary: "Experienced frontend developer with a strong background in building scalable web applications...",
 }
 
-export default function CandidateProfilePage({
-  params,
-}: {
-  params: { id: string }
-}) {
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
+export default async function CandidateProfilePage({ params }: PageProps) {
+  // Await the params
+  const { id } = await params
   const [showStageDialog, setShowStageDialog] = useState(false)
   const [showMessageDialog, setShowMessageDialog] = useState(false)
   const [showInterviewDialog, setShowInterviewDialog] = useState(false)
-  
+
   return (
     <div className="container max-w-7xl py-8">
       <div className="mb-6">

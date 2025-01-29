@@ -36,7 +36,17 @@ const job = {
   ],
 }
 
-export default function JobPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: Promise<{
+    id: string
+  }>
+}
+
+// Mock data stays the same...
+
+export default async function JobPage({ params }: PageProps) {
+  // Await the params
+  const { id } = await params
   const [activeTab, setActiveTab] = useState("details")
 
   return (
@@ -102,11 +112,11 @@ export default function JobPage({ params }: { params: { id: string } }) {
             </TabsContent>
 
             <TabsContent value="applicants">
-              <JobApplicants jobId={params.id} />
+              <JobApplicants jobId={id} />
             </TabsContent>
 
             <TabsContent value="insights">
-              <JobInsights jobId={params.id} />
+              <JobInsights jobId={id} />
             </TabsContent>
           </div>
         </Tabs>

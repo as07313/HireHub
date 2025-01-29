@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(job)
 
       case 'PUT':
-        const { user } = await Apiauth(req, res)
+        const  user  = await Apiauth(req, res)
         // if (user.role !== 'recruiter') {
         //   return res.status(403).json({ error: 'Not authorized' })
         // }

@@ -19,12 +19,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       case 'POST':
         
-        const { user } = await Apiauth(req, res);
+        const user = await Apiauth(req, res);
+        if (!user || !user.userId) {
+          return res.status(401).json({ error: 'Unauthorized' });
+        }
 
         const job = await Job.create({
           ...req.body,
-          recruiterId: user._id,
-          companyId: user.companyId,
+          recruiterId: user.userId,
           status: 'active'
         })
 

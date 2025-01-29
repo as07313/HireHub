@@ -3,31 +3,26 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { verify } from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 
-// For API Routes
-export async function Apiauth(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  next: () => void
-) {
+interface AuthUser {
+  userId: string;
+  type: 'candidate' | 'recruiter';
+}
+
+export async function Apiauth(req: NextApiRequest, res: NextApiResponse) {
   try {
     const token = req.headers.authorization?.split(' ')[1]
     if (!token) {
       return res.status(401).json({ error: 'No token provided' })
     }
 
-    const decoded = verify(token, process.env.JWT_SECRET!)
-    ;(req as any).user = decoded
-    next()
+    const decoded = verify(token, process.env.JWT_SECRET!) as AuthUser
+    return decoded
   } catch (error) {
     console.error('Authentication error:', error)
     return res.status(401).json({ error: 'Unauthorized' })
   }
 }
 
-interface AuthUser {
-  userId: string;
-  type: 'candidate' | 'recruiter';
-}
 
 export async function auth() {
   try {

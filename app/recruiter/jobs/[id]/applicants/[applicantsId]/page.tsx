@@ -61,19 +61,26 @@ const applicant = {
   ]
 };
 
-export default function ApplicantDetailsPage({
-  params
-}: {
-  params: { jobId: string; applicantId: string }
-}) {
+interface PageProps {
+  params: Promise<{
+    jobId: string;
+    applicantId: string;
+  }>
+}
+
+// Mock data stays the same...
+
+export default async function ApplicantDetailsPage({ params }: PageProps) {
+  // Await the params
+  const { jobId, applicantId } = await params
   const [activeTab, setActiveTab] = useState('profile');
 
   return (
     <div className="container max-w-7xl py-8 space-y-8">
-      <ApplicantHeader 
+      {/* <ApplicantHeader 
         jobId={params.jobId}
         applicant={applicant}
-      />
+      /> */}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -109,7 +116,7 @@ export default function ApplicantDetailsPage({
 
         <div>
           <ApplicantActions 
-            jobId={params.jobId}
+            jobId={jobId}
             applicant={applicant}
           />
         </div>

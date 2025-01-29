@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
-import { Select } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { JobList } from "@/components/candidate/dashboard/job-list"
 import { saveJob, removeSavedJob } from "@/app/actions/jobs"
 import { toast } from "sonner"
-import { BaseJob, JobUI } from "@/types/job"
+import { BaseJob, JobUI } from "@/app/types/job"
 
 interface SavedJobsClientProps {
     initialJobs: BaseJob[]
@@ -101,7 +107,7 @@ export function SavedJobsClient({ initialJobs }: SavedJobsClientProps) {
           type="saved"
           searchQuery={searchQuery}
           onViewDetails={(id) => router.push(`/candidate/dashboard/saved/${id}`)}
-          onAction={removeJob}
+          onAction={handleRemoveJob}
           actionLabel="Remove"
           showStatus={false}
         />
