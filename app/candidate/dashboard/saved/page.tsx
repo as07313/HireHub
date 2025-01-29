@@ -4,6 +4,8 @@ import { getSavedJobs } from "@/app/actions/jobs"
 import { SavedJobsClient } from "@/app/candidate/dashboard/saved/saved-jobs-client"
 import SavedJobsLoading from "./loading" // Change to default import
 
+export const dynamic = 'force-dynamic'
+
 export default async function SavedJobsPage() {
   const savedJobs = await getSavedJobs()
   console.log(savedJobs)
