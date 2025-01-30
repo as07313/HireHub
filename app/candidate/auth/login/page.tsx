@@ -106,7 +106,7 @@ export default function CandidateLoginPage() {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="john@example.com"
+                          placeholder="ahmedshoaib.genius229@gmail.com"
                           {...field}
                         />
                       </FormControl>
@@ -125,6 +125,7 @@ export default function CandidateLoginPage() {
                           <Input
                             type={showPassword ? 'text' : 'password'}
                             {...field}
+                            placeholder="12345678"
                           />
                           <Button
                             type="button"

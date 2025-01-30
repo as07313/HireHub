@@ -67,7 +67,7 @@ export function ResumeManager() {
       formData.append('file', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch('/api/resume/parse', {
+      const response = await fetch('/api/resume/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

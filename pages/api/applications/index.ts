@@ -5,6 +5,7 @@ import { Job } from '@/models/Job';
 import { Apiauth }  from '@/app/middleware/auth'
 
 
+// pages/api/applications/index.ts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         await connectToDatabase();
@@ -18,19 +19,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 const { jobId, resumeId, coverLetter } = req.body;
 
-                if (!jobId || !resumeId) {
-                    return res.status(400).json({error: 'Missing required fields'})
+                // Validate job exists and has applicants array
+                const job = await Job.findById(jobId);
+                if (!job) {
+                    return res.status(404).json({error: 'Job not found'});
                 }
 
+                // Check for existing application
                 const existing = await Applicant.findOne({
-                    candidateId: user.userId, // Use userId instead of _id
+                    candidateId: user.userId,
                     jobId
                 });
 
                 if (existing) {
-                    return res.status(400).json({error: 'Already applied'})
+                    return res.status(400).json({error: 'Already applied'});
                 }
 
+                // Create application
                 const application = await Applicant.create({
                     candidateId: user.userId,
                     jobId,
@@ -41,9 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     jobFitScore: 0
                 });
 
-                await Job.findByIdAndUpdate(jobId, {
-                    $addToSet: { applicants: user.userId }
-                });
+                // Update job with new applicant
+                await Job.findByIdAndUpdate(
+                    jobId,
+                    { $addToSet: { applicants: user.userId } },
+                    { new: true, runValidators: true }
+                );
 
                 return res.status(201).json(application);
 
@@ -51,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(405).json({error: 'Method not allowed'});    
         }
     } catch(error) {
-        console.error('Application error', error)
-        return res.status(500).json({error: 'Internal Server Error'})
+        console.error('Application error:', error);
+        return res.status(500).json({error: 'Internal Server Error'});
     }
 }

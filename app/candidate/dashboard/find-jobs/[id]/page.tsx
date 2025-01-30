@@ -8,6 +8,8 @@ interface PageProps {
   }>
 }
 
+export const revalidate = 3600 // Revalidate every hour
+
 export default async function JobDetailsPage({ params }: PageProps) {
   const { id } = await params
 

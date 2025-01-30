@@ -60,7 +60,7 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       formData.append('file', file);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/resume/upload', {
+      const response = await fetch('/api/resume', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

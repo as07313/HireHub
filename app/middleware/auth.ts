@@ -10,19 +10,28 @@ interface AuthUser {
 
 export async function Apiauth(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const token = req.headers.authorization?.split(' ')[1]
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Invalid authorization header' })
+    }
+
+    const token = authHeader.split(' ')[1].trim()
     if (!token) {
       return res.status(401).json({ error: 'No token provided' })
     }
 
-    const decoded = verify(token, process.env.JWT_SECRET!) as AuthUser
-    return decoded
+    try {
+      const decoded = verify(token, process.env.JWT_SECRET!) as AuthUser
+      return decoded
+    } catch (verifyError) {
+      console.error('Token verification error:', verifyError)
+      return res.status(401).json({ error: 'Invalid token' })
+    }
   } catch (error) {
     console.error('Authentication error:', error)
-    return res.status(401).json({ error: 'Unauthorized' })
+    return res.status(500).json({ error: 'Authentication failed' })
   }
 }
-
 
 export async function auth() {
   try {

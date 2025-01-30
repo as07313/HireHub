@@ -35,11 +35,11 @@ const sidebarItems = [
     label: "Saved Jobs", 
     href: "/candidate/dashboard/saved" 
   },
-  { 
-    icon: Bell, 
-    label: "Job Alerts", 
-    href: "/candidate/dashboard/alerts" 
-  },
+  // { 
+  //   icon: Bell, 
+  //   label: "Job Alerts", 
+  //   href: "/candidate/dashboard/alerts" 
+  // },
   { 
     icon: Settings, 
     label: "Settings", 

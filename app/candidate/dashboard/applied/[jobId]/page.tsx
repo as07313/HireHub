@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { SkillsRecommendation } from "@/components/candidate/jobs/skills-recommendation"
 import { appliedJobs } from '@/lib/data/applied-jobs'
+import { JobDetails } from "@/components/candidate/jobs/job-details"
+
 
 interface PageProps {
   params: Promise<{
@@ -44,13 +46,14 @@ function JobDetailsContent({ jobId }: { jobId: string }) {
 
   return (
     <div>
-      <Link
-        href="/candidate/dashboard/applied"
-        className="mb-8 inline-flex items-center text-sm text-muted-foreground hover:text-primary"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Applied Jobs
-      </Link>
+      <JobDetails 
+      job={job}
+      backLink="/candidate/dashboard/find-jobs"
+      backLabel="Back to Jobs"
+      showActions={false}
+      showApplyButton={false}
+    />
+
       
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">

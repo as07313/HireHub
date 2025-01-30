@@ -35,20 +35,20 @@ const ResumeSchema = new Schema({
   uploadDate: { type: Date, default: Date.now },
   lastModified: { type: Date, default: Date.now },
   parsedData: {
-    Name: { type: String, required: true },
-    'Contact Information': { type: String, required: true },
+    Name: { type: String, required: false },
+    'Contact Information': { type: String, required: false },
     Education: [{
-      Degree: { type: String, required: true },
-      Institution: { type: String, required: true },
-      Year: { type: String, required: true }
+      Degree: { type: String, required: false },
+      Institution: { type: String, required: false },
+      Year: { type: String, required: false }
     }],
     'Work Experience': [{
-      'Job Title': { type: String, required: true },
-      Company: { type: String, required: true },
-      Duration: { type: String, required: true },
-      Description: { type: String, required: true }
+      'Job Title': { type: String, required: false },
+      Company: { type: String, required: false },
+      Duration: { type: String, required: false },
+      Description: { type: String, required: false }
     }],
-    Skills: { type: [String], required: true }
+    Skills: { type: [String], required: false }
   }
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields
