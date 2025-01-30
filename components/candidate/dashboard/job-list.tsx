@@ -66,10 +66,10 @@ export function JobList({
   // Add type guard to ensure jobs is an array
   const jobsArray = Array.isArray(jobs) ? jobs : []
 
-  const filteredJobs = jobsArray.filter((job) =>
-    job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    job.company.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // const filteredJobs = jobsArray.filter((job) =>
+  //   job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   job.company.toLowerCase().includes(searchQuery.toLowerCase())
+  // )
 
   const getDateColumn = (job: Job) => {
     switch (type) {
@@ -103,7 +103,7 @@ export function JobList({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {filteredJobs.map((job) => (
+        {jobsArray.map((job) => (
           <TableRow key={job.id}>
             <TableCell>
               <div className="flex items-center gap-4">

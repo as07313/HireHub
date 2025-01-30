@@ -4,7 +4,7 @@
 import { Candidate } from "@/models/User"
 import connectToDatabase from "@/lib/mongodb"
 
-interface UserProfile {
+export interface UserProfile {
   fullName: string
   email: string
   phone?: string

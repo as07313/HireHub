@@ -20,15 +20,14 @@ export interface ICandidate extends IBaseUser, Document {
   stats: {
     appliedJobs: number;
     savedJobs: number;
-    jobAlerts: number;
   };
   savedJobs: Array<Schema.Types.ObjectId>;
-  jobAlerts: Array<{
-    keywords: string[];
-    locations: string[];
-    jobTypes: string[];
-    isActive: boolean;
-  }>;
+  // jobAlerts: Array<{
+  //   keywords: string[];
+  //   locations: string[];
+  //   jobTypes: string[];
+  //   isActive: boolean;
+  // }>;
   applications: Array<Schema.Types.ObjectId>;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -63,12 +62,6 @@ const CandidateSchema = new Schema({
     jobAlerts: { type: Number, default: 0 }
   },
   savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
-  jobAlerts: [{
-    keywords: [String],
-    locations: [String],
-    jobTypes: [String],
-    isActive: { type: Boolean, default: true }
-  }],
   applications: [{ type: Schema.Types.ObjectId, ref: 'Application' }]
 }, {
   timestamps: true,

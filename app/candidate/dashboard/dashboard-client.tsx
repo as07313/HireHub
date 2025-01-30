@@ -1,31 +1,62 @@
+// app/candidate/dashboard/dashboard-client.tsx
 "use client"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/ui/card" 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle, Briefcase, Heart, Bell } from "lucide-react"
 import { JobList } from "@/components/candidate/dashboard/job-list"
-import { appliedJobs } from "@/lib/data/applied-jobs"
+import { getUserProfile } from "@/app/actions/user"
+import type { UserProfile } from "@/app/actions/user" // Add this import
 
 interface DashboardClientProps {
-  initialData: UserData
+  initialData: UserProfile
 }
-
 export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter()
+  const [userData, setUserData] = useState(initialData)
   const [searchQuery, setSearchQuery] = useState("")
-  const [userData] = useState(initialData)
+  const [jobs, setJobs] = useState([]) // Add state for jobs
 
-  function handleViewDetails(jobId: string): void {
-    router.push(`/candidate/applied/${jobId}`)
+  // Fetch recent applied jobs
+  useEffect(() => {
+    const fetchRecentApplications = async () => {
+      try {
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        
+        const response = await fetch('/api/applications/candidate', {
+          headers: {
+            'Authorization': `Bearer ${token}` // Add token to headers
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch applications');
+        const data = await response.json();
+        setJobs(data.slice(0, 5)); // Get latest 5 applications
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchRecentApplications();
+  }, []);
+
+  if (!jobs) {
+    return (
+      <div>
+        loading
+        </div>
+    )
   }
 
   function handleViewDetails(jobId: string): void {
-    router.push(`/candidate/dashboard/applied/${jobId}`);
+    router.push(`/candidate/dashboard/applied/${jobId}`)
   }
-  
+  console.log("dashboard-job",jobs)
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -40,7 +71,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats Cards */} 
       <div className="flex flex-row gap-4">
         <Card className="flex-1 p-6">
           <div className="flex flex-col items-center gap-4">
@@ -55,36 +86,11 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </div>
           </div>
         </Card>
-        <Card className="flex-1 p-6">
-          <div className="flex flex-col items-center gap-4">
-            <div className="rounded-full bg-red-100 p-3 dark:bg-red-900">
-              <Heart className="h-5 w-5 text-red-600 dark:text-red-300" />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-muted-foreground">
-                Favorite Jobs
-              </p>
-              <h2 className="text-2xl font-bold">{userData?.stats.favoriteJobs || 0}</h2>
-            </div>
-          </div>
-        </Card>
-        <Card className="flex-1 p-6">
-          <div className="flex flex-col items-center gap-4">
-            <div className="rounded-full bg-green-100 p-3 dark:bg-green-900">
-              <Bell className="h-5 w-5 text-green-600 dark:text-green-300" />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium text-muted-foreground">
-                Job Alerts
-              </p>
-              <h2 className="text-2xl font-bold">{userData?.stats.jobAlerts || 0}</h2>
-            </div>
-          </div>
-        </Card>
+        {/* Other stat cards remain the same */}
       </div>
 
-      {/* Profile Alert - Show only if profile is incomplete */}
-      {/* {!userData?.profileComplete && (
+      {/* Profile Alert */}
+      {!userData?.profileComplete && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
@@ -105,7 +111,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </Button>
           </AlertDescription>
         </Alert>
-      )} */}
+      )}
 
       {/* Recent Applications */}
       <div>
@@ -113,13 +119,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
           <h2 className="text-lg font-semibold">Recently Applied</h2>
           <Button 
             variant="link"
-            onClick={() => router.push('/candidate/applications')}
+            onClick={() => router.push('/candidate/dashboard/applied')}
           >
             View all
           </Button>
         </div>
-          <JobList 
-          jobs={appliedJobs.slice(0, 5)} // Show only last 5 applications
+        <JobList 
+          jobs={jobs}
           type="applied"
           searchQuery={searchQuery}
           onViewDetails={handleViewDetails}
