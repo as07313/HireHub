@@ -137,7 +137,7 @@ CandidateSchema.virtual('savedJobsCount').get(function(this: ICandidate) {
 });
 
 CandidateSchema.virtual('jobAlertsCount').get(function(this: ICandidate) {
-  return this.jobAlerts?.filter(alert => alert.isActive).length || 0;
+  //return this.jobAlerts?.filter(alert => alert.isActive).length || 0;
 });
 
 // Update candidate stats middleware
@@ -146,7 +146,7 @@ CandidateSchema.pre<ICandidate>('save', async function(next) {
     this.stats = {
       appliedJobs: this.applications.length || 0,
       savedJobs: this.savedJobs.length || 0,
-      jobAlerts: this.jobAlerts.filter(alert => alert.isActive).length || 0,
+      //jobAlerts: this.jobAlerts.filter(alert => alert.isActive).length || 0,
     };
   }
   next();

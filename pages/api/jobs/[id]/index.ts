@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     switch (req.method) {
       case 'GET':
         const job = await Job.findById(id)
-          .populate('companyId', 'name logo')
           .select('-applicants')
 
         if (!job) {

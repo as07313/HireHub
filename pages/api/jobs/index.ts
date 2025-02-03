@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(jobs);
 
       case 'POST':
-        // const user = await Apiauth(req, res);
+        const user = await Apiauth(req, res);
         
         // // Check if auth returned valid user
         // if (!user || !user.userId) {
