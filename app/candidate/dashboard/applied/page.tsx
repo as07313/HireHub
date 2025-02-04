@@ -14,6 +14,11 @@ export default async function AppliedJobsPage() {
 
   // Fetch applied jobs server-side
   const jobs = await getAppliedJobs()
+  if (!jobs) {
+    <div>
+    loading  
+    </div>
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
