@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { useSavedJobs } from "@/hooks/use-saved-jobs"
 import { JobApplicationDialog } from "@/components/candidate/jobs/job-application-dialog"
+import {saveJob, removeSavedJob,getSavedJobs} from "@/app/actions/save-jobs"
+import { toast } from "sonner"
 
 
 interface JobDetailsProps {
@@ -63,25 +65,32 @@ export function JobDetails({
   showActions = false,
   showApplyButton = false 
 }: JobDetailsProps) {
-  const { savedJobs, saveJob, removeJob } = useSavedJobs();
+  
+  const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
 
   if (!job) return <div>Job not found</div>;
 
-
-
-  const isSaved = Array.isArray(savedJobs) && 
-    savedJobs.some(savedJob => savedJob.id === job.id);
-
   const handleToggleSave = async () => {
     setIsSaving(true);
     try {
       if (isSaved) {
-        await removeJob(job.id);
+        const result = await removeSavedJob(job.id);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        setIsSaved(false);
       } else {
-        await saveJob(job.id);
+        const result = await saveJob(job.id);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        setIsSaved(true);
       }
+      toast.success(isSaved ? "Job removed from saved" : "Job saved successfully");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Operation failed');
     } finally {
       setIsSaving(false);
     }

@@ -3,6 +3,7 @@
 
 import { Candidate } from "@/models/User"
 import connectToDatabase from "@/lib/mongodb"
+import { Applicant } from "@/models/Applicant"
 
 export interface UserProfile {
   fullName: string
@@ -43,9 +44,22 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       return null
     }
 
-    // Get user statistics
     const stats = await Promise.all([
-        0,0,0
+      // Count applied jobs
+      Applicant.countDocuments({ 
+        candidateId: userId,
+        status: { 
+          $in: ['new', 'screening', 'shortlist', 'interview', 'offer', 'hired']
+        } 
+      }),
+      
+      // Count saved jobs using savedJobs array length
+      Candidate.findById(userId)
+        .select('savedJobs')
+        .then(user => user?.savedJobs?.length || 0),
+        
+      // Job alerts count (for future implementation)
+      Promise.resolve(0)
     ])
 
     return {
@@ -59,9 +73,9 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
       website: user.website,
       profileComplete: isProfileComplete(user),
       stats: {
-        appliedJobs: stats[0] || 0,
-        savedJobs: stats[1] || 0,
-        jobAlerts: stats[2] || 0
+        appliedJobs: stats[0] ,
+        savedJobs: stats[1] ,
+        jobAlerts: stats[2] 
       }
     }
   } catch (error) {

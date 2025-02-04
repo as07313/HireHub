@@ -10,39 +10,56 @@ import { AlertCircle, Briefcase, Heart, Bell } from "lucide-react"
 import { JobList } from "@/components/candidate/dashboard/job-list"
 import { getUserProfile } from "@/app/actions/user"
 import type { UserProfile } from "@/app/actions/user" // Add this import
+import { getAppliedJobs } from "@/app/actions/applied-jobs"
+import { BaseJob } from "@/app/types/job"
 
 interface DashboardClientProps {
-  initialData: UserProfile
+  initialData: UserProfile;
+  appliedJobs: BaseJob[];  // Add this prop
 }
-export function DashboardClient({ initialData }: DashboardClientProps) {
+export function DashboardClient({ initialData, appliedJobs }: DashboardClientProps) {
   const router = useRouter()
   const [userData, setUserData] = useState(initialData)
   const [searchQuery, setSearchQuery] = useState("")
-  const [jobs, setJobs] = useState([]) // Add state for jobs
+
+  const jobs = appliedJobs.map(job => ({
+    id: job._id,
+    title: job.title,
+    company: job.department,
+    logo: '/company-placeholder.png',
+    location: job.location,
+    salary: `$${job.salary.min}-${job.salary.max}`,
+    type: job.employmentType,
+    postedDate: new Date(job.postedDate).toLocaleDateString(),
+    status: job.status,
+    appliedDate: job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : undefined
+  })).slice(0, 5) // Get only the 5 most recent applications
+
+  console.log("jobs",jobs)
 
   // Fetch recent applied jobs
-  useEffect(() => {
-    const fetchRecentApplications = async () => {
-      try {
-        // Get token from localStorage
-        const token = localStorage.getItem('token');
+  // useEffect(() => {
+  //   const fetchRecentApplications = async () => {
+  //     try {
+  //       // Get token from localStorage
+  //       const token = localStorage.getItem('token');
         
-        const response = await fetch('/api/applications/candidate', {
-          headers: {
-            'Authorization': `Bearer ${token}` // Add token to headers
-          }
-        });
+  //       const response = await fetch('/api/applications/candidate', {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}` // Add token to headers
+  //         }
+  //       });
         
-        if (!response.ok) throw new Error('Failed to fetch applications');
-        const data = await response.json();
-        setJobs(data.slice(0, 5)); // Get latest 5 applications
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
+  //       if (!response.ok) throw new Error('Failed to fetch applications');
+  //       const data = await response.json();
+  //       setJobs(data.slice(0, 5)); // Get latest 5 applications
+  //     } catch (error) {
+  //       console.error('Error:', error);
+  //     }
+  //   };
 
-    fetchRecentApplications();
-  }, []);
+  //   fetchRecentApplications();
+  // }, []);
 
   if (!jobs) {
     return (
@@ -83,6 +100,19 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 Applied Jobs
               </p>
               <h2 className="text-2xl font-bold">{userData?.stats.appliedJobs || 0}</h2>
+            </div>
+          </div>
+        </Card>
+        <Card className="flex-1 p-6">
+          <div className="flex flex-col items-center gap-4">
+            <div className="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+              <Briefcase className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-muted-foreground">
+                Saved Jobs
+              </p>
+              <h2 className="text-2xl font-bold">{userData?.stats.savedJobs || 0}</h2>
             </div>
           </div>
         </Card>

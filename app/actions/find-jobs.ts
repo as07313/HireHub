@@ -69,3 +69,47 @@ export async function findJobById(jobId: string): Promise<BaseJob | null> {
     throw new Error('Failed to fetch job')
   }
 }
+
+export async function findJobs(): Promise<BaseJob[]> {
+  try {
+    await connectToDatabase()
+    
+    const session = await auth()
+    if (!session) {
+      throw new Error("Unauthorized")
+    }
+
+    // Find all active jobs
+    const jobDocs = await Job.find({ 
+      status: 'active' 
+    })
+    .select('-applicants')
+    .sort({ postedDate: -1 })
+    .lean<PopulatedJob[]>()
+
+    // Transform to BaseJob format
+    return jobDocs.map(job => ({
+      _id: job._id.toString(),
+      title: job.title,
+      department: job.department,
+      location: job.location,
+      workplaceType: job.workplaceType,
+      employmentType: job.employmentType,
+      status: job.status === 'open' ? 'active' : 'closed',
+      salary: {
+        min: job.salary.min,
+        max: job.salary.max
+      },
+      experience: job.experience,
+      description: job.description,
+      requirements: Array.isArray(job.requirements) ? job.requirements : [],
+      benefits: Array.isArray(job.benefits) ? job.benefits : [],
+      skills: Array.isArray(job.skills) ? job.skills : [],
+      postedDate: job.postedDate
+    }))
+
+  } catch (error) {
+    console.error('Error fetching jobs:', error)
+    throw new Error('Failed to fetch jobs')
+  }
+}

@@ -65,6 +65,7 @@ export function JobList({
 }: JobListProps) {
   // Add type guard to ensure jobs is an array
   const jobsArray = Array.isArray(jobs) ? jobs : []
+  console.log(jobsArray)
 
   // const filteredJobs = jobsArray.filter((job) =>
   //   job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

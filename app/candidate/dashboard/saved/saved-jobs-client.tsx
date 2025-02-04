@@ -13,36 +13,31 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { JobList } from "@/components/candidate/dashboard/job-list"
-import { saveJob, removeSavedJob } from "@/app/actions/jobs"
+import { saveJob, removeSavedJob } from "@/app/actions/save-jobs"
 import { toast } from "sonner"
 import { BaseJob, JobUI } from "@/app/types/job"
 
 interface SavedJobsClientProps {
-    initialJobs: BaseJob[]
-  }
-  
+  initialJobs: BaseJob[]
+}
 
 export function SavedJobsClient({ initialJobs }: SavedJobsClientProps) {
-  
-  console.log(initialJobs)
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
-
-  const [jobs, setJobs] = useState<JobUI[]>(() => 
-    initialJobs.map(job => ({
-      id: job._id,
-      title: job.title,
-      company: job.department,
-      logo: '/company-placeholder.png',
-      location: job.location,
-      salary: `$${job.salary.min}-${job.salary.max}`,
-      type: job.employmentType, // Match the field from BaseJob interface
-      postedDate: new Date(job.postedDate).toLocaleDateString(),
-      status: job.status
-    }))
-  )
-  console.log(jobs)
+  const [jobs, setJobs] = useState<JobUI[]>(initialJobs.map(job => ({
+    id: job._id,
+    title: job.title,
+    company: job.department,
+    logo: '/company-placeholder.png',
+    location: job.location,
+    salary: `$${job.salary.min}-${job.salary.max}`,
+    type: job.employmentType,
+    postedDate: new Date(job.postedDate).toLocaleDateString(),
+    status: job.status,
+    appliedDate: job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : undefined
+  })))
+  
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = 
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -54,13 +49,16 @@ export function SavedJobsClient({ initialJobs }: SavedJobsClientProps) {
 
   const handleRemoveJob = async (id: string) => {
     try {
-      await removeSavedJob(id)
-      setJobs(prev => prev.filter(job => job.id !== id))
-      toast.success("Job removed from saved")
+      const result = await removeSavedJob(id);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      setJobs(prev => prev.filter(job => job.id !== id));
+      toast.success("Job removed from saved");
     } catch (error) {
-      toast.error("Failed to remove job")
+      toast.error(error instanceof Error ? error.message : "Failed to remove job");
     }
-  }
+  };
 
   return (
     <div className="container max-w-6xl py-8">
