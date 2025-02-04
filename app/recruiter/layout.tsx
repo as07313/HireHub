@@ -51,6 +51,12 @@ const sidebarItems = [
     href: "/recruiter/settings",
     description: "Account preferences and settings"
   },
+  { 
+    icon: FileText, 
+    label: "Chat Assistant", 
+    href: "/recruiter/chatassistant",
+    description: "Privacy policy and terms of service"
+  },
 ]
 
 export default function RecruiterLayout({
