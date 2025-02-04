@@ -8,6 +8,11 @@ import { BaseJob } from "@/app/types/job"
 import connectToDatabase from "@/lib/mongodb"
 import { Document } from 'mongoose'
 
+import "@/models/Job"
+import "@/models/User"
+import "@/models/Applicant"
+
+
 interface PopulatedJob extends Document {
   _id: string;
   title: string;
@@ -49,7 +54,11 @@ export async function getAppliedJobs(): Promise<BaseJob[]> {
     const rawApplications = await Applicant.find({ 
       candidateId: session.userId 
     })
-    .populate<{ jobId: PopulatedJob }>('jobId')
+    .populate({
+      path: 'jobId',
+      model: 'Job',  // Use string model name instead of model reference
+      select: '-applicants'
+    })
     .sort({ appliedDate: -1 })
     .lean()
 

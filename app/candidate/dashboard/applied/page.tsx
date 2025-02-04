@@ -5,6 +5,8 @@ import { getAppliedJobs } from "@/app/actions/applied-jobs"
 import { auth } from "@/app/middleware/auth"
 import { redirect } from "next/navigation"
 
+export const dynamic = 'force-dynamic'
+
 export default async function AppliedJobsPage() {
   const session = await auth()
   
