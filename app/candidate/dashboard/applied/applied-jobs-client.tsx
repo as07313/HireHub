@@ -31,7 +31,7 @@ export function AppliedJobsClient({ initialJobs }: AppliedJobsClientProps) {
     type: job.employmentType,
     postedDate: new Date(job.postedDate).toLocaleDateString(),
     status: job.status,
-    appliedDate: new Date(job.appliedDate).toLocaleDateString()
+    appliedDate: job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : undefined
   }))
 
   const filteredJobs = jobs.filter(job => {

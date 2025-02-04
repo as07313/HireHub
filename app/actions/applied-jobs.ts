@@ -8,7 +8,6 @@ import { BaseJob } from "@/app/types/job"
 import connectToDatabase from "@/lib/mongodb"
 import { Document } from 'mongoose'
 
-// Define interface for populated application
 interface PopulatedJob extends Document {
   _id: string;
   title: string;
@@ -47,16 +46,15 @@ export async function getAppliedJobs(): Promise<BaseJob[]> {
     }
 
     // Find all applications for the candidate
-    const applications = await Applicant.find({ 
+    const rawApplications = await Applicant.find({ 
       candidateId: session.userId 
     })
-    .populate({
-      path: 'jobId',
-      model: Job,
-      select: '-applicants'
-    })
+    .populate<{ jobId: PopulatedJob }>('jobId')
     .sort({ appliedDate: -1 })
-    .lean() as PopulatedApplication[]
+    .lean()
+
+    // Type assertion after validation
+    const applications = rawApplications as unknown as PopulatedApplication[]
 
     // Transform to BaseJob format
     const jobs = applications.map(app => ({
@@ -84,7 +82,6 @@ export async function getAppliedJobs(): Promise<BaseJob[]> {
     throw new Error('Failed to fetch applied jobs')
   }
 }
-
 
 export async function getAppliedJob(jobId: string): Promise<BaseJob | null> {
   try {
