@@ -37,6 +37,7 @@ import { toast } from "sonner"
 const companySchema = z.object({
   name: z.string().min(2, "Company name must be at least 2 characters"),
   website: z.string().url("Please enter a valid website URL"),
+  logo: z.string().url(),
   industry: z.string().min(2, "Please select an industry"),
   size: z.enum(["small", "medium", "large", "enterprise"]),
   founded: z.string().min(4, "Please enter a valid year"),
@@ -332,19 +333,6 @@ export default function CompanySetupPage() {
                         <FormLabel>LinkedIn</FormLabel>
                         <FormControl>
                           <Input placeholder="LinkedIn URL" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialMedia.twitter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Twitter</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Twitter URL" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
