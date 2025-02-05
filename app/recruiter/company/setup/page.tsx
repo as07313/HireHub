@@ -64,6 +64,7 @@ export default function CompanySetupPage() {
       name: "",
       website: "",
       industry: "",
+      logo:"",
       size: "small",
       founded: "",
       headquarters: "",
