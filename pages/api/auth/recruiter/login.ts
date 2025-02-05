@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Find recruiter
     const recruiter = await Recruiter.findOne({ 
-      $or: [{ companyEmail: email }, { personalEmail: email }]
+      email
     });
     
     if (!recruiter) {
@@ -41,7 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user: {
         id: recruiter._id,
         fullName: recruiter.fullName,
-        companyName: recruiter.companyName,
         type: 'recruiter'
       }
     });

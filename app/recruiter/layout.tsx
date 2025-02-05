@@ -42,7 +42,7 @@ const sidebarItems = [
   { 
     icon: Building2, 
     label: "Company", 
-    href: "/recruiter/company",
+    href: "/recruiter/company/setup",
     description: "Manage company profile"
   },
   { 

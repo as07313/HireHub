@@ -36,7 +36,6 @@ export interface ICandidate extends IBaseUser, Document {
 export interface IRecruiter extends IBaseUser, Document {
   fullName: string;
   companyId: Schema.Types.ObjectId;
-  //personalEmail: string;
   jobPosts: Array<Schema.Types.ObjectId>;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -75,19 +74,9 @@ const RecruiterSchema = new Schema({
   companyId: { 
     type: Schema.Types.ObjectId, 
     ref: 'Company', 
-    required: true 
+    required: false 
   },
 
-  workEmail: { 
-    type: String, 
-    required: true, 
-    unique: true 
-  },
-  // personalEmail: { 
-  //   type: String, 
-  //   required: true, 
-  //   unique: true 
-  // },
   jobPosts: [{ 
     type: Schema.Types.ObjectId, 
     ref: 'Job' 
@@ -153,15 +142,13 @@ CandidateSchema.pre<ICandidate>('save', async function(next) {
 });
 
 // Add indexes
-CandidateSchema.index({ email: 1 });
-CandidateSchema.index({ skills: 1 });
-CandidateSchema.index({ 'applications': 1 });
-CandidateSchema.index({ 'savedJobs': 1 });
+// CandidateSchema.index({ email: 1 });
+// CandidateSchema.index({ skills: 1 });
+// CandidateSchema.index({ 'applications': 1 });
+// CandidateSchema.index({ 'savedJobs': 1 });
 
-RecruiterSchema.index({ email: 1 });
-RecruiterSchema.index({ companyEmail: 1 });
-RecruiterSchema.index({ personalEmail: 1 });
-RecruiterSchema.index({ companyId: 1 });
+// RecruiterSchema.index({ email: 1 });
+//RecruiterSchema.index({ companyId: 1 });
 
 // Export models
 export const Candidate = mongoose.models.Candidate || mongoose.model<ICandidate>('Candidate', CandidateSchema);

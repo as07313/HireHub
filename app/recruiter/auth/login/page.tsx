@@ -60,7 +60,7 @@ export default function RecruiterLoginPage() {
       localStorage.setItem('userData', JSON.stringify(data.user));
       
       toast.success('Login successful!');
-      router.push('/recruiter/dashboard');
+      router.push('/recruiter/company/setup');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Invalid credentials');
     } finally {

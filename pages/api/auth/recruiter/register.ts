@@ -1,9 +1,10 @@
-// pages/api/auth/recruiter/register.ts
+// pages/api/auth/recruiter/register.ts 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import  connectToDatabase  from '@/lib/mongodb';
+import connectToDatabase from '@/lib/mongodb';
 import { Recruiter } from '@/models/User';
 import jwt from 'jsonwebtoken';
 
+// pages/api/auth/recruiter/register.ts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -14,29 +15,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     
     const { 
       fullName,
-      companyName,
-      companyEmail,
-      personalEmail,
-      companyWebsite,
-      employeeCount,
-      password 
+      email,
+      password
     } = req.body;
 
-    // Check if company email exists
-    const existingCompany = await Recruiter.findOne({ companyEmail });
-    if (existingCompany) {
-      return res.status(400).json({ error: 'Company already registered' });
+    // Check for existing recruiter with same email
+    const existingRecruiter = await Recruiter.findOne({
+      $or: [
+        { email: email },
+        { workEmail: email }  // Check workEmail field too
+      ]
+    });
+
+    if (existingRecruiter) {
+      return res.status(400).json({ 
+        error: 'Email already registered' 
+      });
     }
 
-    // Create new recruiter
+    // Create new recruiter following IRecruiter interface
     const recruiter = await Recruiter.create({
       fullName,
-      companyName,
-      companyEmail,
-      personalEmail,
-      companyWebsite,
-      employeeCount,
-      password
+      email,               // Base email from IBaseUser
+      workEmail: email,    // Company email (same as base email initially)
+      password,            // From IBaseUser
+      companyId: null,     // From IRecruiter
+      jobPosts: [],        // From IRecruiter
+      isActive: true,      // From IBaseUser
+      profileComplete: false, // From IBaseUser
+      createdAt: new Date() // From IBaseUser
     });
 
     // Generate token
@@ -51,7 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       user: {
         id: recruiter._id,
         fullName: recruiter.fullName,
-        companyName: recruiter.companyName,
         type: 'recruiter'
       }
     });
