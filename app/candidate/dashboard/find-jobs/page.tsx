@@ -1,36 +1,51 @@
 // app/candidate/dashboard/find-jobs/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search, MapPin, Filter } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Search, MapPin } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
 import { JobList } from '@/components/candidate/dashboard/job-list'
-import { useJobs } from '@/hooks/use-jobs'
 import { Skeleton } from "@/components/ui/skeleton"
+import { findJobs } from "@/app/actions/find-jobs"
+import { BaseJob } from "@/app/types/job"
 
 export default function FindJobsPage() {
   const router = useRouter()
-  const { jobs, loading, error } = useJobs()
+  const [jobs, setJobs] = useState<BaseJob[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [location, setLocation] = useState("")
   const [category, setCategory] = useState("")
 
+  // Fetch jobs on component mount
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const fetchedJobs = await findJobs()
+        setJobs(fetchedJobs)
+      } catch (error) {
+        console.error('Failed to fetch jobs:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchJobs()
+  }, [])
+
   // Transform jobs data to match JobList component interface
-  const transformedJobs = jobs?.map(job => ({
+  const transformedJobs = jobs.map(job => ({
     id: job._id,
     title: job.title,
-    company: job.company || 'Company Name', // Add fallback
-    logo: job.logo || '/company-placeholder.png', // Add fallback
+    company: job.department,
+    logo: '/company-placeholder.png',
     location: job.location,
     salary: `$${job.salary.min}-${job.salary.max}`,
     type: job.employmentType,
@@ -39,7 +54,7 @@ export default function FindJobsPage() {
       month: 'short',
       year: 'numeric'
     })
-  })) || []
+  }))
 
   if (loading) {
     return (

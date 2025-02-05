@@ -22,6 +22,7 @@ export async function Apiauth(req: NextApiRequest, res: NextApiResponse) {
 
     try {
       const decoded = verify(token, process.env.JWT_SECRET!) as AuthUser
+      console.log("decoded",decoded)
       return decoded
     } catch (verifyError) {
       console.error('Token verification error:', verifyError)

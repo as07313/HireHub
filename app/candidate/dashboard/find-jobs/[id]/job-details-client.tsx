@@ -1,31 +1,37 @@
 // app/candidate/dashboard/find-jobs/[id]/job-details-client.tsx
 "use client"
 
-import { useJobs } from "@/hooks/use-jobs"
-import { notFound } from "next/navigation"
+import { useState } from "react"
 import { JobDetails } from "@/components/candidate/jobs/job-details"
 import { BaseJob } from "@/app/types/job"
 
 interface JobDetailsClientProps {
   jobId: string
+  initialJob: BaseJob
 }
 
-export function JobDetailsClient({ jobId }: JobDetailsClientProps) {
-  const { jobs, loading, error } = useJobs()
-
-  if (loading) {
-    return <div>Loading...</div>
+// Helper function to convert string or array
+function convertToArray(value: string[] | string | undefined): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    return value.split('\n').filter(Boolean);
   }
+  return [];
+}
 
-  if (error) {
-    return <div>Error loading job details</div>
+// Helper function to convert skills string or array
+function convertSkillsToArray(value: string[] | string | undefined): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    return value.split(',').map(s => s.trim()).filter(Boolean);
   }
+  return [];
+}
 
-  const job = jobs.find((j) => j._id === jobId) as BaseJob | undefined
-
-  if (!job) {
-    return notFound()
-  }
+export function JobDetailsClient({ jobId, initialJob }: JobDetailsClientProps) {
+  const [job, setJob] = useState(initialJob)
 
   const transformedJob = {
     id: job._id,
@@ -42,9 +48,9 @@ export function JobDetailsClient({ jobId }: JobDetailsClientProps) {
     },
     experience: job.experience,
     description: job.description,
-    requirements: job.requirements,
-    benefits: job.benefits,
-    skills: job.skills,
+    requirements: convertToArray(job.requirements),
+    benefits: convertToArray(job.benefits),
+    skills: convertSkillsToArray(job.skills),
     postedDate: new Date(job.postedDate),
     logo: '/company-placeholder.png',
     company: job.department,

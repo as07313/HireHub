@@ -13,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         switch (req.method) {
             case 'POST':
                 const user = await Apiauth(req, res);
+                console.log("user-app",user)
                 if (!user) {
                     return res.status(401).json({error: 'User not found'});
                 }

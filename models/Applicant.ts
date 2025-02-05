@@ -8,7 +8,7 @@ interface IInterview {
   interviewer: Schema.Types.ObjectId;
 }
 
-interface IApplicant extends Document {
+export interface IApplicant extends Document {
   candidateId: Schema.Types.ObjectId;
   jobId: Schema.Types.ObjectId;
   status: 'new' | 'screening' | 'shortlist' | 'interview' | 'offer' | 'hired' | 'rejected';

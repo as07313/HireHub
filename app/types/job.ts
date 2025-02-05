@@ -17,6 +17,7 @@ export interface BaseJob {
   benefits: string[];
   skills: string[];
   postedDate: Date;
+  appliedDate?: Date;
 }
 
 // UI specific job interface

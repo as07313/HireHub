@@ -3,10 +3,19 @@ import connectToDatabase from '@/lib/mongodb';
 import jwt from 'jsonwebtoken'
 import { Candidate } from '@/models/User';
 import { Job } from '@/models/Job';
+import { Apiauth } from '@/app/middleware/auth'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void> => {
   try {
     await connectToDatabase();
+
+    // const user = Apiauth(req, res);
+    // console.log("user", user)
+    
+    // if (!user) {
+    //   return res.status(401).json({error: "User not found"})
+    // }
+
     
     const token = req.headers.authorization?.split(' ')[1];
     //console.log(token);
@@ -19,22 +28,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse): Promise<void>
     const userId = decoded.userId;
     console.log("user\n",userId)
 
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
 
     switch (req.method) {
-      case 'GET':
-        const user = await Candidate.findById(userId)
-          .populate({
-            path: 'savedJobs',
-            model: Job 
-          })
-          .select('savedJobs');
-        
-          
-        return res.status(200).json({ savedJobs: user?.savedJobs || [] });
-
 
       case 'POST':
         console.log("req query", req.query);

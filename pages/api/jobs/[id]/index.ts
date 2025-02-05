@@ -12,7 +12,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     switch (req.method) {
       case 'GET':
         const job = await Job.findById(id)
-          .populate('companyId', 'name logo')
           .select('-applicants')
 
         if (!job) {
@@ -22,7 +21,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(200).json(job)
 
       case 'PUT':
+
         const  user  = await Apiauth(req, res)
+        if (!user) {
+          return res.status(402).json({error: "User not found"})
+        }
         // if (user.role !== 'recruiter') {
         //   return res.status(403).json({ error: 'Not authorized' })
         // }

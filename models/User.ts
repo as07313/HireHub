@@ -20,15 +20,14 @@ export interface ICandidate extends IBaseUser, Document {
   stats: {
     appliedJobs: number;
     savedJobs: number;
-    jobAlerts: number;
   };
   savedJobs: Array<Schema.Types.ObjectId>;
-  jobAlerts: Array<{
-    keywords: string[];
-    locations: string[];
-    jobTypes: string[];
-    isActive: boolean;
-  }>;
+  // jobAlerts: Array<{
+  //   keywords: string[];
+  //   locations: string[];
+  //   jobTypes: string[];
+  //   isActive: boolean;
+  // }>;
   applications: Array<Schema.Types.ObjectId>;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -63,12 +62,6 @@ const CandidateSchema = new Schema({
     jobAlerts: { type: Number, default: 0 }
   },
   savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
-  jobAlerts: [{
-    keywords: [String],
-    locations: [String],
-    jobTypes: [String],
-    isActive: { type: Boolean, default: true }
-  }],
   applications: [{ type: Schema.Types.ObjectId, ref: 'Application' }]
 }, {
   timestamps: true,
@@ -144,7 +137,7 @@ CandidateSchema.virtual('savedJobsCount').get(function(this: ICandidate) {
 });
 
 CandidateSchema.virtual('jobAlertsCount').get(function(this: ICandidate) {
-  return this.jobAlerts?.filter(alert => alert.isActive).length || 0;
+  //return this.jobAlerts?.filter(alert => alert.isActive).length || 0;
 });
 
 // Update candidate stats middleware
@@ -153,7 +146,7 @@ CandidateSchema.pre<ICandidate>('save', async function(next) {
     this.stats = {
       appliedJobs: this.applications.length || 0,
       savedJobs: this.savedJobs.length || 0,
-      jobAlerts: this.jobAlerts.filter(alert => alert.isActive).length || 0,
+      //jobAlerts: this.jobAlerts.filter(alert => alert.isActive).length || 0,
     };
   }
   next();
