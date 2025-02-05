@@ -81,7 +81,7 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
   async function matchJD(description: string, jobId: string) {
     setLoadingJobs(prev => ({ ...prev, [jobId]: true })) // Set loading state for this job
     try {
-      const response = await fetch("http://localhost:8000/api/match-job-description", {
+      const response = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/match-job-description", {
         method: "POST",
         body: JSON.stringify({ description }),
         headers: {
