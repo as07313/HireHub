@@ -9,16 +9,14 @@ const data = {
   labels: ['Male', 'Female'],
   datasets: [
     {
-      data: [90, 65, 5],
+      data: [90, 65],
       backgroundColor: [
         'rgba(59, 130, 246, 0.5)',
-        'rgba(236, 72, 153, 0.5)',
-        'rgba(168, 85, 247, 0.5)',
+        'rgba(236, 72, 153, 0.5)',,
       ],
       borderColor: [
         'rgba(59, 130, 246, 1)',
         'rgba(236, 72, 153, 1)',
-        'rgba(168, 85, 247, 1)',
       ],
       borderWidth: 1,
     },
