@@ -52,7 +52,7 @@ export function JobDetailsClient({ job }: JobDetailsClientProps) {
             <TabsList>
               <TabsTrigger value="details">Job Details</TabsTrigger>
               <TabsTrigger value="applicants">Applicants</TabsTrigger>
-              <TabsTrigger value="insights">Insights</TabsTrigger>
+              {/* <TabsTrigger value="insights">Insights</TabsTrigger> */}
             </TabsList>
 
             <div className="mt-6">
@@ -64,9 +64,9 @@ export function JobDetailsClient({ job }: JobDetailsClientProps) {
                 <JobApplicants jobId={job.id} />
               </TabsContent>
 
-              <TabsContent value="insights">
+              {/* <TabsContent value="insights">
                 <JobInsights jobId={job.id} />
-              </TabsContent>
+              </TabsContent> */}
             </div>
           </Tabs>
         </Card>
