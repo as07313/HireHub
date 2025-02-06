@@ -33,6 +33,8 @@ yarn-error.log*
 .env.production.local
 
 .uploads
+uploads
+uploads/*
 
 # vercel
 .vercel
