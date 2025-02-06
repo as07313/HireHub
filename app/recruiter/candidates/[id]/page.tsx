@@ -27,7 +27,7 @@ const candidate = {
   currentRole: "Senior Frontend Developer",
   company: "Tech Corp",
   appliedDate: "2024-03-01",
-  jobFitScore: 4.9,
+  jobFitScore: 80,
   stage: "shortlist",
   skills: ["React", "TypeScript", "Node.js", "AWS", "GraphQL"],
   education: "BS in Computer Science",
@@ -125,7 +125,7 @@ export default async function CandidateProfilePage({ params }: PageProps) {
                   <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                   <span className="font-medium">Job Fit Score</span>
                 </div>
-                <span className="text-lg font-semibold">{candidate.jobFitScore}/5.0</span>
+                <span className="text-lg font-semibold">{candidate.jobFitScore}/100</span>
               </div>
 
               <div className="flex items-center gap-2 text-muted-foreground">

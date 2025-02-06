@@ -1,14 +1,12 @@
-'use client';
+// app/recruiter/jobs/[id]/applicants/[applicantsId]/page.tsx
+import { ApplicantDetailsClient } from './applicant-details-client'
 
-import { useState } from 'react';
-import { ApplicantProfile } from '@/components/recruiter/applicants/applicant-profile';
-import { ApplicantActions } from '@/components/recruiter/applicants/applicant-actions';
-import { ApplicantHeader } from '@/components/recruiter/applicants/applicant-header';
-import { ApplicantTimeline } from '@/components/recruiter/applicants/applicant-timeline';
-import { ApplicantDocuments } from '@/components/recruiter/applicants/applicant-documents';
-import { ApplicantAIAnalysis } from '@/components/recruiter/applicants/applicant-ai-analysis';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
+interface PageProps {
+  params: Promise<{
+    id: string;
+    applicantId: string;
+  }>
+}
 
 // Mock data - Replace with API call
 const applicant = {
@@ -61,66 +59,16 @@ const applicant = {
   ]
 };
 
-interface PageProps {
-  params: Promise<{
-    jobId: string;
-    applicantId: string;
-  }>
-}
-
-// Mock data stays the same...
 
 export default async function ApplicantDetailsPage({ params }: PageProps) {
-  // Await the params
-  const { jobId, applicantId } = await params
-  const [activeTab, setActiveTab] = useState('profile');
+
+  const { id } = await params;
 
   return (
-    <div className="container max-w-7xl py-8 space-y-8">
-      {/* <ApplicantHeader 
-        jobId={params.jobId}
-        applicant={applicant}
-      /> */}
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card className="p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="profile">Profile</TabsTrigger>
-                <TabsTrigger value="ai-analysis">AI Analysis</TabsTrigger>
-                <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-              </TabsList>
-
-              <div className="mt-6">
-                <TabsContent value="profile">
-                  <ApplicantProfile applicant={applicant} />
-                </TabsContent>
-
-                <TabsContent value="ai-analysis">
-                  <ApplicantAIAnalysis applicant={applicant} />
-                </TabsContent>
-
-                <TabsContent value="timeline">
-                  <ApplicantTimeline applicant={applicant} />
-                </TabsContent>
-
-                <TabsContent value="documents">
-                  <ApplicantDocuments applicant={applicant} />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </Card>
-        </div>
-
-        <div>
-          <ApplicantActions 
-            jobId={jobId}
-            applicant={applicant}
-          />
-        </div>
-      </div>
-    </div>
-  );
+    
+    <ApplicantDetailsClient 
+      jobId={id} 
+      applicant={applicant}
+    />
+  )
 }

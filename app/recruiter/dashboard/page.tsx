@@ -92,16 +92,12 @@ export default function RecruiterDashboardPage() {
     fetchJobs()
   }, [])
 
-  
-
-  
-
   // Stats data - could be fetched from API
   const stats = [
-    { label: 'Total Candidates', value: '2,456', icon: Users, trend: '+12%' },
-    { label: 'Shortlisted', value: '456', icon: UserCheck, trend: '+5%' },
-    { label: 'Interviews', value: '123', icon: UserCog, trend: '+8%' },
-    { label: 'New Applications', value: '89', icon: UserPlus, trend: '+14%' }
+    { label: 'Total Candidates', value: '0', icon: Users, trend: '0%' },
+    { label: 'Shortlisted', value: '0', icon: UserCheck, trend: '0%' },
+    { label: 'Interviews', value: '0', icon: UserCog, trend: '0%' },
+    { label: 'New Applications', value: '0', icon: UserPlus, trend: '0%' }
   ]
 
   if (loading) {
