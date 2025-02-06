@@ -33,12 +33,12 @@ const sidebarItems = [
     href: "/recruiter/jobs",
     description: "Manage your job postings"
   },
-  { 
-    icon: Users, 
-    label: "Candidates", 
-    href: "/recruiter/candidates",
-    description: "View and manage applicants"
-  },
+  // { 
+  //   icon: Users, 
+  //   label: "Candidates", 
+  //   href: "/recruiter/candidates",
+  //   description: "View and manage applicants"
+  // },
   { 
     icon: Building2, 
     label: "Company", 
