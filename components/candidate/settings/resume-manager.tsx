@@ -16,7 +16,7 @@ import { toast } from "sonner"
 
 interface Resume {
   id: string
-  name: string
+  fileName: string
   size: string
   lastModified: string
   progress?: number
