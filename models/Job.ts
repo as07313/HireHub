@@ -35,12 +35,12 @@ const JobSchema = new Schema({
   workplaceType: { 
     type: String,
     enum: ['onsite', 'hybrid', 'remote'],
-    required: true 
+    required: false
   },
   employmentType: { 
     type: String,
     enum: ['full-time', 'part-time', 'contract', 'internship'],
-    required: true 
+    required: false
   },
   status: { 
     type: String,

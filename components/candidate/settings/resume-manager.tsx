@@ -142,7 +142,7 @@ export function ResumeManager() {
                   <FileText className="h-6 w-6 text-blue-500" />
                 </div>
                 <div>
-                  <p className="font-medium">{resume.name}</p>
+                  <p className="font-medium">{resume.fileName}</p>
                   <p className="text-sm text-muted-foreground">
                     {resume.size} • Last modified {resume.lastModified}
                   </p>
@@ -162,10 +162,6 @@ export function ResumeManager() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600"
                       onClick={() => handleDelete(resume.id)}

@@ -6,7 +6,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const data = {
-  labels: ['Male', 'Female', 'Other'],
+  labels: ['Male', 'Female'],
   datasets: [
     {
       data: [90, 65, 5],

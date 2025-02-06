@@ -33,12 +33,6 @@ export default function SettingsPage() {
             Security
           </TabsTrigger>
           <TabsTrigger
-            value="notifications"
-            className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-semibold text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground"
-          >
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger
             value="resume"
             className="relative rounded-none border-b-2 border-transparent px-4 pb-3 pt-2 font-semibold text-muted-foreground hover:text-foreground data-[state=active]:border-primary data-[state=active]:text-foreground"
           >
@@ -54,9 +48,9 @@ export default function SettingsPage() {
           <SecurityForm />
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-8">
+        {/* <TabsContent value="notifications" className="space-y-8">
           <NotificationSettings />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="resume" className="space-y-8">
           <ResumeManager />

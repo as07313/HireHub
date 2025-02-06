@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     const userId = (decoded as jwt.JwtPayload).userId;
     const { id } = req.query;
-    //console.log(id)
+    console.log(id)
 
     switch (req.method) {
       case 'GET':
@@ -51,7 +51,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       case 'DELETE':
         const deletedResume = await Resume.findOneAndDelete({
           _id: id,
-          userId: userId // Changed from candidateId to userId
         });
         console.log(deletedResume)
 

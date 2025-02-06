@@ -71,10 +71,12 @@ export default function NewJobPage() {
 
   const onSubmit = useCallback(async (values: z.infer<typeof jobPostSchema>) => {
     try {
-      const response = await fetch('/api/jobs/create', {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/jobs/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(values),
       })
