@@ -73,9 +73,12 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
               <h3 className="font-semibold">Key Strengths</h3>
             </div>
             <ul className="space-y-2 pl-7">
-              {Object.values(aiAnalysis.matching_analysis).flatMap(analysis => 
-                analysis.strengths.map((strength, index) => (
-                  <li key={index} className="text-sm text-muted-foreground list-disc">
+            {Object.entries(aiAnalysis.matching_analysis).map(([category, analysis]) => 
+                analysis.strengths.map((strength) => (
+                  <li 
+                    key={`${category}-strength-${strength}`} 
+                    className="text-sm text-muted-foreground list-disc"
+                  >
                     {strength}
                   </li>
                 ))
@@ -89,9 +92,12 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
               <h3 className="font-semibold">Areas for Consideration</h3>
             </div>
             <ul className="space-y-2 pl-7">
-              {Object.values(aiAnalysis.matching_analysis).flatMap(analysis => 
-                analysis.gaps.map((gap, index) => (
-                  <li key={index} className="text-sm text-muted-foreground list-disc">
+            {Object.entries(aiAnalysis.matching_analysis).map(([category, analysis]) => 
+                analysis.gaps.map((gap) => (
+                  <li 
+                    key={`${category}-gap-${gap}`} 
+                    className="text-sm text-muted-foreground list-disc"
+                  >
                     {gap}
                   </li>
                 ))

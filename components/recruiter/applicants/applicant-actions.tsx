@@ -1,3 +1,4 @@
+// components/recruiter/applicants/applicant-actions.tsx
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Calendar, Mail, Video, UserX } from 'lucide-react';
 import { toast } from 'sonner';
+import { InterviewDialog } from '@/components/recruiter/candidates/interview-dialog';
 
 interface ApplicantActionsProps {
   jobId: string;
@@ -22,6 +24,7 @@ interface ApplicantActionsProps {
 export function ApplicantActions({ jobId, applicant }: ApplicantActionsProps) {
   const [newStage, setNewStage] = useState(applicant.stage);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showInterviewDialog, setShowInterviewDialog] = useState(false);
 
   const handleStageUpdate = async () => {
     setIsUpdating(true);
@@ -37,59 +40,61 @@ export function ApplicantActions({ jobId, applicant }: ApplicantActionsProps) {
   };
 
   return (
-    <Card className="p-6 space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Application Stage</h2>
-        <Select value={newStage} onValueChange={setNewStage}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="screening">Screening</SelectItem>
-            <SelectItem value="interview">Interview</SelectItem>
-            <SelectItem value="offer">Offer</SelectItem>
-            <SelectItem value="hired">Hired</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button 
-          className="w-full mt-4" 
-          onClick={handleStageUpdate}
-          disabled={isUpdating || newStage === applicant.stage}
-        >
-          {isUpdating ? 'Updating...' : 'Update Stage'}
-        </Button>
-      </div>
+    <>
+      <Card className="p-6 space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Application Stage</h2>
+          <Select value={newStage} onValueChange={setNewStage}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="screening">Screening</SelectItem>
+              <SelectItem value="interview">Interview</SelectItem>
+              <SelectItem value="offer">Offer</SelectItem>
+              <SelectItem value="hired">Hired</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button 
+            className="w-full mt-4" 
+            onClick={handleStageUpdate}
+            disabled={isUpdating || newStage === applicant.stage}
+          >
+            {isUpdating ? 'Updating...' : 'Update Stage'}
+          </Button>
+        </div>
 
-      <Separator />
+        <Separator />
 
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Quick Actions</h2>
-        
-        <Button variant="outline" className="w-full justify-start">
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Interview
-        </Button>
-        
-        <Button variant="outline" className="w-full justify-start">
-          <Video className="mr-2 h-4 w-4" />
-          Start Video Call
-        </Button>
-        
-        <Button variant="outline" className="w-full justify-start">
-          <Mail className="mr-2 h-4 w-4" />
-          Send Message
-        </Button>
-        
-        <Button 
-          variant="outline" 
-          className="w-full justify-start text-red-600 hover:text-red-600"
-        >
-          <UserX className="mr-2 h-4 w-4" />
-          Reject Application
-        </Button>
-      </div>
-    </Card>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Quick Actions</h2>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-start"
+            onClick={() => setShowInterviewDialog(true)}
+          >
+            <Calendar className="mr-2 h-4 w-4" />
+            Schedule Interview
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full justify-start text-red-600 hover:text-red-600"
+          >
+            <UserX className="mr-2 h-4 w-4" />
+            Reject Application
+          </Button>
+        </div>
+      </Card>
+
+      <InterviewDialog
+        open={showInterviewDialog}
+        onOpenChange={setShowInterviewDialog}
+        candidate={applicant}
+      />
+    </>
   );
 }

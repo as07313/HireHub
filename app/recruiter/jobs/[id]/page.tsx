@@ -44,7 +44,6 @@ interface PageProps {
 }
 
 // Mock data stays the same...
-
 export default async function JobPage({ params }: PageProps) {
   // Await the params
   const { id } = await params

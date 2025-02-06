@@ -154,6 +154,13 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
             </div>
 
             <div className="flex flex-col gap-2">
+            <Button 
+                variant="default"
+                className="w-full lg:w-auto"
+                onClick={() => router.push(`/recruiter/jobs/${job.id}`)}
+              >
+                View Details
+              </Button>
               <Button 
                 variant="outline" 
                 className="w-full lg:w-auto"
