@@ -36,6 +36,10 @@ yarn-error.log*
 uploads
 uploads/*
 
+server/*
+/server/*
+.server/*
+
 # vercel
 .vercel
 
