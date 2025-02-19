@@ -56,19 +56,23 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
 
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      formData.append('file', file);
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('isForApplication', 'true')
 
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/resume', {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/resume/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
         },
         body: formData
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to upload resume');
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to upload resume')
+      }
 
       const newResume = await response.json();
       setResumes(prev => [...prev, newResume]);

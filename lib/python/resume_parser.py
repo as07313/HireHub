@@ -1,25 +1,21 @@
-# lib/python/resume_parser.py
-import google.generativeai as genai
 import json
 import os
 from pathlib import Path
 import pdfplumber
 from docx import Document
 from dotenv import load_dotenv
+import openai
 
 load_dotenv()
 
-
 class ResumeParser:
     def __init__(self):
-        # Initialize Gemini
-        api_key = os.getenv("GOOGLE_API_KEY")
+        # Initialize OpenAI
+        api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError("GEMINI_API_KEY not found in environment variables")
+            raise ValueError("OPENAI_API_KEY not found in environment variables")
 
-        # Initialize Gemini
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-pro")
+        openai.api_key = api_key
         
         # Load skills dictionary
         with open('skills.json', 'r') as f:
@@ -49,18 +45,20 @@ class ResumeParser:
             print(f"Error extracting text: {e}")
             return None
 
-    def parse_with_gemini(self, text: str) -> dict:
-        """Parse resume text using Gemini API"""
+    def parse_with_openai(self, text: str) -> dict:
+        """Parse resume text using OpenAI API"""
         print(f"\nParsing text length: {len(text)}")
         print(f"First 200 chars:\n{text[:200]}")
         
-        prompt = f"""
-        Extract structured information from this resume in JSON format.
+        system_prompt = """You are a resume parsing assistant. Extract structured information from resumes and return it in JSON format."""
+        
+        user_prompt = f"""
+        Extract structured information from this resume and return ONLY a JSON object.
         
         Resume Text:
         {text}
 
-        Return ONLY the JSON object with this exact structure, remove unwanted characters and make sure text follows case:
+        Return the JSON object with this exact structure:
         {{
             "Name": "candidate name",
             "Contact Information": "email and phone",
@@ -84,22 +82,19 @@ class ResumeParser:
         """
 
         try:
-        # Generate response
-            response = self.model.generate_content(prompt)
-            print("\nRaw Gemini response:")
-            print(response.text)
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # or "gpt-3.5-turbo" for a cheaper alternative
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.2,  # Lower temperature for more consistent outputs
+                response_format={ "type": "json_object" }  # Ensure JSON response
+            )
             
-            # Clean and validate response
-            cleaned_response = response.text.strip()
-            if not cleaned_response.startswith('{'):
-                # Try to find JSON in the response
-                start_idx = cleaned_response.find('{')
-                end_idx = cleaned_response.rfind('}') + 1
-                if start_idx != -1 and end_idx != -1:
-                    cleaned_response = cleaned_response[start_idx:end_idx]
-                else:
-                    raise ValueError("No valid JSON found in response")
-                    
+            # Extract the response text
+            cleaned_response = response.choices[0].message.content.strip()
+            
             # Parse JSON
             try:
                 parsed = json.loads(cleaned_response)
@@ -116,7 +111,7 @@ class ResumeParser:
                 raise
                 
         except Exception as e:
-            print(f"Error in Gemini parsing: {e}")
+            print(f"Error in OpenAI parsing: {e}")
             return None
 
     def parse_resume(self, file_path: str) -> dict:
@@ -127,10 +122,10 @@ class ResumeParser:
             if not text:
                 raise ValueError("Failed to extract text from resume")
 
-            # Parse with Gemini
-            parsed_data = self.parse_with_gemini(text)
+            # Parse with OpenAI instead of Gemini
+            parsed_data = self.parse_with_openai(text)
             if not parsed_data:
-                raise ValueError("Failed to parse resume with Gemini")
+                raise ValueError("Failed to parse resume with OpenAI")
 
             # Add metadata
             parsed_data["metadata"] = {

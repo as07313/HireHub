@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AppliedJobsPage() {
   const session = await auth()
+  console.log("session", session)
   
   if (!session) {
     redirect('/candidate/auth/login')

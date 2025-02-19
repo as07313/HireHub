@@ -12,7 +12,7 @@ const data = {
       data: [90, 65],
       backgroundColor: [
         'rgba(59, 130, 246, 0.5)',
-        'rgba(236, 72, 153, 0.5)',,
+        'rgba(236, 72, 153, 0.5)',
       ],
       borderColor: [
         'rgba(59, 130, 246, 1)',
