@@ -56,6 +56,7 @@ export default function CandidateLoginPage() {
       const data = await response.json();
       
       // Store auth data
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('userType', 'candidate');
       localStorage.setItem('userData', JSON.stringify(data.user));

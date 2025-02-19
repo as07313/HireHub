@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getJobApplicants } from "@/app/actions/recruiter/get-applicants"
 
 interface ApplicantsListProps {
   jobId: string

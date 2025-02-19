@@ -34,3 +34,19 @@ export interface JobUI {
   appliedDate?: string;
   savedDate?: string;
 }
+
+// Job details for the recruiter
+export interface Job {
+  id: string
+  title: string
+  department: string
+  location: string
+  type: string
+  status: string
+  applicants: number
+  postedDate: string
+  salary: string
+  description: string
+  requirements: string[]
+  benefits: string[]
+}

@@ -51,6 +51,15 @@ export function DashboardNav() {
   const router = useRouter()
   const pathname = usePathname()
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/candidate/logout', { method: 'POST' });
+      router.push('/candidate/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-white shadow-sm">
       <div className="flex h-full flex-col">
@@ -88,7 +97,7 @@ export function DashboardNav() {
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-muted-foreground"
-            onClick={() => router.push("/auth/login")}
+            onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
             Log out

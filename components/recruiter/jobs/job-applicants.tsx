@@ -23,8 +23,31 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+interface JobApplicant {
+  id: string
+  name: string
+  email: string
+  avatar: string
+  phone: string
+  skills: string[]
+  experience: string
+  stage: 'new' | 'screening' | 'shortlist' | 'interview' | 'offer' | 'hired' | 'rejected'
+  jobFitScore: number
+  appliedDate: string
+  location: string
+  currentRole?: string
+  company?: string
+  interviews?: Array<{
+    scheduledDate: Date
+    type: 'technical' | 'hr' | 'cultural' | 'final'
+    status: 'scheduled' | 'completed' | 'cancelled'
+    feedback?: string
+  }>
+}
+
 interface JobApplicantsProps {
   jobId: string
+  initialApplicants: JobApplicant[]
 }
 
 const applicants = [
@@ -60,10 +83,11 @@ const stageStyles = {
   rejected: "bg-red-100 text-red-800",
 }
 
-export function JobApplicants({ jobId }: JobApplicantsProps) {
+export function JobApplicants({ jobId, initialApplicants }: JobApplicantsProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [stageFilter, setStageFilter] = useState("all")
+  const [applicants] = useState(initialApplicants)
 
   const filteredApplicants = applicants.filter((applicant) => {
     const matchesSearch = applicant.name

@@ -3,12 +3,22 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CheckCircle } from "lucide-react"
+import { Job } from "@/app/types/job"
 
 interface JobDetailsProps {
-  job: any
+  job: Job
 }
 
 export function JobDetails({ job }: JobDetailsProps) {
+  // Convert requirements and benefits to arrays if they're strings
+  const requirementsList = Array.isArray(job.requirements) 
+    ? job.requirements 
+    : [job.requirements].filter(Boolean)
+
+  const benefitsList = Array.isArray(job.benefits) 
+    ? job.benefits 
+    : [job.benefits].filter(Boolean)
+
   return (
     <div className="space-y-8">
       <div>
@@ -23,7 +33,7 @@ export function JobDetails({ job }: JobDetailsProps) {
       <div>
         <h2 className="text-lg font-semibold mb-4">Requirements</h2>
         <div className="grid gap-3">
-          {job.requirements.map((requirement: string, index: number) => (
+          {requirementsList.map((requirement: string, index: number) => (
             <div key={index} className="flex items-start gap-2">
               <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
               <span>{requirement}</span>
@@ -37,7 +47,7 @@ export function JobDetails({ job }: JobDetailsProps) {
       <div>
         <h2 className="text-lg font-semibold mb-4">Benefits</h2>
         <div className="grid gap-3">
-          {job.benefits.map((benefit: string, index: number) => (
+          {benefitsList.map((benefit: string, index: number) => (
             <div key={index} className="flex items-start gap-2">
               <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
               <span>{benefit}</span>

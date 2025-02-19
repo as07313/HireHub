@@ -33,9 +33,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       { expiresIn: '7d' }
     );
 
+    console.log(token);
+
+    // Set HTTP-only cookie
     res.setHeader(
-      'Set-Cookie',
-      `token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`
+      'Set-Cookie', [
+        `token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`,
+        `userType=candidate; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`
+      ]
     );
 
     res.status(200).json({

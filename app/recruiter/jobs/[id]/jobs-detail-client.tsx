@@ -27,11 +27,34 @@ interface Job {
   benefits: string[]
 }
 
-interface JobDetailsClientProps {
-  job: Job
+interface JobApplicant {
+  id: string
+  name: string
+  email: string
+  avatar: string
+  phone: string
+  skills: string[]
+  experience: string
+  stage: 'new' | 'screening' | 'shortlist' | 'interview' | 'offer' | 'hired' | 'rejected'
+  jobFitScore: number
+  appliedDate: string
+  location: string
+  currentRole?: string
+  company?: string
+  interviews?: Array<{
+    scheduledDate: Date
+    type: 'technical' | 'hr' | 'cultural' | 'final'
+    status: 'scheduled' | 'completed' | 'cancelled'
+    feedback?: string
+  }>
 }
 
-export function JobDetailsClient({ job }: JobDetailsClientProps) {
+interface JobDetailsClientProps {
+  job: Job
+  applicants: JobApplicant[]
+}
+
+export function JobDetailsClient({ job, applicants }: JobDetailsClientProps) {
   const [activeTab, setActiveTab] = useState("details")
 
   return (
@@ -61,7 +84,10 @@ export function JobDetailsClient({ job }: JobDetailsClientProps) {
               </TabsContent>
 
               <TabsContent value="applicants">
-                <JobApplicants jobId={job.id} />
+              <JobApplicants
+              jobId={job.id}
+              initialApplicants={applicants}
+              />
               </TabsContent>
 
               {/* <TabsContent value="insights">
