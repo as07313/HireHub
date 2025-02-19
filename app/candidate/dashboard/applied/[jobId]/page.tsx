@@ -14,7 +14,7 @@ interface PageProps {
 }
 
 // Cache applicant details API response
-export const getCachedApplicantDetails = cache(async (jobId: string, userId: string) => {
+const getCachedApplicantDetails = cache(async (jobId: string, userId: string) => {
   const res = await fetch(`https://hirehub-lime.vercel.app/api/applicantDetails?jobId=${jobId}&candidateId=${userId}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
@@ -26,7 +26,7 @@ export const getCachedApplicantDetails = cache(async (jobId: string, userId: str
 });
 
 // Cache AI analysis API response
-export const getCachedSkillAnalysis = cache(async (jobDescription: string, filePath: string) => {
+const getCachedSkillAnalysis = cache(async (jobDescription: string, filePath: string) => {
   const res = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/analyze-skills", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
