@@ -56,5 +56,5 @@ const ResumeSchema = new Schema({
   toObject: { virtuals: true }
 });
 
+export const Resume = mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
 
-export default mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
