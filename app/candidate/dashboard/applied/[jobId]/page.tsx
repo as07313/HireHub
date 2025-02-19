@@ -25,6 +25,8 @@ const getCachedApplicantDetails = cache(async (jobId: string, userId: string) =>
   return res.json();
 });
 
+//let's trigger a new build
+
 // Cache AI analysis API response
 const getCachedSkillAnalysis = cache(async (jobDescription: string, filePath: string) => {
   const res = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/analyze-skills", {
