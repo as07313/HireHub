@@ -22,6 +22,13 @@ export function DashboardClient({ initialData, appliedJobs }: DashboardClientPro
   const [userData, setUserData] = useState(initialData)
   const [searchQuery, setSearchQuery] = useState("")
 
+  //console token in localstorage
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    console.log('Token:', token)
+  }, [])
+
+
   const jobs = appliedJobs.map(job => ({
     id: job._id,
     title: job.title,

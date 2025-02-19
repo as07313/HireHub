@@ -1,7 +1,7 @@
 // pages/api/resume/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import connectToDatabase from '@/lib/mongodb';
-import Resume from '@/models/Resume';
+import { Resume } from '@/models/Resume';
 import jwt from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

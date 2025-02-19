@@ -49,6 +49,7 @@ export function ResumeManager() {
       toast.error('Failed to load resumes')
     }
   }
+  console.log(resumes)
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -74,6 +75,7 @@ export function ResumeManager() {
         },
         body: formData
       })
+      console.log(response)
 
       if (!response.ok) {
         const error = await response.json()

@@ -50,6 +50,8 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
     }
   }, [open]);
 
+  console.log(resumes)
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -93,19 +95,34 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          jobId,
-          resumeId: selectedResume,
-          coverLetter
-        })
-      });
+    console.log(selectedResume)
+    // First, send the selected resume to LlamaCloud
+    const token = localStorage.getItem('token');
+    const processResponse = await fetch(`/api/resume/${selectedResume}/process`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    if (!processResponse.ok) {
+      throw new Error('Failed to process resume');
+    }
+
+    // Then submit the application
+    const response = await fetch('/api/applications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        jobId,
+        resumeId: selectedResume,
+        coverLetter,
+        processResume: true // Add this flag
+      })
+    });
 
       if (!response.ok) {
         const error = await response.json();

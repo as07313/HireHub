@@ -4,6 +4,7 @@ interface IResume extends Document {
   candidateId: Schema.Types.ObjectId;
   fileName: string;
   fileSize: string;
+  filePath: string;
   uploadDate: Date;
   lastModified: Date;
   parsedData: {
@@ -32,6 +33,7 @@ const ResumeSchema = new Schema({
   },
   fileName: { type: String, required: true },
   fileSize: { type: String, required: true },
+  filePath: { type: String, required: true }, // Add this field
   uploadDate: { type: Date, default: Date.now },
   lastModified: { type: Date, default: Date.now },
   parsedData: {

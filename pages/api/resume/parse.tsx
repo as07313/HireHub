@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import { readFileSync } from 'fs';
 import path from 'path';
-import Resume from '@/models/Resume';
+import { Resume } from '@/models/Resume';
 import connectToDatabase from '@/lib/mongodb';
 //import { authMiddleware } from '@/middleware/auth.ts'
 import jwt from 'jsonwebtoken';
