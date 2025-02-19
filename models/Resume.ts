@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import exp from 'node:constants';
 
 interface IResume extends Document {
   candidateId: Schema.Types.ObjectId;
@@ -59,4 +60,6 @@ const ResumeSchema = new Schema({
 });
 
 export const Resume = mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
+
+export default Resume;
 
