@@ -71,7 +71,7 @@ export function SkillsRecommendation({
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Skill Gaps</h2>
         <pre className="whitespace-pre-wrap text-sm text-muted-foreground">
-          {skillGaps.content.replace(/\*\*/g, '')}
+          {skillGaps.content.replace(/\*\*/g, '').replace(/###/g, '')}
         </pre>
       </Card>
 
@@ -79,7 +79,7 @@ export function SkillsRecommendation({
       <Card className="p-6">
         <h2 className="text-xl font-semibold mb-4">Course Recommendations</h2>
         <div className="whitespace-pre-wrap text-sm text-muted-foreground">
-          <TextWithLinks text={courseRecommendations.content.replace(/\*\*/g, '')} />
+          <TextWithLinks text={courseRecommendations.content.replace(/\*\*/g, '').replace(/###/g, '')} />
         </div>
       </Card>
     </div>
