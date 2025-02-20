@@ -6,7 +6,6 @@ import fs from 'fs';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 
-// pages/api/resume/[id]/process.ts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -26,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const resume = await Resume.findOne({
       _id: id,
       candidateId: user.userId
-    }).select('+filePath'); // Ensure filePath is included in the query
+    }).select('+filePath');
 
     console.log("Resume found:", resume);
     
@@ -42,24 +41,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!fs.existsSync(resume.filePath)) {
       return res.status(404).json({ error: 'Resume file does not exist' });
     }
-    
-    // Now filePath is guaranteed to exist
+
+    // Create form data and send to LlamaCloud
     const formData = new FormData();
     const fileStream = fs.createReadStream(resume.filePath);
-    formData.append('files', fileStream, { filename: resume.fileName }); // Use fileName instead of filePath
+    formData.append('files', fileStream, { filename: resume.fileName });
+
+    console.log('Sending file to FastAPI backend...');
 
     const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
       method: 'POST',
       body: formData,
-      headers: formData.getHeaders(),
+      headers: formData.getHeaders()
     });
 
+    console.log('LlamaCloud response status:', llamaResponse.status);
+
+
     if (!llamaResponse.ok) {
-      const error = await llamaResponse.json() as { message?: string };
-      throw new Error(error.message || 'Failed to process resume');
+      const error = await llamaResponse.json();
+      const errorMessage = (error as { message?: string }).message || 'Failed to process resume';
+      throw new Error(errorMessage);
     }
 
-    // Update resume status
+    // Update resume status after successful processing
     await Resume.findByIdAndUpdate(id, { 
       status: 'completed',
       lastModified: new Date()

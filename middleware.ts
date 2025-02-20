@@ -15,7 +15,6 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/recruiter/company') ||
     request.nextUrl.pathname.startsWith('/recruiter/candidates');
 
-  // Add recruiter auth routes
   const isCandidateAuthRoute = 
     request.nextUrl.pathname.startsWith('/candidate/auth/login') ||
     request.nextUrl.pathname.startsWith('/candidate/auth/register');
@@ -24,10 +23,12 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/recruiter/auth/login') ||
     request.nextUrl.pathname.startsWith('/recruiter/auth/register');
 
-  // Check for protected routes access
+  // Check for protected routes access and determine correct login route
   if (isProtectedRoute && (!token || !userType)) {
+    // Check if it's a recruiter route to determine correct login path
+    const isRecruiterRoute = request.nextUrl.pathname.startsWith('/recruiter/');
     const loginUrl = new URL(
-      userType?.value === 'recruiter' ? '/recruiter/auth/login' : '/candidate/auth/login',
+      isRecruiterRoute ? '/recruiter/auth/login' : '/candidate/auth/login',
       request.url
     );
     return NextResponse.redirect(loginUrl);
@@ -44,16 +45,3 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: [
-    '/candidate/dashboard/:path*',
-    '/candidate/profile/:path*',
-    '/candidate/auth/:path*',
-    '/recruiter/dashboard/:path*',
-    '/recruiter/jobs/:path*',
-    '/recruiter/company/:path*',
-    '/recruiter/candidates/:path*',
-    '/recruiter/auth/:path*'
-  ]
-};

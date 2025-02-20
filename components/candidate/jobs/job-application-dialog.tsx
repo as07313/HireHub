@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
-import { Upload } from "lucide-react"
+import { Upload, Loader2, Check } from "lucide-react"
 
 interface JobApplicationDialogProps {
   jobId: string;
@@ -26,6 +27,8 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
   const [coverLetter, setCoverLetter] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
+  const [processingStage, setProcessingStage] = useState<'idle' | 'processing' | 'processed'>('idle')
+  const [progress, setProgress] = useState(0)
 
   // Fetch user's resumes
   useEffect(() => {
@@ -49,8 +52,6 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       fetchResumes();
     }
   }, [open]);
-
-  console.log(resumes)
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -94,35 +95,46 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
     }
 
     setIsSubmitting(true);
+    setProcessingStage('processing');
+
     try {
-    console.log(selectedResume)
-    // First, send the selected resume to LlamaCloud
-    const token = localStorage.getItem('token');
-    const processResponse = await fetch(`/api/resume/${selectedResume}/process`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
+      // Simulate progress while processing
+      const progressInterval = setInterval(() => {
+        setProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
+
+      // First, send the selected resume to LlamaCloud
+      const token = localStorage.getItem('token');
+      const processResponse = await fetch(`/api/resume/${selectedResume}/process`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!processResponse.ok) {
+        throw new Error('Failed to process resume');
       }
-    });
 
-    if (!processResponse.ok) {
-      throw new Error('Failed to process resume');
-    }
+      // Complete the progress bar and show success
+      clearInterval(progressInterval);
+      setProgress(100);
+      setProcessingStage('processed');
 
-    // Then submit the application
-    const response = await fetch('/api/applications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        jobId,
-        resumeId: selectedResume,
-        coverLetter,
-        processResume: true // Add this flag
-      })
-    });
+      // Then submit the application
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          jobId,
+          resumeId: selectedResume,
+          coverLetter,
+          processResume: true
+        })
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -137,6 +149,8 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       toast.error(error instanceof Error ? error.message : "Failed to submit application");
     } finally {
       setIsSubmitting(false);
+      setProcessingStage('idle');
+      setProgress(0);
     }
   };
 
@@ -172,7 +186,7 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
                 disabled={isUploading}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Upload New
+                {isUploading ? 'Uploading...' : 'Upload New'}
               </Button>
               <input
                 id="resume-upload"
@@ -183,6 +197,27 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
               />
             </div>
           </div>
+
+          {processingStage !== 'idle' && (
+            <div className="space-y-2 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {processingStage === 'processing' ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : (
+                    <Check className="h-4 w-4 text-green-500" />
+                  )}
+                  <span className="text-sm font-medium">
+                    {processingStage === 'processing' 
+                      ? 'Processing resume...' 
+                      : 'Resume processed successfully'}
+                  </span>
+                </div>
+                <span className="text-sm text-muted-foreground">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+          )}
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Cover Letter</label>

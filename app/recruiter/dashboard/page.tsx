@@ -4,10 +4,6 @@
 import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { 
-  Users, 
-  UserCheck, 
-  UserCog, 
-  UserPlus,
   TrendingUp,
   TrendingDown 
 } from "lucide-react"
@@ -73,32 +69,89 @@ export default function RecruiterDashboardPage() {
     benefits: string;
   }
 
-  const [jobs, setJobs] = useState<Job[]>([])
-  const [loading, setLoading] = useState(true)
+
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [stats, setStats] = useState([
+    { label: 'Total Candidates', value: '0', trend: '0%' },
+    { label: 'Shortlisted', value: '0',  trend: '0%' },
+    { label: 'Interviews', value: '0', trend: '0%' },
+    { label: 'Hired', value: '0', trend: '0%' }
+  ]);
+  const [loading, setLoading] = useState(true);
+
+  const [chartData, setChartData] = useState({
+    monthlyApplications: [],
+    applicationsByStage: []
+  });
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/jobs')
-        const data = await response.json()
-        setJobs(data)
-      } catch (error) {
-        console.error('Failed to fetch jobs:', error)
-      } finally {
-        setLoading(false)
-      }
-      console.log(jobs)
-    }
-    fetchJobs()
-  }, [])
+        const token = localStorage.getItem('token');
+        
+        const [jobsResponse, statsResponse, chartsResponse] = await Promise.all([
+          fetch('/api/jobs/recruiter', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('/api/dashboard/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          fetch('/api/dashboard/chart', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
 
-  // Stats data - could be fetched from API
-  const stats = [
-    { label: 'Total Candidates', value: '0', icon: Users, trend: '0%' },
-    { label: 'Shortlisted', value: '0', icon: UserCheck, trend: '0%' },
-    { label: 'Interviews', value: '0', icon: UserCog, trend: '0%' },
-    { label: 'New Applications', value: '0', icon: UserPlus, trend: '0%' }
-  ]
+        if (!jobsResponse.ok || !statsResponse.ok || !chartsResponse.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const [jobsData, statsData, chartsData] = await Promise.all([
+          jobsResponse.json(),
+          statsResponse.json(),
+          chartsResponse.json()
+        ]);
+
+        setJobs(jobsData);
+        setStats(statsData.stats);
+        setChartData(chartsData);
+      } catch (error) {
+        console.error('Error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Format data for charts
+  const applicationChartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Applications',
+        data: chartData.monthlyApplications.map(item => item.count),
+        backgroundColor: 'rgb(99, 102, 241)',
+        barThickness: 20,
+        borderRadius: 4
+      }
+    ]
+  };
+
+  const stageChartData = {
+    labels: ['New', 'Shortlisted', 'Interview', 'Hired', 'Rejected'],
+    datasets: [{
+      data: chartData.applicationsByStage.map(stage => stage.count),
+      backgroundColor: [
+        'rgb(59, 130, 246)', // blue
+        'rgb(147, 51, 234)', // purple
+        'rgb(234, 179, 8)',  // yellow
+        'rgb(34, 197, 94)',  // green
+        'rgb(239, 68, 68)'   // red
+      ]
+    }]
+  };
+  // Rest of your component remains the same
 
   if (loading) {
     return <div>Loading...</div>
@@ -138,36 +191,25 @@ export default function RecruiterDashboardPage() {
       {/* Charts Grid */}
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Application Statistics</h2>
+          <h2 className="text-lg font-semibold mb-4">Monthly Applications</h2>
           <Bar
-            data={{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-              datasets: [{
-                data: [65, 59, 80, 81, 56, 55],
-                backgroundColor: 'rgb(99, 102, 241)',
-                barThickness: 20,
-                borderRadius: 4
-              }]
-            }}
+            data={applicationChartData}
             options={applicationChartOptions}
           />
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Demographics</h2>
+          <h2 className="text-lg font-semibold mb-4">Applications by Stage</h2>
           <Doughnut
-            data={{
-              labels: ['Male', 'Female', 'Other'],
-              datasets: [{
-                data: [45, 35, 20],
-                backgroundColor: [
-                  'rgb(99, 102, 241)',
-                  'rgb(244, 63, 94)',
-                  'rgb(234, 179, 8)'
-                ]
-              }]
+            data={stageChartData}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: 'bottom'
+                }
+              }
             }}
-            options={demographicsChartOptions}
           />
         </Card>
       </div>
@@ -187,7 +229,7 @@ export default function RecruiterDashboardPage() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium">{job.applicants} Applicants</p>
+                {/* <p className="text-sm font-medium">{job.applicants} Applicants</p> */}
                 <p className="text-sm text-muted-foreground">
                   Posted {new Date(job.postedDate).toLocaleDateString()}
                 </p>
