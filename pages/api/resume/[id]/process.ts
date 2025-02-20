@@ -42,27 +42,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'Resume file does not exist' });
     }
 
-    // Create form data and send to LlamaCloud
-    const formData = new FormData();
-    const fileStream = fs.createReadStream(resume.filePath);
-    formData.append('files', fileStream, { filename: resume.fileName });
+    // // Create form data and send to LlamaCloud
+    // const formData = new FormData();
+    // const fileStream = fs.createReadStream(resume.filePath);
+    // formData.append('files', fileStream, { filename: resume.fileName });
 
-    console.log('Sending file to FastAPI backend...');
+    // console.log('Sending file to FastAPI backend...');
 
-    const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
-      method: 'POST',
-      body: formData,
-      headers: formData.getHeaders()
-    });
+    // const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
+    //   method: 'POST',
+    //   body: formData,
+    //   headers: formData.getHeaders()
+    // });
 
-    console.log('LlamaCloud response status:', llamaResponse.status);
+    // console.log('LlamaCloud response status:', llamaResponse.status);
 
 
-    if (!llamaResponse.ok) {
-      const error = await llamaResponse.json();
-      const errorMessage = (error as { message?: string }).message || 'Failed to process resume';
-      throw new Error(errorMessage);
-    }
+    // if (!llamaResponse.ok) {
+    //   const error = await llamaResponse.json();
+    //   const errorMessage = (error as { message?: string }).message || 'Failed to process resume';
+    //   throw new Error(errorMessage);
+    // }
 
     // Update resume status after successful processing
     await Resume.findByIdAndUpdate(id, { 
