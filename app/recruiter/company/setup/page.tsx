@@ -86,24 +86,28 @@ export default function CompanySetupPage() {
   async function onSubmit(values: z.infer<typeof companySchema>) {
     setIsLoading(true)
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch("/api/company/setup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // Add auth token
+        },
         body: JSON.stringify(values)
       })
-
+  
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error)
       }
-
+  
       toast.success("Company profile created successfully!")
       router.push("/recruiter/dashboard")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong")
     } finally {
       setIsLoading(false)
-    }
+    } 
   }
 
 
