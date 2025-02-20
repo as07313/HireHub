@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   return res.status(404).json({ error: 'Resume file does not exist' });
     // }
 
-    // // Create form data and send to LlamaCloud
+    // Create form data and send to LlamaCloud
     // const formData = new FormData();
     // const fileStream = fs.createReadStream(resume.filePath);
     // formData.append('files', fileStream, { filename: resume.fileName });
@@ -64,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   throw new Error(errorMessage);
     // }
 
-    // Update resume status after successful processing
+    // //Update resume status after successful processing
     // await Resume.findByIdAndUpdate(id, { 
     //   status: 'completed',
     //   lastModified: new Date()
