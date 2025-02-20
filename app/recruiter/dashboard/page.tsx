@@ -7,6 +7,7 @@ import {
   TrendingUp,
   TrendingDown 
 } from "lucide-react"
+import { Users, UserCheck, UserCog, UserPlus } from "lucide-react"
 import { Bar, Doughnut } from "react-chartjs-2"
 import {
   Chart as ChartJS,
@@ -29,6 +30,30 @@ ChartJS.register(
   Tooltip,
   Legend
 )
+
+interface ChartDataPoint {
+  count: number;
+  month: number;
+  year: number;
+}
+
+interface ApplicationStage {
+  _id: string;
+  count: number;
+  status: string;
+}
+
+interface ChartData {
+  monthlyApplications: ChartDataPoint[];
+  applicationsByStage: ApplicationStage[];
+}
+
+interface DashboardStat {
+  label: string
+  value: string
+  trend: string
+  icon: React.ElementType
+}
 
 // Chart options and data moved inline
 const applicationChartOptions = {
@@ -70,16 +95,38 @@ export default function RecruiterDashboardPage() {
   }
 
 
+
+
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [stats, setStats] = useState([
-    { label: 'Total Candidates', value: '0', trend: '0%' },
-    { label: 'Shortlisted', value: '0',  trend: '0%' },
-    { label: 'Interviews', value: '0', trend: '0%' },
-    { label: 'Hired', value: '0', trend: '0%' }
+  const [stats, setStats] = useState<DashboardStat[]>([
+    { 
+      label: 'Total Candidates', 
+      value: '0', 
+      trend: '0%',
+      icon: Users 
+    },
+    { 
+      label: 'Shortlisted', 
+      value: '0',  
+      trend: '0%',
+      icon: UserCheck 
+    },
+    { 
+      label: 'Interviews', 
+      value: '0', 
+      trend: '0%',
+      icon: UserCog 
+    },
+    { 
+      label: 'Hired', 
+      value: '0', 
+      trend: '0%',
+      icon: UserPlus 
+    }
   ]);
   const [loading, setLoading] = useState(true);
 
-  const [chartData, setChartData] = useState({
+  const [chartData, setChartData] = useState<ChartData>({
     monthlyApplications: [],
     applicationsByStage: []
   });
