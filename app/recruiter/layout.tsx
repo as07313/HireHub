@@ -67,6 +67,31 @@ export default function RecruiterLayout({
   const router = useRouter()
   const pathname = usePathname()
 
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      const response = await fetch('/api/auth/recruiter/logout', {
+        method: 'POST'
+      });
+  
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+  
+      // Clear localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userData');
+  
+      // Redirect to login page
+      router.push('/recruiter/auth/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+  
+
+
   if (pathname?.startsWith("/recruiter/auth")) {
     return children
   }
@@ -132,13 +157,13 @@ export default function RecruiterLayout({
                 </div>
               </div>
               <Button
-                variant="ghost"
-                className="w-full justify-start gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                onClick={() => router.push("recruiter/auth/login")}
-              >
-                <LogOut className="h-4 w-4" />
-                Log out
-              </Button>
+              variant="ghost"
+              className="w-full justify-start gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Log out
+            </Button>
             </div>
           </div>
         </aside>
