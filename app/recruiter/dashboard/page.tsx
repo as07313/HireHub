@@ -137,7 +137,7 @@ export default function RecruiterDashboardPage() {
         const token = localStorage.getItem('token');
         
         const [jobsResponse, statsResponse, chartsResponse] = await Promise.all([
-          fetch('/api/jobs/recruiter', {
+          fetch('/api/jobs', {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch('/api/dashboard/stats', {
