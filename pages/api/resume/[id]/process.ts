@@ -37,10 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Resume file path not found' });
     }
 
-    //Verify file exists
-    if (!fs.existsSync(resume.filePath)) {
-      return res.status(404).json({ error: 'Resume file does not exist' });
-    }
+    // //Verify file exists
+    // if (!fs.existsSync(resume.filePath)) {
+    //   return res.status(404).json({ error: 'Resume file does not exist' });
+    // }
 
     //Create form data and send to LlamaCloud
     const formData = new FormData();
