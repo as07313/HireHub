@@ -43,32 +43,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // }
 
     //Create form data and send to LlamaCloud
-    const formData = new FormData();
-    const fileStream = fs.createReadStream(resume.filePath);
-    formData.append('files', fileStream, { filename: resume.fileName });
+    // const formData = new FormData();
+    // const fileStream = fs.createReadStream(resume.filePath);
+    // formData.append('files', fileStream, { filename: resume.fileName });
 
-    console.log('Sending file to FastAPI backend...');
+    // console.log('Sending file to FastAPI backend...');
 
-    const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
-      method: 'POST',
-      body: formData,
-      headers: formData.getHeaders()
-    });
+    // const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
+    //   method: 'POST',
+    //   body: formData,
+    //   headers: formData.getHeaders()
+    // });
 
-    console.log('LlamaCloud response status:', llamaResponse.status);
+    // console.log('LlamaCloud response status:', llamaResponse.status);
 
 
-    if (!llamaResponse.ok) {
-      const error = await llamaResponse.json();
-      const errorMessage = (error as { message?: string }).message || 'Failed to process resume';
-      throw new Error(errorMessage);
-    }
+    // if (!llamaResponse.ok) {
+    //   const error = await llamaResponse.json();
+    //   const errorMessage = (error as { message?: string }).message || 'Failed to process resume';
+    //   throw new Error(errorMessage);
+    // }
 
-    //Update resume status after successful processing
-    await Resume.findByIdAndUpdate(id, { 
-      status: 'completed',
-      lastModified: new Date()
-    });
+    // //Update resume status after successful processing
+    // await Resume.findByIdAndUpdate(id, { 
+    //   status: 'completed',
+    //   lastModified: new Date()
+    // });
 
     return res.status(200).json({ message: 'Resume processed successfully' });
 
