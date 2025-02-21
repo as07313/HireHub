@@ -35,13 +35,13 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect logged in users from auth pages
-  if (isCandidateAuthRoute && token && userType?.value === 'candidate') {
-    return NextResponse.redirect(new URL('/candidate/dashboard', request.url));
-  }
+  // if (isCandidateAuthRoute && token && userType?.value === 'candidate') {
+  //   return NextResponse.redirect(new URL('/candidate/dashboard', request.url));
+  // }
 
-  if (isRecruiterAuthRoute && token && userType?.value === 'recruiter') {
-    return NextResponse.redirect(new URL('/recruiter/dashboard', request.url));
-  }
+  // if (isRecruiterAuthRoute && token && userType?.value === 'recruiter') {
+  //   return NextResponse.redirect(new URL('/recruiter/dashboard', request.url));
+  // }
 
   return NextResponse.next();
 }

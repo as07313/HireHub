@@ -34,7 +34,7 @@ interface JobApplicant {
 
 // Remove "use client" so it can run server-side
 export default async function JobPage({ params }: PageProps) {
-  const { id } = await params
+  const { id } = "67b6c3ff1097ed7779e25496"
   const [baseJob, applicants] = await Promise.all([
     findJobById(id),
     getJobApplicants(id),
