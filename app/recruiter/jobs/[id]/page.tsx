@@ -3,48 +3,26 @@ import { JobDetailsClient } from "./jobs-detail-client"
 import { findJobById } from "@/app/actions/find-jobs"
 import { getJobApplicants } from "@/app/actions/recruiter/get-applicants"
 import { Job } from "@/app/types/job"
+import { JobApplicant } from "@/app/types/applicant"
 
 interface PageProps {
-  params:Promise<{
+  params: Promise<{
     id: string
   }>
 }
 
-interface JobApplicant {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  phone: string
-  skills: string[]
-  experience: string
-  stage: 'new' | 'screening' | 'shortlist' | 'interview' | 'offer' | 'hired' | 'rejected'
-  jobFitScore: number
-  appliedDate: string
-  location: string
-  currentRole?: string
-  company?: string
-  interviews?: Array<{
-    scheduledDate: Date
-    type: 'technical' | 'hr' | 'cultural' | 'final'
-    status: 'scheduled' | 'completed' | 'cancelled'
-    feedback?: string
-  }>
-}
-
-// Remove "use client" so it can run server-side
 export default async function JobPage({ params }: PageProps) {
-  const { id } = "67b6c3ff1097ed7779e25496"
+  const { id } = await params
   const [baseJob, applicants] = await Promise.all([
     findJobById(id),
     getJobApplicants(id),
   ])
-  console.log(applicants)
 
   if (!baseJob) {
     return <div>Job not found</div>
   }
 
+  // Format dates consistently on server
   const job: Job = {
     id: baseJob._id.toString(),
     title: baseJob.title,
@@ -54,30 +32,53 @@ export default async function JobPage({ params }: PageProps) {
     status: baseJob.status,
     applicants: applicants.length,
     postedDate: baseJob.postedDate.toISOString(),
-    salary: baseJob.salary.min + ' - ' + baseJob.salary.max,
+    salary: `${baseJob.salary.min} - ${baseJob.salary.max}`,
     description: baseJob.description,
-    requirements: baseJob.requirements,
-    benefits: baseJob.benefits
+    requirements: baseJob.requirements || [],
+    benefits: baseJob.benefits || []
   }
 
+  // Map data to JobApplicant interface
   const mappedApplicants: JobApplicant[] = applicants.map(applicant => ({
     id: applicant.id,
     name: applicant.name,
-    avatar: 'https://i.pravatar.cc/150',
     email: applicant.email,
+    avatar: 'https://i.pravatar.cc/150',
     phone: applicant.phone || '',
     skills: applicant.skills || [],
     experience: applicant.experience || '',
-    stage: applicant.stage || 'new',
+    stage: applicant.stage || 'new', // Map status to stage
     jobFitScore: applicant.jobFitScore || 0,
-    appliedDate: applicant.appliedDate,
-    location: '',
+    appliedDate: new Date(applicant.appliedDate).toISOString(),
+    company: applicant.company,
+    aiAnalysis: applicant.aiAnalysis || {
+      technicalSkills: {
+        score: 0,
+        strengths: [],
+        gaps: []
+      },
+      experience: {
+        score: 0,
+        strengths: [],
+        gaps: []
+      },
+      education: {
+        score: 0,
+        strengths: [],
+        gaps: []
+      }
+    },
+    resume: applicant.resume ? {
+      id: String(applicant.resume.id),
+      fileName: applicant.resume.fileName || '',
+      filePath: applicant.resume.filePath || '',
+      uploadDate: applicant.resume.uploadDate.toString()
+    } : null,
     interviews: applicant.interviews?.map(interview => ({
-      scheduledDate: new Date(interview.scheduledDate), // Convert string to Date
+      scheduledDate: new Date(interview.scheduledDate).toString(),
       type: interview.type,
       status: interview.status,
-      feedback: interview.feedback,
-      // Remove interviewer as it's not needed in the UI
+      feedback: interview.feedback || ''
     })) || []
   }))
 
