@@ -70,7 +70,7 @@ export default function CandidateRegisterPage() {
       localStorage.setItem("verifyToken", data.token);
       toast.success('Account created! Please verify your email.');
       // Redirect to the verification page
-      router.push('/auth/verify');
+      router.push('/auth/verify/candidate');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Registration failed');
     } finally {
