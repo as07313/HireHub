@@ -11,6 +11,8 @@ import { ArrowLeft, Users, MapPin, DollarSign, Building2, Calendar } from "lucid
 import { JobDetails } from "@/components/recruiter/jobs/job-details"
 import { JobApplicants } from "@/components/recruiter/jobs/job-applicants"
 import { JobInsights } from "@/components/recruiter/jobs/job-insights"
+import { JobApplicant } from "@/app/types/applicant"
+
 
 interface Job {
   id: string
@@ -27,28 +29,6 @@ interface Job {
   benefits: string[]
 }
 
-interface JobApplicant {
-  id: string
-  name: string
-  email: string
-  avatar: string
-  phone: string
-  skills: string[]
-  experience: string
-  stage: 'new' | 'screening' | 'shortlist' | 'interview' | 'offer' | 'hired' | 'rejected'
-  jobFitScore: number
-  appliedDate: string
-  location: string
-  currentRole?: string
-  company?: string
-  interviews?: Array<{
-    scheduledDate: Date
-    type: 'technical' | 'hr' | 'cultural' | 'final'
-    status: 'scheduled' | 'completed' | 'cancelled'
-    feedback?: string
-  }>
-}
-
 interface JobDetailsClientProps {
   job: Job
   applicants: JobApplicant[]
@@ -56,6 +36,17 @@ interface JobDetailsClientProps {
 
 export function JobDetailsClient({ job, applicants }: JobDetailsClientProps) {
   const [activeTab, setActiveTab] = useState("details")
+
+  if (!applicants) {
+    return (
+      <div className="container max-w-7xl py-8">
+        <div className="flex items-center justify-center h-96">
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+    
+  }
 
   return (
     <div className="container max-w-7xl py-8">
