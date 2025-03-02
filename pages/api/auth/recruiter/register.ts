@@ -1,69 +1,69 @@
-// pages/api/auth/recruiter/register.ts 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import connectToDatabase from '@/lib/mongodb';
-import { Recruiter } from '@/models/User';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import bcrypt from 'bcryptjs';
 
-// pages/api/auth/recruiter/register.ts
+// Helper: generate a 6-digit code
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
   try {
     await connectToDatabase();
+    const { fullName, email, password } = req.body;
     
-    const { 
+    // Hash the password
+    //const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Generate a 6-digit verification code and set a 1-hour expiry
+    const verificationCode = generateVerificationCode();
+    const verificationExpires = Date.now() + 3600000;
+
+    // Create a token payload with recruiter data including a type flag
+    const payload = {
       fullName,
       email,
-      password
-    } = req.body;
+      password,
+      verificationCode,
+      verificationExpires,
+      type: 'recruiter'
+    };
 
-    // Check for existing recruiter with same email
-    const existingRecruiter = await Recruiter.findOne({
-      $or: [
-        { email: email },
-        { workEmail: email }  // Check workEmail field too
-      ]
+    // Sign the token (expires in 1 hour)
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    
+    // Setup Nodemailer transporter using environment variables
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT),
+      secure: process.env.EMAIL_SECURE === 'true',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
     });
 
-    if (existingRecruiter) {
-      return res.status(400).json({ 
-        error: 'Email already registered' 
-      });
-    }
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: "Your HireHub Recruiter Verification Code",
+      html: `<p>Hello ${fullName},</p>
+             <p>Please use the following 6-digit code to verify your recruiter email:</p>
+             <h2>${verificationCode}</h2>
+             <p>This code will expire in one hour.</p>`
+    };
 
-    // Create new recruiter following IRecruiter interface
-    const recruiter = await Recruiter.create({
-      fullName,
-      email,               // Base email from IBaseUser
-      workEmail: email,    // Company email (same as base email initially)
-      password,            // From IBaseUser
-      companyId: null,     // From IRecruiter
-      jobPosts: [],        // From IRecruiter
-      isActive: true,      // From IBaseUser
-      profileComplete: false, // From IBaseUser
-      createdAt: new Date() // From IBaseUser
-    });
-
-    // Generate token
-    const token = jwt.sign(
-      { userId: recruiter._id, type: 'recruiter' },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      token,
-      user: {
-        id: recruiter._id,
-        fullName: recruiter.fullName,
-        type: 'recruiter'
-      }
-    });
-
+    await transporter.sendMail(mailOptions);
+    
+    // Respond with token and email so the client can store them and redirect to the verification page
+    res.status(201).json({ message: 'Verification code sent to email', token, email });
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Recruiter registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 }

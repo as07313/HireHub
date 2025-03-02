@@ -1,52 +1,67 @@
-// pages/api/auth/candidate/register.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import  connectToDatabase  from '@/lib/mongodb';
-import { Candidate } from '@/models/User';
+import connectToDatabase from '@/lib/mongodb';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import bcrypt from 'bcryptjs';
+
+// Helper: generate a 6-digit code
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
   try {
     await connectToDatabase();
-    
     const { fullName, email, phone, skills, experience, password } = req.body;
 
-    // Check if user exists
-    const existingUser = await Candidate.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Email already registered' });
-    }
+    // Generate a 6-digit verification code and set expiry (1 hour)
+    const verificationCode = generateVerificationCode();
+    const verificationExpires = Date.now() + 3600000; // timestamp in ms
 
-    // Create new candidate
-    const candidate = await Candidate.create({
+    // Create a token payload with candidate data and code info (candidate document is NOT created yet)
+    const payload = {
       fullName,
       email,
       phone,
       skills: skills?.split(',').map((s: string) => s.trim()),
       experience,
-      password
+      password,
+      verificationCode,
+      verificationExpires,
+      type: 'candidate'
+    };
+
+    // Sign the token
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '1h' });
+
+    // Setup Nodemailer transporter using environment variables
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: Number(process.env.EMAIL_PORT),
+      secure: process.env.EMAIL_SECURE === 'true',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Use passkey if necessary
+      },
     });
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: candidate._id, type: 'candidate' },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: "Your HireHub Verification Code",
+      html: `<p>Hello ${fullName},</p>
+             <p>Please use the following 6-digit code to verify your email:</p>
+             <h2>${verificationCode}</h2>
+             <p>This code will expire in one hour.</p>`
+    };
 
-    res.status(201).json({
-      token,
-      user: {
-        id: candidate._id,
-        fullName: candidate.fullName,
-        email: candidate.email,
-        type: 'candidate'
-      }
-    });
+    await transporter.sendMail(mailOptions);
 
+    // Respond with token and email so the client can store them and redirect to verification page
+    res.status(201).json({ message: 'Verification code sent to email', token, email });
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });

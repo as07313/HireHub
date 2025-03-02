@@ -65,11 +65,12 @@ export default function CandidateRegisterPage() {
       }
   
       const data = await response.json();
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userType', 'candidate');
-      
-      toast.success('Registration successful!');
-      router.push('/candidate/dashboard');
+      // Option 1: Save the email in local storage
+      localStorage.setItem("verifyEmail", data.email);
+      localStorage.setItem("verifyToken", data.token);
+      toast.success('Account created! Please verify your email.');
+      // Redirect to the verification page
+      router.push('/auth/verify');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Registration failed');
     } finally {

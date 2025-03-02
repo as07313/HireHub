@@ -46,16 +46,30 @@ export function SecurityForm() {
   })
 
   async function onSubmit(values: z.infer<typeof securityFormSchema>) {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // TODO: Implement password update logic
-      console.log(values)
-      toast.success("Password updated successfully")
-      form.reset()
+      const token = localStorage.getItem("token"); // assuming you stored the auth token on login
+      const res = await fetch("/api/auth/candidate/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Password update failed");
+      }
+      toast.success(data.message);
+      form.reset();
     } catch (error) {
-      toast.error("Failed to update password")
+      toast.error(error instanceof Error ? error.message : "Failed to update password");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
