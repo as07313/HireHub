@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { TabsContent } from "@/components/ui/tabs"
 
 interface JobPostFormProps {
   form: UseFormReturn<any>
@@ -28,6 +29,9 @@ interface JobPostFormProps {
   employmentTypes: ReadonlyArray<{ value: string; label: string }>
   experienceLevels: ReadonlyArray<{ value: string; label: string }>
   onCancel: () => void
+  isSubmitting: boolean
+  activeTab: string
+  onTabChange: (value: string) => void
 }
 
 export const JobPostForm = memo(function JobPostForm({
@@ -36,12 +40,16 @@ export const JobPostForm = memo(function JobPostForm({
   departmentOptions,
   employmentTypes,
   experienceLevels,
-  onCancel
+  onCancel,
+  isSubmitting,
+  activeTab,
+  onTabChange
 }: JobPostFormProps) {
   return (
-    <Card className="p-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Basic Details Tab */}
+        <TabsContent value="details" className="space-y-6 mt-0">
           {/* Job Title */}
           <FormField
             control={form.control}
@@ -182,7 +190,16 @@ export const JobPostForm = memo(function JobPostForm({
               )}
             />
           </div>
+          
+          <div className="flex justify-end gap-2">
+            <Button type="button" onClick={() => onTabChange("description")}>
+              Continue
+            </Button>
+          </div>
+        </TabsContent>
 
+        {/* Description Tab */}
+        <TabsContent value="description" className="space-y-6 mt-0">
           {/* Description */}
           <FormField
             control={form.control}
@@ -193,7 +210,7 @@ export const JobPostForm = memo(function JobPostForm({
                 <FormControl>
                   <Textarea
                     placeholder="Describe the role and responsibilities..."
-                    className="min-h-[150px]"
+                    className="min-h-[250px]"
                     {...field}
                   />
                 </FormControl>
@@ -201,7 +218,19 @@ export const JobPostForm = memo(function JobPostForm({
               </FormItem>
             )}
           />
-
+          
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onTabChange("details")}>
+              Back
+            </Button>
+            <Button type="button" onClick={() => onTabChange("requirements")}>
+              Continue
+            </Button>
+          </div>
+        </TabsContent>
+        
+        {/* Requirements & Benefits Tab */}
+        <TabsContent value="requirements" className="space-y-6 mt-0">
           {/* Requirements */}
           <FormField
             control={form.control}
@@ -211,7 +240,10 @@ export const JobPostForm = memo(function JobPostForm({
                 <FormLabel>Requirements</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="List the key requirements and qualifications..."
+                    placeholder="List each requirement on a new line. For example:
+- Bachelor's degree in Computer Science or related field
+- 3+ years of experience with React
+- Strong communication skills"
                     className="min-h-[150px]"
                     {...field}
                   />
@@ -230,7 +262,11 @@ export const JobPostForm = memo(function JobPostForm({
                 <FormLabel>Benefits</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="List the benefits and perks..."
+                    placeholder="List each benefit on a new line. For example:
+- Comprehensive health insurance
+- Flexible working hours
+- 401(k) matching
+- Professional development budget"
                     className="min-h-[150px]"
                     {...field}
                   />
@@ -245,14 +281,23 @@ export const JobPostForm = memo(function JobPostForm({
             <Button
               type="button"
               variant="outline"
+              onClick={() => onTabChange("description")}
+            >
+              Back
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
               onClick={onCancel}
             >
               Cancel
             </Button>
-            <Button type="submit">Post Job</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Posting...' : 'Post Job'}
+            </Button>
           </div>
-        </form>
-      </Form>
-    </Card>
+        </TabsContent>
+      </form>
+    </Form>
   )
 })

@@ -50,7 +50,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Update job with new applicant
                 await Job.findByIdAndUpdate(
                     jobId,
-                    { $addToSet: { applicants: user.userId } },
+                    { $addToSet: { applicants: application._id } },
                     { new: true, runValidators: true }
                 );
 

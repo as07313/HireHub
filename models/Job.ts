@@ -62,7 +62,7 @@ const JobSchema = new Schema({
   skills: [String],
   applicants: [{ 
     type: Schema.Types.ObjectId,
-    ref: 'Candidate'
+    ref: 'Applicant'
   }],
   postedDate: { 
     type: Date,

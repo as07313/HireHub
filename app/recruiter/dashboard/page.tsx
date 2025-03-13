@@ -7,7 +7,12 @@ import {
   TrendingUp,
   TrendingDown 
 } from "lucide-react"
-import { Users, UserCheck, UserCog, UserPlus } from "lucide-react"
+import {
+  Users as UsersIcon,
+  UserCheck as UserCheckIcon,
+  UserCog as UserCogIcon,
+  UserPlus as UserPlusIcon
+} from 'lucide-react';
 import { Bar, Doughnut } from "react-chartjs-2"
 import {
   Chart as ChartJS,
@@ -98,30 +103,30 @@ export default function RecruiterDashboardPage() {
 
 
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [stats, setStats] = useState<DashboardStat[]>([
+    const [stats, setStats] = useState<DashboardStat[]>([
     { 
       label: 'Total Candidates', 
       value: '0', 
       trend: '0%',
-      icon: Users 
+      icon: UsersIcon 
     },
     { 
       label: 'Shortlisted', 
       value: '0',  
       trend: '0%',
-      icon: UserCheck 
+      icon: UserCheckIcon 
     },
     { 
       label: 'Interviews', 
       value: '0', 
       trend: '0%',
-      icon: UserCog 
+      icon: UserCogIcon 
     },
     { 
       label: 'Hired', 
       value: '0', 
       trend: '0%',
-      icon: UserPlus 
+      icon: UserPlusIcon 
     }
   ]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +142,7 @@ export default function RecruiterDashboardPage() {
         const token = localStorage.getItem('token');
         
         const [jobsResponse, statsResponse, chartsResponse] = await Promise.all([
-          fetch('/api/jobs', {
+          fetch('/api/jobs/recruiter', {
             headers: { 'Authorization': `Bearer ${token}` }
           }),
           fetch('/api/dashboard/stats', {
@@ -219,7 +224,8 @@ export default function RecruiterDashboardPage() {
           <Card key={stat.label} className="p-6">
             <div className="flex items-center gap-4">
               <div className="rounded-full p-3 bg-primary/10">
-                <stat.icon className="h-5 w-5 text-primary" />
+                {/* Directly render the icon component */}
+                {stat.icon && <stat.icon className="h-5 w-5 text-primary" />}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
@@ -234,6 +240,7 @@ export default function RecruiterDashboardPage() {
           </Card>
         ))}
       </div>
+
 
       {/* Charts Grid */}
       <div className="grid gap-6 md:grid-cols-2">

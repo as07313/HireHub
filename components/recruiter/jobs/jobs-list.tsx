@@ -6,72 +6,55 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Users, Calendar, MapPin, DollarSign, BarChart } from "lucide-react"
 import { useState } from "react"
+import { useJobs } from "@/hooks/use-job"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog" // Assuming you have a Dialog component from your UI library
-import { Skeleton } from "@/components/ui/skeleton" // Assuming you have a Skeleton component for loading states
+} from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface JobsListProps {
   searchQuery: string
   statusFilter: string
+  viewType: string
 }
-
-// Mock data - Replace with actual API data
-const jobs = [
-  {
-    id: "1",
-    title: "Senior Frontend Developer",
-    department: "Engineering",
-    location: "Remote",
-    salary: "$120k-150k/year",
-    status: "active",
-    applicants: 45,
-    description: "We are looking for a Senior Frontend Developer to join our team with experience in React, Next.js, and Tailwind CSS.",
-    postedDate: "2024-03-15",
-    applicantStats: {
-      total: 45,
-      qualified: 32,
-      interviewing: 8,
-      offered: 2
-    }
-  },
-  {
-    id: "2",
-    title: "Product Designer",
-    department: "Design",
-    location: "New York, NY",
-    salary: "$90k-120k/year",
-    status: "active",
-    description: "We are seeking a Product Designer with experience in Figma, Adobe Creative Suite, and prototyping tools.",
-    applicants: 28,
-    postedDate: "2024-03-14",
-    applicantStats: {
-      total: 28,
-      qualified: 20,
-      interviewing: 5,
-      offered: 1
-    }
-  }
-]
 
 const statusStyles = {
   active: "bg-green-100 text-green-800",
-  paused: "bg-yellow-100 text-yellow-800",
+  inactive: "bg-yellow-100 text-yellow-800", // Changed from 'paused' to 'inactive'
   closed: "bg-red-100 text-red-800",
   draft: "bg-gray-100 text-gray-800"
 }
-
-export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
+export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps) {
   const router = useRouter()
+  const { jobs, loading, error } = useJobs() // Use the hook
   const [matchedCandidates, setMatchedCandidates] = useState<{ [key: string]: any }>({})
-  const [selectedCandidate, setSelectedCandidate] = useState<any>(null) // State to store the selected candidate for the modal
-  const [isModalOpen, setIsModalOpen] = useState(false) // State to manage modal visibility
-  const [loadingJobs, setLoadingJobs] = useState<{ [key: string]: boolean }>({}) // State to track loading status for each job
+  const [selectedCandidate, setSelectedCandidate] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [loadingJobs, setLoadingJobs] = useState<{ [key: string]: boolean }>({})
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-[200px] w-full" />
+        ))}
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="text-center text-red-500 p-4">
+        Failed to load jobs
+      </div>
+    )
+  }
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || job.status === statusFilter
@@ -104,9 +87,9 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={viewType === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
       {filteredJobs.map((job) => (
-        <Card key={job.id} className="p-6">
+        <Card key={job._id} className="p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-4">
               <div>
@@ -126,11 +109,11 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
                   </span>
                   <span className="flex items-center gap-1">
                     <DollarSign className="h-4 w-4" />
-                    {job.salary}
+                    ${job.salary.min}-{job.salary.max}/year
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    Posted {job.postedDate}
+                    Posted {new Date(job.postedDate).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -157,22 +140,22 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
             <Button 
                 variant="default"
                 className="w-full lg:w-auto"
-                onClick={() => router.push(`/recruiter/jobs/${job.id}`)}
+                onClick={() => router.push(`/recruiter/jobs/${job._id}`)}
               >
                 View Details
               </Button>
               <Button 
                 variant="outline" 
                 className="w-full lg:w-auto"
-                onClick={() => matchJD(job.description, job.id)}
-                disabled={loadingJobs[job.id]} // Disable button while loading
+                onClick={() => matchJD(job.description, job._id)}
+                disabled={loadingJobs[job._id]} // Disable button while loading
               >
-                {loadingJobs[job.id] ? "Loading..." : "Find Applicants"}
+                {loadingJobs[job._id] ? "Loading..." : "Find Applicants"}
               </Button>
             </div>
           </div>
 
-          {loadingJobs[job.id] && (
+          {loadingJobs[job._id] && (
             <div className="mt-6 space-y-4">
               <Skeleton className="h-8 w-1/2" /> {/* Loading placeholder for the table header */}
               <div className="space-y-2">
@@ -183,7 +166,7 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
             </div>
           )}
 
-          {matchedCandidates[job.id] && !loadingJobs[job.id] && (
+          {matchedCandidates[job._id] && !loadingJobs[job._id] && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold mb-4">Matched Candidates</h4>
               <table className="min-w-full divide-y divide-gray-200">
@@ -199,7 +182,7 @@ export function JobsList({ searchQuery, statusFilter }: JobsListProps) {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {matchedCandidates[job.id].candidates.map((candidate: any) => (
+                  {matchedCandidates[job._id].candidates.map((candidate: any) => (
                     <tr key={candidate.candidate_id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidate.candidate_id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidate.total_score}</td>

@@ -15,7 +15,7 @@ export function JobsHeader() {
           Manage your job postings and view applicants
         </p>
       </div>
-      <Button onClick={() => router.push("/recruiter/jobs/create")}>
+      <Button onClick={() => router.push("/recruiter/jobs/new")}>
         <PlusCircle className="mr-2 h-4 w-4" />
         Post New Job
       </Button>

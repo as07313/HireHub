@@ -29,11 +29,12 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
   const [isUploading, setIsUploading] = useState(false)
   const [processingStage, setProcessingStage] = useState<'idle' | 'processing' | 'processed'>('idle')
   const [progress, setProgress] = useState(0)
+  const [isLoadingResumes, setIsLoadingResumes] = useState(false)
 
   // Fetch user's resumes
-  useEffect(() => {
     const fetchResumes = async () => {
       try {
+        setIsLoadingResumes(true);
         const token = localStorage.getItem('token');
         const response = await fetch('/api/resume', {
           headers: {
@@ -46,11 +47,15 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       } catch (error) {
         toast.error('Failed to load resumes');
       }
+      finally {
+        setIsLoadingResumes(false);
+      }
     };
 
-    if (open) {
-      fetchResumes();
-    }
+    useEffect(()=> {
+      if (open) {
+        fetchResumes();
+      }
   }, [open]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,8 +178,8 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
                   <SelectValue placeholder="Choose a resume" />
                 </SelectTrigger>
                 <SelectContent>
-                  {resumes.map(resume => (
-                    <SelectItem key={resume._id} value={resume._id}>
+                  {resumes.map((resume, index) => (
+                    <SelectItem key={index} value={resume._id}>
                       {resume.fileName}
                     </SelectItem>
                   ))}

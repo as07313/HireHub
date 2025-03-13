@@ -29,6 +29,10 @@ export interface ICandidate extends IBaseUser, Document {
   //   isActive: boolean;
   // }>;
   applications: Array<Schema.Types.ObjectId>;
+  emailVerified: boolean
+  verificationCode: string;
+  verificationExpires: Date;
+
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -61,10 +65,17 @@ const CandidateSchema = new Schema({
     jobAlerts: { type: Number, default: 0 }
   },
   savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
-  applications: [{ type: Schema.Types.ObjectId, ref: 'Application' }]
-}, {
+  applications: [{ type: Schema.Types.ObjectId, ref: 'Application' }],
+  verificationCode: { type: String },
+  verificationExpires: { type: Date },
+  emailVerified: { type: Boolean, default: false }
+
+}, 
+
+{
   timestamps: true,
   toJSON: { virtuals: true }
+
 });
 
 // Recruiter Schema
