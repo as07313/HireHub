@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/mongodb'
 import { Job, IJob } from '@/models/Job'
 import { Apiauth } from '@/app/middleware/auth'
 import { BaseJob } from '@/app/types/job'
+import { Applicant } from '@/models/Applicant'
 
 // Define interfaces for type safety
 interface IApplicant {

@@ -7,7 +7,6 @@ interface JobsStatsProps {
     stats: {
       total: number;
       active: number;
-      inactive: number; // Changed from 'paused' to 'inactive'
       closed: number;
       totalApplicants: number;
     }

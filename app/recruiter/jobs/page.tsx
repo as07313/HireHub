@@ -22,7 +22,6 @@ export default function RecruiterJobsPage() {
   const [jobStats, setJobStats] = useState({
     total: 0,
     active: 0,
-    inactive: 0, // Changed from paused to inactive
     closed: 0,
     totalApplicants: 0
   })
@@ -34,7 +33,6 @@ export default function RecruiterJobsPage() {
     const stats = {
       total: jobs.length,
       active: jobs.filter(job => job.status === "active").length,
-      inactive: jobs.filter(job => job.status === "inactive").length, // Changed from paused to inactive
       closed: jobs.filter(job => job.status === "closed").length,
       totalApplicants: jobs.reduce((sum, job) => sum + job.applicantStats.total, 0)
     }
@@ -69,7 +67,6 @@ export default function RecruiterJobsPage() {
             <TabsList>
               <TabsTrigger value="all">All Jobs ({jobStats.total})</TabsTrigger>
               <TabsTrigger value="active">Active ({jobStats.active})</TabsTrigger>
-              <TabsTrigger value="inactive">Inactive ({jobStats.inactive})</TabsTrigger>
               <TabsTrigger value="closed">Closed ({jobStats.closed})</TabsTrigger>
             </TabsList>
             
@@ -95,16 +92,7 @@ export default function RecruiterJobsPage() {
               statusFilter="active"
               viewType={viewType}
             />
-          </TabsContent>
-          
-          <TabsContent value="inactive" className="mt-0">
-            <JobsList 
-              searchQuery={searchQuery} 
-              statusFilter="inactive"
-              viewType={viewType}
-            />
-          </TabsContent>
-          
+          </TabsContent>  
           <TabsContent value="closed" className="mt-0">
             <JobsList 
               searchQuery={searchQuery} 
