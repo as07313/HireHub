@@ -4,6 +4,9 @@ import { Job, IJob } from '@/models/Job'
 import { Apiauth } from '@/app/middleware/auth'
 import { BaseJob } from '@/app/types/job'
 import { Applicant } from '@/models/Applicant'
+import { Candidate } from '@/models/User' // Import the Candidate model directly
+
+
 
 // Define interfaces for type safety
 interface IApplicant {
