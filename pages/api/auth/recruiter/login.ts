@@ -23,6 +23,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
+    
+    // Add this cookie-setting code
+    res.setHeader(
+      'Set-Cookie', [
+        `token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`,
+        `userType=recruiter; Path=/; HttpOnly; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`
+      ]
+    );
+    
     res.status(200).json({
       token,
       user: {

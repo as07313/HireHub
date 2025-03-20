@@ -37,7 +37,7 @@ export function middleware(request: NextRequest) {
   if (isCandidateAuthRoute && token && userType?.value === 'candidate') {
     return NextResponse.redirect(new URL('/candidate/dashboard', request.url));
   }
-
+  
   if (isRecruiterAuthRoute && token && userType?.value === 'recruiter') {
     return NextResponse.redirect(new URL('/recruiter/dashboard', request.url));
   }
