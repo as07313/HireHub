@@ -33,11 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .sort({ postedDate: -1 })
         .populate({
           path: 'applicants',
-          model: 'Applicant',
+          model: Applicant,
           select: 'status jobFitScore appliedDate',
           populate: {
             path: 'candidateId',
-            model: 'Candidate',
+            model: Candidate,
             select: 'fullName email'
           }
         });
