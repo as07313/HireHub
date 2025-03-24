@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Users, Calendar, MapPin, DollarSign, BarChart } from "lucide-react"
 import { useState } from "react"
-import { useJobs } from "@/hooks/use-job"
 import {
   Dialog,
   DialogContent,
@@ -15,46 +14,50 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Job } from "@/app/recruiter/jobs/jobs-client" // Import Job type from your client file
 
 interface JobsListProps {
-  searchQuery: string
-  statusFilter: string
-  viewType: string
+  jobs: Job[];
+  searchQuery: string;
+  statusFilter: string;
+  viewType: string;
+}
+
+// Type for matched candidates
+interface MatchedCandidate {
+  candidate_id: string;
+  total_score: number;
+  technical_score: number;
+  experience_score: number;
+  education_score: number;
+  soft_skills_score: number;
+  analysis: string;
+  strengths: string[];
+  improvements: string[];
+}
+
+// Type for candidate lookup map
+interface CandidateMap {
+  [jobId: string]: {
+    candidates: MatchedCandidate[];
+  };
 }
 
 const statusStyles = {
   active: "bg-green-100 text-green-800",
-  inactive: "bg-yellow-100 text-yellow-800", // Changed from 'paused' to 'inactive'
+  inactive: "bg-yellow-100 text-yellow-800",
   closed: "bg-red-100 text-red-800",
   draft: "bg-gray-100 text-gray-800"
 }
-export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps) {
+
+export function JobsList({ jobs, searchQuery, statusFilter, viewType }: JobsListProps) {
   const router = useRouter()
-  const { jobs, loading, error } = useJobs() // Use the hook
-  const [matchedCandidates, setMatchedCandidates] = useState<{ [key: string]: any }>({})
-  const [selectedCandidate, setSelectedCandidate] = useState<any>(null)
+  const [matchedCandidates, setMatchedCandidates] = useState<CandidateMap>({})
+  const [selectedCandidate, setSelectedCandidate] = useState<MatchedCandidate | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loadingJobs, setLoadingJobs] = useState<{ [key: string]: boolean }>({})
-
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-[200px] w-full" />
-        ))}
-      </div>
-    )
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="text-center text-red-500 p-4">
-        Failed to load jobs
-      </div>
-    )
-  }
+  
+  // Filter jobs on the client side
   const filteredJobs = jobs.filter((job) => {
     const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === "all" || job.status === statusFilter
@@ -62,7 +65,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
   })
 
   async function matchJD(description: string, jobId: string) {
-    setLoadingJobs(prev => ({ ...prev, [jobId]: true })) // Set loading state for this job
+    setLoadingJobs(prev => ({ ...prev, [jobId]: true }))
     try {
       const response = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/match-job-description", {
         method: "POST",
@@ -76,12 +79,12 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
     } catch (error) {
       console.error("Error fetching matched candidates:", error)
     } finally {
-      setLoadingJobs(prev => ({ ...prev, [jobId]: false })) // Reset loading state for this job
+      setLoadingJobs(prev => ({ ...prev, [jobId]: false }))
     }
   }
 
   // Function to open the modal with candidate details
-  const openCandidateModal = (candidate: any) => {
+  const openCandidateModal = (candidate: MatchedCandidate) => {
     setSelectedCandidate(candidate)
     setIsModalOpen(true)
   }
@@ -89,7 +92,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
   return (
     <div className={viewType === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
       {filteredJobs.map((job) => (
-        <Card key={job._id} className="p-6">
+        <Card key={job.id} className="p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-4">
               <div>
@@ -113,7 +116,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    Posted {new Date(job.postedDate).toLocaleDateString()}
+                    Posted {job.postedDate ? new Date(job.postedDate).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -140,33 +143,33 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
             <Button 
                 variant="default"
                 className="w-full lg:w-auto"
-                onClick={() => router.push(`/recruiter/jobs/${job._id}`)}
+                onClick={() => router.push(`/recruiter/jobs/${job.id}`)}
               >
                 View Details
               </Button>
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 className="w-full lg:w-auto"
-                onClick={() => matchJD(job.description, job._id)}
-                disabled={loadingJobs[job._id]} // Disable button while loading
+                onClick={() => matchJD(job.description, job.id)}
+                disabled={loadingJobs[job.id]}
               >
-                {loadingJobs[job._id] ? "Loading..." : "Find Applicants"}
-              </Button>
+                {loadingJobs[job.id] ? "Loading..." : "Find Applicants"}
+              </Button> */}
             </div>
           </div>
 
-          {loadingJobs[job._id] && (
+          {loadingJobs[job.id] && (
             <div className="mt-6 space-y-4">
-              <Skeleton className="h-8 w-1/2" /> {/* Loading placeholder for the table header */}
+              <Skeleton className="h-8 w-1/2" />
               <div className="space-y-2">
                 {[1, 2, 3].map((_, index) => (
-                  <Skeleton key={index} className="h-12 w-full" /> // Loading placeholder for table rows
+                  <Skeleton key={index} className="h-12 w-full" />
                 ))}
               </div>
             </div>
           )}
 
-          {matchedCandidates[job._id] && !loadingJobs[job._id] && (
+          {matchedCandidates[job.id] && !loadingJobs[job.id] && (
             <div className="mt-6">
               <h4 className="text-lg font-semibold mb-4">Matched Candidates</h4>
               <table className="min-w-full divide-y divide-gray-200">
@@ -182,7 +185,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {matchedCandidates[job._id].candidates.map((candidate: any) => (
+                  {matchedCandidates[job.id].candidates.map((candidate) => (
                     <tr key={candidate.candidate_id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidate.candidate_id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{candidate.total_score}</td>
@@ -226,7 +229,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
               <div>
                 <h4 className="font-semibold">Strengths</h4>
                 <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {selectedCandidate.strengths.map((strength: string, index: number) => (
+                  {selectedCandidate.strengths.map((strength, index) => (
                     <li key={index}>{strength}</li>
                   ))}
                 </ul>
@@ -234,7 +237,7 @@ export function JobsList({ searchQuery, statusFilter, viewType }: JobsListProps)
               <div>
                 <h4 className="font-semibold">Improvements</h4>
                 <ul className="list-disc list-inside text-sm text-muted-foreground">
-                  {selectedCandidate.improvements.map((improvement: string, index: number) => (
+                  {selectedCandidate.improvements.map((improvement, index) => (
                     <li key={index}>{improvement}</li>
                   ))}
                 </ul>
