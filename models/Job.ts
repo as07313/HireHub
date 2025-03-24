@@ -20,6 +20,13 @@ export interface IJob extends Document {
   skills: string[];
   applicants: Schema.Types.ObjectId[];
   postedDate: Date;
+
+  rankingStatus?: 'not_started' | 'in_progress' | 'completed' | 'failed';
+  rankingStartedAt?: Date;
+  rankingCompletedAt?: Date;
+  lastRankedAt?: Date;
+  rankingError?: string;
+  rankingTaskId?: string;
 }
 
 const JobSchema = new Schema({
@@ -67,6 +74,27 @@ const JobSchema = new Schema({
   postedDate: { 
     type: Date,
     default: Date.now 
+  },
+  // Add ranking fields
+  rankingStatus: { 
+    type: String, 
+    enum: ['not_started', 'in_progress', 'completed', 'failed'],
+    default: 'not_started'
+  },
+  rankingStartedAt: { 
+    type: Date 
+  },
+  rankingCompletedAt: { 
+    type: Date 
+  },
+  lastRankedAt: { 
+    type: Date 
+  },
+  rankingError: { 
+    type: String 
+  },
+  rankingTaskId: { 
+    type: String 
   }
 }, {
   timestamps: true

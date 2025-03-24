@@ -77,6 +77,9 @@ export async function getJobApplicants(jobId: string): Promise<JobApplicant[]> {
       return []
     }
 
+    const application0s = await Applicant.find({ jobId })
+    console.log('Raw applications from DB:', application0s.length)
+
     // Use reduce instead of filter+map for better performance and cleaner code
     return applications.reduce<JobApplicant[]>((acc, app) => {
       if (!app.candidateId) return acc // Skip invalid applications

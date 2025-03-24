@@ -18,6 +18,7 @@ export default async function JobPage({ params }: PageProps) {
     getJobApplicants(id),
   ])
 
+  console.log('Fetched applicants:', applicants.length, applicants)
   if (!baseJob) {
     return <div>Job not found</div>
   }

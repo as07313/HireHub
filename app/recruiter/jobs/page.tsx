@@ -1,107 +1,112 @@
 // app/recruiter/jobs/page.tsx
-"use client"
+import { Suspense } from "react"
+import JobsClient from "./jobs-client"
+import { getJobs } from "@/app/actions/recruiter/get-jobs"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
-import { useState, useEffect } from "react"
-import { JobsList } from "@/components/recruiter/jobs/jobs-list"
-import { JobsHeader } from "@/components/recruiter/jobs/jobs-header"
-import { JobsFilter } from "@/components/recruiter/jobs/jobs-filter"
-import { JobsStats } from "@/components/recruiter/jobs/jobs-stats"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card } from "@/components/ui/card"
-import { motion } from "framer-motion"
-import { useJobs } from "@/hooks/use-job"
-import { Loader2 } from "lucide-react"
+export const revalidate = 60 // Revalidate data every 60 seconds
 
-export default function RecruiterJobsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [viewType, setViewType] = useState("list")
-  const { jobs, loading } = useJobs()
-
-  // Analytics data
-  const [jobStats, setJobStats] = useState({
-    total: 0,
-    active: 0,
-    closed: 0,
-    totalApplicants: 0
-  })
-
-  // Calculate stats when jobs are loaded
-  useEffect(() => {
-    if (!jobs) return
-    
-    const stats = {
-      total: jobs.length,
-      active: jobs.filter(job => job.status === "active").length,
-      closed: jobs.filter(job => job.status === "closed").length,
-      totalApplicants: jobs.reduce((sum, job) => sum + job.applicantStats.total, 0)
-    }
-    
-    setJobStats(stats)
-  }, [jobs])
-
-  if (loading) {
-    return (
-      <div className="container max-w-7xl py-20 flex flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-        <p className="text-muted-foreground">Loading job listings...</p>
-      </div>
-    )
-  }
-
+export default async function RecruiterJobsPage() {
+  const initialJobs = await getJobs()
+  
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="container max-w-7xl py-8 space-y-8"
-    >
-      <JobsHeader />
-      
-      {/* Stats Overview */}
-      <JobsStats stats={jobStats} />
-      
-      <Card className="p-6">
-        <Tabs defaultValue="all" onValueChange={(value) => setStatusFilter(value)} className="mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <TabsList>
-              <TabsTrigger value="all">All Jobs ({jobStats.total})</TabsTrigger>
-              <TabsTrigger value="active">Active ({jobStats.active})</TabsTrigger>
-              <TabsTrigger value="closed">Closed ({jobStats.closed})</TabsTrigger>
-            </TabsList>
-            
-            <JobsFilter 
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              viewType={viewType}
-              onViewChange={setViewType}
-            />
-          </div>
+    <Suspense fallback={<JobsLoading />}>
+      <JobsClient initialJobs={initialJobs} />
+    </Suspense>
+  )
+}
 
-          <TabsContent value="all" className="mt-0">
-            <JobsList 
-              searchQuery={searchQuery} 
-              statusFilter={statusFilter}
-              viewType={viewType}
-            />
-          </TabsContent>
+function JobsLoading() {
+  return (
+    <div className="container max-w-7xl py-8 space-y-8">
+      {/* Header skeleton */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-10 w-32" />
+      </div>
+      
+      {/* Stats skeletons */}
+      <div className="grid gap-4 md:grid-cols-4">
+        {Array(4).fill(null).map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="pb-2">
+              <Skeleton className="h-4 w-20" />
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Skeleton className="h-6 w-12" />
+              <Skeleton className="h-4 w-24" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      
+      {/* Tabs and filter skeleton */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className="flex gap-2">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-24" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-9 w-64" />
+              <Skeleton className="h-9 w-9" />
+              <Skeleton className="h-9 w-9" />
+            </div>
+          </div>
           
-          <TabsContent value="active" className="mt-0">
-            <JobsList 
-              searchQuery={searchQuery} 
-              statusFilter="active"
-              viewType={viewType}
-            />
-          </TabsContent>  
-          <TabsContent value="closed" className="mt-0">
-            <JobsList 
-              searchQuery={searchQuery} 
-              statusFilter="closed"
-              viewType={viewType}
-            />
-          </TabsContent>
-        </Tabs>
+          {/* Job items skeleton */}
+          <div className="space-y-4">
+            {Array(5).fill(null).map((_, i) => (
+              <div key={i} className="rounded-lg border p-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="h-5 w-48" />
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-9 w-24" />
+                    <Skeleton className="h-9 w-24" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-6 w-6 rounded-full" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Pagination skeleton */}
+          <div className="mt-8 flex items-center justify-between">
+            <Skeleton className="h-4 w-40" />
+            <div className="flex gap-1">
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+          </div>
+        </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
