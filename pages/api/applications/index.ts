@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     { new: true, runValidators: true }
                 );
 
-                await queueApplicationForRanking(jobId);
+                //await queueApplicationForRanking(jobId);
 
                 
                 return res.status(201).json(application);
