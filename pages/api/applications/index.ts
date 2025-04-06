@@ -3,7 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import { Applicant } from '@/models/Applicant';
 import { Job } from '@/models/Job';
 import { Apiauth }  from '@/app/middleware/auth'
-import {queueApplicationForRanking } from '@/lib/queue/auto-ranking'
+//import {queueApplicationForRanking } from '@/lib/queue/auto-ranking'
 
 
 // pages/api/applications/index.ts
