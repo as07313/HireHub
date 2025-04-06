@@ -70,7 +70,7 @@ export async function getJobs(): Promise<SerializedJob[]> {
   
   const session = await auth()
   if (!session || session.type !== 'recruiter') {
-    throw new Error("Unauthorized")
+    return []
   }
 
   try {

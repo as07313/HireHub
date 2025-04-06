@@ -59,6 +59,7 @@ export default function RecruiterLoginPage() {
       
       // Store auth data
       localStorage.setItem('token', data.token);
+      console.log(data.token)
       localStorage.setItem('userType', 'recruiter');
       localStorage.setItem('userData', JSON.stringify(data.user));
       

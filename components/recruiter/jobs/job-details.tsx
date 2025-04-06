@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CheckCircle } from "lucide-react"
 import { Job } from "@/app/types/job"
+import { useRouter } from "next/navigation"
 
 interface JobDetailsProps {
   job: Job
@@ -11,6 +12,8 @@ interface JobDetailsProps {
 
 export function JobDetails({ job }: JobDetailsProps) {
   // Convert requirements and benefits to arrays if they're strings
+  
+  const router = useRouter()
   const requirementsList = Array.isArray(job.requirements) 
     ? job.requirements 
     : [job.requirements].filter(Boolean)
@@ -57,8 +60,13 @@ export function JobDetails({ job }: JobDetailsProps) {
       </div>
 
       <div className="flex justify-end gap-4">
-        <Button variant="outline">Edit Job</Button>
-        <Button>View Applicants</Button>
+      <Button 
+        variant="outline" 
+        onClick={() => router.push(`/recruiter/jobs/${job.id}/edit`)}
+      >
+        Edit Job
+      </Button>
+      <Button>View Applicants</Button>
       </div>
     </div>
   )

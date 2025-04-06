@@ -2,6 +2,7 @@
 
 import { auth } from "@/app/middleware/auth"
 import { Applicant, IApplicant } from "@/models/Applicant"
+import { Candidate } from '@/models/User'
 import { Resume } from "@/models/Resume"
 import connectToDatabase from "@/lib/mongodb"
 import { Document, Types } from 'mongoose'
@@ -63,7 +64,8 @@ export async function getJobApplicants(jobId: string): Promise<JobApplicant[]> {
     const applications = await Applicant.find({ jobId })
       .populate({
         path: 'candidateId',
-        select: 'fullName email phone skills experience location currentRole company'
+        model: Candidate,
+        select: 'fullName email phone skills experience'
       })
       .populate({
         path: 'resumeId',

@@ -30,10 +30,15 @@ export function RankingButton({
     
     const intervalId = setInterval(async () => {
       try {
-        const response = await fetch(`/api/jobs/${jobId}/ranking-status`)
-        if (!response.ok) {
-          throw new Error('Failed to fetch ranking status')
+        const token = localStorage.getItem('token')
+        if (!token) {
+          console.log('No authentication')
         }
+        const response = await fetch(`/api/jobs/${jobId}/ranking-status`,
+          {headers: {
+            'Authorization': `Bearer ${token}`
+          }}
+        )
         
         const data = await response.json()
         
@@ -60,13 +65,18 @@ export function RankingButton({
   // Start ranking process
   const startRanking = async () => {
     try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        console.log('No authentication')
+      }
       setIsRanking(true)
       onRankingStart()
       
       const response = await fetch(`/api/jobs/${jobId}/rank-candidates`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           forceRefresh: hasRankingResults // Force refresh if already ranked

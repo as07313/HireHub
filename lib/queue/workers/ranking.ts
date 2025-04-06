@@ -3,6 +3,7 @@ import connectToDatabase from '../../mongodb';
 import { Job } from '../../../models/Job';
 import { Applicant } from '../../../models/Applicant';
 import { Resume } from '../../../models/Resume';
+import { Candidate } from '../../../models/User'; // Add this import
 import { RankingJobMessage, StatusUpdateMessage, QUEUES } from '../config';
 import { ResumeProcessor } from './helpers/resume-processor';
 import redis from '../../redis';
@@ -86,7 +87,8 @@ export async function processRankingJob(message: RankingJobMessage): Promise<voi
         .limit(BATCH_SIZE)
         .populate({
           path: 'candidateId',
-          select: 'fullName email phone skills experience location currentRole company'
+          model: Candidate,
+          select: 'fullName email phone skills experience'
         })
         .populate({
           path: 'resumeId',
@@ -100,8 +102,8 @@ export async function processRankingJob(message: RankingJobMessage): Promise<voi
       // Process this batch
       try {
         // Prepare batch data
-        const batch = ResumeProcessor.prepareResumeBatch(applicants);
-        
+        const batch = await ResumeProcessor.prepareResumeBatchFromS3(applicants);
+  
         // Skip empty batches
         if (batch.length === 0) continue;
         

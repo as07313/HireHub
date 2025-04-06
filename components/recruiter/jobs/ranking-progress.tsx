@@ -17,7 +17,15 @@ export function RankingProgress({ jobId }: RankingProgressProps) {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await fetch(`/api/jobs/${jobId}/ranking-status`)
+        const token = localStorage.getItem('token')
+        if (!token) {
+          console.log('No authentication')
+        }
+        const response = await fetch(`/api/jobs/${jobId}/ranking-status`,
+          {headers: {
+            'Authorization': `Bearer ${token}`
+          }}
+        )
         
         if (!response.ok) {
           throw new Error('Failed to fetch ranking status')

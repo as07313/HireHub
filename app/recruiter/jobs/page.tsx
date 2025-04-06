@@ -5,7 +5,8 @@ import { getJobs } from "@/app/actions/recruiter/get-jobs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
-export const revalidate = 60 // Revalidate data every 60 seconds
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function RecruiterJobsPage() {
   const initialJobs = await getJobs()

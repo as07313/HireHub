@@ -8,28 +8,45 @@ interface ApplicantDocumentsProps {
   applicant: any
 }
 
-const documents = [
-  {
-    name: "Resume.pdf",
-    type: "resume",
-    size: "245 KB",
-    lastModified: "2024-03-15",
-  },
-  {
-    name: "Cover_Letter.pdf",
-    type: "cover_letter",
-    size: "180 KB",
-    lastModified: "2024-03-15",
-  },
-  {
-    name: "Portfolio.pdf",
-    type: "portfolio",
-    size: "1.2 MB",
-    lastModified: "2024-03-15",
-  },
-]
-
 export function ApplicantDocuments({ applicant }: ApplicantDocumentsProps) {
+  // Check if the applicant has any documents
+  const hasDocuments = applicant?.resume || applicant?.coverLetter
+  
+  // Create documents array based on actual applicant data
+  const documents = []
+  
+  // Add resume if available
+  if (applicant.resume) {
+    documents.push({
+      name: applicant.resume.fileName || "Resume.pdf",
+      type: "resume",
+      size: "Document",
+      lastModified: new Date(applicant.resume.uploadDate).toLocaleDateString(),
+      filePath: applicant.resume.filePath
+    })
+  }
+  
+  // Add cover letter if available
+  if (applicant.coverLetter) {
+    documents.push({
+      name: "Cover_Letter.pdf",
+      type: "cover_letter",
+      size: "Document",
+      lastModified: new Date(applicant.appliedDate).toLocaleDateString(),
+      content: applicant.coverLetter
+    })
+  }
+
+  // Handle document actions
+  const handleViewDocument = (doc: any) => {
+    if (doc.type === "resume" && doc.filePath) {
+      window.open(doc.filePath, "_blank")
+    } else if (doc.type === "cover_letter" && doc.content) {
+      // For cover letters, we could create a preview modal, but for now just alert
+      alert("Cover Letter Content: " + doc.content.substring(0, 100) + "...")
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -40,31 +57,45 @@ export function ApplicantDocuments({ applicant }: ApplicantDocumentsProps) {
       </div>
 
       <div className="space-y-4">
-        {documents.map((doc, index) => (
-          <Card key={index} className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="rounded-lg border p-2">
-                  <FileText className="h-6 w-6 text-blue-500" />
+        {documents.length > 0 ? (
+          documents.map((doc, index) => (
+            <Card key={index} className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-lg border p-2">
+                    <FileText className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{doc.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {doc.size} • Uploaded on {doc.lastModified}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{doc.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {doc.size} • Uploaded on {doc.lastModified}
-                  </p>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => handleViewDocument(doc)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    disabled={!doc.filePath}
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon">
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            </Card>
+          ))
+        ) : (
+          <Card className="p-6 text-center">
+            <p className="text-muted-foreground">No documents available for this applicant</p>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   )

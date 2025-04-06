@@ -20,23 +20,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         return res.status(200).json(job)
 
-      case 'PUT':
+        case 'PUT':
+          const user = await Apiauth(req, res)
+          if (!user) {
+            return res.status(402).json({error: "User not found"})
+          }
 
-        const  user  = await Apiauth(req, res)
-        if (!user) {
-          return res.status(402).json({error: "User not found"})
-        }
-        // if (user.role !== 'recruiter') {
-        //   return res.status(403).json({ error: 'Not authorized' })
-        // }
+          // Transform form data to match database schema
+          const updateData = {
+            ...req.body,
+            requirements: req.body.requirements?.split('\n').filter(Boolean) || [],
+            benefits: req.body.benefits?.split('\n').filter(Boolean) || [],
+            skills: req.body.skills?.split(',').map((s: string) => s.trim()).filter(Boolean) || [],
+            employmentType: req.body.type, // Map type to employmentType
+          }
 
-        const updatedJob = await Job.findByIdAndUpdate(
-          id,
-          { ...req.body },
-          { new: true }
-        )
+          const updatedJob = await Job.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+          )
 
-        return res.status(200).json(updatedJob)
+          return res.status(200).json(updatedJob)
 
       case 'DELETE':
         //const authUser = await auth(req, res)

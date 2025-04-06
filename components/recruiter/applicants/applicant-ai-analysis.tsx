@@ -4,35 +4,57 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Brain, CheckCircle2, AlertTriangle, Lightbulb } from "lucide-react";
 
-interface ApplicantAIAnalysisProps {
-  applicant: any;
+interface AnalysisSection {
+  score: number;
+  strengths: string[];
+  gaps: string[];
 }
 
-// Mock AI analysis - Replace with actual API data
-const aiAnalysis = {
-  matching_analysis: {
-    technical_skills: {
-      score: 92,
-      strengths: ["Strong React expertise", "Advanced TypeScript knowledge"],
-      gaps: ["Limited Python experience"]
-    },
-    experience_fit: {
-      score: 88,
-      strengths: ["Relevant industry experience", "Leadership roles"],
-      gaps: ["Shorter tenure in current role"]
-    },
-    culture_fit: {
-      score: 95,
-      strengths: ["Collaborative approach", "Problem-solving mindset"],
-      gaps: []
-    }
-  },
-  description: "Strong candidate with exceptional technical skills and leadership experience. Cultural alignment is particularly notable.",
-  score: 85,
-  recommendation: "Strongly recommended for next stage. Consider fast-tracking for technical interview with senior engineering team."
-};
+interface AIAnalysis {
+  technicalSkills: AnalysisSection;
+  experience: AnalysisSection;
+  education: AnalysisSection;
+}
+
+interface ApplicantAIAnalysisProps {
+  applicant: {
+    aiAnalysis?: AIAnalysis | null;
+  };
+}
 
 export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
+  // Check if AI analysis data exists
+  if (!applicant.aiAnalysis) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Brain className="h-5 w-5 text-primary" />
+          <h2 className="text-xl font-semibold">AI Analysis</h2>
+        </div>
+        <Card className="p-6 text-center">
+          <p className="text-muted-foreground">No AI analysis data available for this candidate</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Use the actual aiAnalysis data from the applicant prop
+  const { aiAnalysis } = applicant;
+  
+  // Calculate overall score as average of individual scores
+  const overallScore = Math.round(
+    (aiAnalysis.technicalSkills.score + 
+     aiAnalysis.experience.score + 
+     aiAnalysis.education.score) / 3
+  );
+  
+  // Create an analysis object with the structure we need for rendering
+  const analysisData: Record<string, AnalysisSection> = {
+    technical_skills: aiAnalysis.technicalSkills,
+    experience: aiAnalysis.experience,
+    education: aiAnalysis.education
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -47,14 +69,14 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
             <p className="text-sm text-muted-foreground">Based on job requirements</p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold">{aiAnalysis.score}%</p>
+            <p className="text-2xl font-bold">{overallScore}%</p>
           </div>
         </div>
-        <Progress value={aiAnalysis.score} className="h-2" />
+        <Progress value={overallScore} className="h-2" />
       </Card>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {Object.entries(aiAnalysis.matching_analysis).map(([key, analysis]) => (
+        {Object.entries(analysisData).map(([key, analysis]) => (
           <Card key={key} className="p-4">
             <div className="space-y-2">
               <h4 className="font-medium capitalize">{key.replace('_', ' ')}</h4>
@@ -73,10 +95,10 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
               <h3 className="font-semibold">Key Strengths</h3>
             </div>
             <ul className="space-y-2 pl-7">
-            {Object.entries(aiAnalysis.matching_analysis).map(([category, analysis]) => 
-                analysis.strengths.map((strength) => (
+              {Object.entries(analysisData).map(([category, analysis]) => 
+                analysis.strengths.map((strength: string, idx: number) => (
                   <li 
-                    key={`${category}-strength-${strength}`} 
+                    key={`${category}-strength-${idx}`} 
                     className="text-sm text-muted-foreground list-disc"
                   >
                     {strength}
@@ -92,10 +114,10 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
               <h3 className="font-semibold">Areas for Consideration</h3>
             </div>
             <ul className="space-y-2 pl-7">
-            {Object.entries(aiAnalysis.matching_analysis).map(([category, analysis]) => 
-                analysis.gaps.map((gap) => (
+              {Object.entries(analysisData).map(([category, analysis]) => 
+                analysis.gaps.map((gap: string, idx: number) => (
                   <li 
-                    key={`${category}-gap-${gap}`} 
+                    key={`${category}-gap-${idx}`} 
                     className="text-sm text-muted-foreground list-disc"
                   >
                     {gap}
@@ -105,17 +127,31 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
             </ul>
           </div>
 
+          {/* Recommendation section based on overall score */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Lightbulb className="h-5 w-5 text-blue-500" />
               <h3 className="font-semibold">AI Recommendation</h3>
             </div>
             <p className="text-sm text-muted-foreground pl-7">
-              {aiAnalysis.recommendation}
+              {getRecommendation(overallScore)}
             </p>
           </div>
         </div>
       </Card>
     </div>
   );
+}
+
+// Helper function to generate recommendation based on score
+function getRecommendation(score: number): string {
+  if (score >= 90) {
+    return "Exceptional candidate match. Strongly recommended for next stage. Consider fast-tracking for interview with hiring team.";
+  } else if (score >= 75) {
+    return "Strong candidate with good alignment to job requirements. Recommended to proceed to next stage.";
+  } else if (score >= 60) {
+    return "Moderate match to position. Consider additional screening before proceeding.";
+  } else {
+    return "Limited alignment with current role requirements. May be better suited for alternative positions.";
+  }
 }

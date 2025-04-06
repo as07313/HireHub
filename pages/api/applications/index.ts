@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import { Applicant } from '@/models/Applicant';
 import { Job } from '@/models/Job';
 import { Apiauth }  from '@/app/middleware/auth'
+import {queueApplicationForRanking } from '@/lib/queue/auto-ranking'
 
 
 // pages/api/applications/index.ts
@@ -54,6 +55,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     { new: true, runValidators: true }
                 );
 
+                await queueApplicationForRanking(jobId);
+
+                
                 return res.status(201).json(application);
 
             default:
