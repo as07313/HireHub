@@ -4,9 +4,13 @@ dotenv.config();
 import RabbitMQClient from '../rabbitmq';
 import { QUEUES, RankingJobMessage } from '../config';
 import { processRankingJob } from './ranking';
+import { processResumeFromQueue } from './resume-processor-worker';
+import { ResumeProcessingMessage } from '../auto-ranking';
 import { logInfo, logError } from '../../logger';
 import connectToDatabase from '../../mongodb';
 
+// Add constants for resume processing queue
+const RESUME_PROCESSING_QUEUE = 'resume-processing';
 
 // Add basic logger if you don't have one
 export const logger = {
@@ -26,6 +30,9 @@ async function initializeWorkers() {
     // Start job ranking worker
     await startRankingWorker();
     
+    // Start resume processing worker
+    await startResumeWorker();
+    
     logger.info('All workers initialized and ready');
   } catch (error) {
     logger.error('Failed to initialize workers', error);
@@ -39,7 +46,6 @@ async function startRankingWorker() {
   try {
     logger.info('Starting ranking worker...');
     
-    // Add explicit type for message parameter
     await rabbitmq.consumeMessages<RankingJobMessage>(
       QUEUES.RESUME_RANKING, 
       async (message, ack, nack) => {
@@ -67,19 +73,52 @@ async function startRankingWorker() {
   }
 }
 
-// Handle graceful shutdown
-function handleShutdown() {
+// New function to start the resume processing worker
+async function startResumeWorker() {
   const rabbitmq = RabbitMQClient.getInstance();
   
-  logger.info('Shutting down workers...');
+  try {
+    logger.info('Starting resume processing worker...');
+    
+    await rabbitmq.consumeMessages<ResumeProcessingMessage>(
+      RESUME_PROCESSING_QUEUE, 
+      async (message, ack, nack) => {
+        try {
+          logger.info(`Processing resume ${message.resumeId} for application ${message.applicantId}`);
+          
+          // Process the resume
+          await processResumeFromQueue(message);
+          
+          // Acknowledge successful processing
+          ack();
+        } catch (error) {
+          logger.error(`Error processing resume ${message.resumeId}:`, error);
+          
+          // Nack message, don't requeue if it's a permanent error
+          nack(false);
+        }
+      }
+    );
+    
+    logger.info('Resume processing worker started successfully');
+  } catch (error) {
+    logger.error('Failed to start resume processing worker', error);
+    throw error;
+  }
+}
+
+// Handle graceful shutdown
+function handleShutdown() {
+  logger.info('Shutdown signal received. Closing connections...');
   
+  const rabbitmq = RabbitMQClient.getInstance();
   rabbitmq.close()
     .then(() => {
-      logger.info('Workers shut down successfully');
+      logger.info('Connections closed successfully');
       process.exit(0);
     })
-    .catch((error) => {
-      logger.error('Error shutting down workers', error);
+    .catch(err => {
+      logger.error('Error closing connections', err);
       process.exit(1);
     });
 }

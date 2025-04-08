@@ -1,7 +1,7 @@
 // components/candidate/jobs/job-application-dialog.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -30,6 +30,8 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
   const [processingStage, setProcessingStage] = useState<'idle' | 'processing' | 'processed'>('idle')
   const [progress, setProgress] = useState(0)
   const [isLoadingResumes, setIsLoadingResumes] = useState(false)
+  const selectKey = useRef(0)
+
 
   // Fetch user's resumes
     const fetchResumes = async () => {
@@ -85,6 +87,7 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       const newResume = await response.json();
       setResumes(prev => [...prev, newResume]);
       setSelectedResume(newResume._id);
+      selectKey.current += 1;
       toast.success('Resume uploaded successfully');
     } catch (error) {
       toast.error('Failed to upload resume');
@@ -98,35 +101,18 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
       toast.error("Please select a resume");
       return;
     }
-
+  
     setIsSubmitting(true);
     setProcessingStage('processing');
-
+  
     try {
       // Simulate progress while processing
       const progressInterval = setInterval(() => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 500);
-
-      // First, send the selected resume to LlamaCloud
+  
+      // Submit the application directly - this will trigger resume queuing
       const token = localStorage.getItem('token');
-      const processResponse = await fetch(`/api/resume/${selectedResume}/process`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!processResponse.ok) {
-        throw new Error('Failed to process resume');
-      }
-
-      // Complete the progress bar and show success
-      clearInterval(progressInterval);
-      setProgress(100);
-      setProcessingStage('processed');
-
-      // Then submit the application
       const response = await fetch('/api/applications', {
         method: 'POST',
         headers: {
@@ -137,15 +123,20 @@ export function JobApplicationDialog({ jobId, open, onOpenChange }: JobApplicati
           jobId,
           resumeId: selectedResume,
           coverLetter,
-          processResume: true
+          processResume: true  // This flag can be used server-side to trigger queue processing
         })
       });
-
+  
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to submit application');
       }
-
+  
+      // Complete the progress bar and show success
+      clearInterval(progressInterval);
+      setProgress(100);
+      setProcessingStage('processed');
+  
       toast.success("Application submitted successfully!");
       onOpenChange(false);
       setCoverLetter("");

@@ -2,9 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import connectToDatabase from '@/lib/mongodb';
 import { Applicant } from '@/models/Applicant';
 import { Job } from '@/models/Job';
-import { Apiauth }  from '@/app/middleware/auth'
-//import {queueApplicationForRanking } from '@/lib/queue/auto-ranking'
-
+import { Apiauth }  from '@/app/middleware/auth';
+import { queueApplicationForRanking } from '@/lib/queue/auto-ranking';
 
 // pages/api/applications/index.ts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -45,7 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     coverLetter,
                     status: 'new',
                     appliedDate: new Date(),
-                    jobFitScore: 0
+                    jobFitScore: 0,
+                    resumeProcessed: false
                 });
 
                 // Update job with new applicant
@@ -55,8 +55,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     { new: true, runValidators: true }
                 );
 
-                //await queueApplicationForRanking(jobId);
-
+                // Queue the resume for processing with LlamaCloud
+                try {
+                    await queueApplicationForRanking(jobId, application._id.toString(), resumeId);
+                } catch (queueError) {
+                    console.error('Failed to queue resume for processing:', queueError);
+                    // Continue - we don't want to fail the application if queueing fails
+                }
                 
                 return res.status(201).json(application);
 

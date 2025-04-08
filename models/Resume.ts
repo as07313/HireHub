@@ -8,6 +8,8 @@ interface IResume extends Document {
   filePath: string;
   uploadDate: Date;
   lastModified: Date;
+  processingStatus: 'queued' | 'processing' | 'completed' | 'error';
+  processingError?: string;
   parsedData: {
     Name: string;
     'Contact Information': string;
@@ -37,6 +39,14 @@ const ResumeSchema = new Schema({
   filePath: { type: String, required: true }, // Add this field
   uploadDate: { type: Date, default: Date.now },
   lastModified: { type: Date, default: Date.now },
+  processingStatus: {
+    type: String,
+    enum: ['queued', 'processing', 'completed', 'error'],
+    default: 'queued'
+  },
+  processingError: {
+    type: String
+  },
   parsedData: {
     Name: { type: String, required: false },
     'Contact Information': { type: String, required: false },

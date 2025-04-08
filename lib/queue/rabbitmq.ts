@@ -99,6 +99,11 @@ class RabbitMQClient {
         maxPriority: 10
       });
 
+      await this.channel.assertQueue('resume-processing', {  // Add this queue
+        durable: true,
+        maxPriority: 10
+      });
+
       // Create a status updates queue
       await this.channel.assertQueue('ranking-status', {
         durable: true

@@ -12,6 +12,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["lib/queue/**/*.ts"],
+  "include": ["lib/queue/workers/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -78,6 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           uploadDate: new Date(),
           lastModified: new Date(),
           status: 'completed',
+          processingStatus: 'queued',
           parsedData: {
             Name: 'Pending Parse',
             'Contact Information': 'Pending Parse',
@@ -102,36 +103,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log(`Received file: ${file.originalFilename} (${file.size} bytes)`);
 
         // ✅ Use FormData and append a stream instead of converting to Buffer
-        if (fields.isForApplication && fields.isForApplication[0] === 'true') {
-        const formData = new FormData();
-        const fileStream = fs.createReadStream(file.filepath);
+      //   if (fields.isForApplication && fields.isForApplication[0] === 'true') {
+      //   const formData = new FormData();
+      //   const fileStream = fs.createReadStream(file.filepath);
 
-        formData.append('files', fileStream, { filename: file.originalFilename || 'resume.pdf' });
+      //   formData.append('files', fileStream, { filename: file.originalFilename || 'resume.pdf' });
 
-        console.log('Sending file to FastAPI backend...');
+      //   console.log('Sending file to FastAPI backend...');
 
-        const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
-          method: 'POST',
-          body: formData,
-          headers: formData.getHeaders(), // Important for multipart/form-data requests
-        });
+      //   const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
+      //     method: 'POST',
+      //     body: formData,
+      //     headers: formData.getHeaders(), // Important for multipart/form-data requests
+      //   });
 
-        console.log(llamaResponse)
+      //   console.log(llamaResponse)
 
-        if (!llamaResponse.ok) {
-          console.error('Error response from LlamaCloud API');
-          const error = await llamaResponse.json();
-          console.error('LlamaCloud API Error:', error);
-          if (error instanceof Error) {
-            throw new Error(error.message || 'Failed to process resume');
-          } else {
-            throw new Error('Failed to process resume');
-          }
-        }
-      }
-        await Resume.findByIdAndUpdate(resume._id, { status: 'completed' });
-        console.log('File successfully processed by LlamaCloud API.');
-        return res.status(201).json({ message: 'Successful' });
+      //   if (!llamaResponse.ok) {
+      //     console.error('Error response from LlamaCloud API');
+      //     const error = await llamaResponse.json();
+      //     console.error('LlamaCloud API Error:', error);
+      //     if (error instanceof Error) {
+      //       throw new Error(error.message || 'Failed to process resume');
+      //     } else {
+      //       throw new Error('Failed to process resume');
+      //     }
+      //   }
+      // }
+      //   await Resume.findByIdAndUpdate(resume._id, { status: 'completed' });
+      //   console.log('File successfully processed by LlamaCloud API.');
+          return res.status(201).json({ message: 'Successful' });
       }
 
       default:
