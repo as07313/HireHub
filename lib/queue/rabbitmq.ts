@@ -24,7 +24,9 @@ class RabbitMQClient {
   }
 
   public async connect(): Promise<void> {
-    if (this.connection && this.channel) return;
+    if (this.connection && this.channel) {
+      await this.channel.prefetch(25); 
+    }
 
     // Prevent multiple connection attempts
     if (this.isConnecting && this.connectionPromise) {
@@ -186,15 +188,16 @@ class RabbitMQClient {
   }
 
   public async consumeMessages<T>(
-    queue: string,
-    callback: (message: T, ack: () => void, nack: (requeue: boolean) => void) => Promise<void>
-  ): Promise<amqp.Replies.Consume> {
-    try {
-      if (!this.channel) await this.connect();
-      if (!this.channel) throw new Error('Failed to create channel');
+  queue: string,
+  callback: (message: T, ack: () => void, nack: (requeue: boolean) => void) => Promise<void>,
+  prefetch: number = 1  // Add prefetch parameter with default value
+): Promise<amqp.Replies.Consume> {
+  try {
+    if (!this.channel) await this.connect();
+    if (!this.channel) throw new Error('Failed to create channel');
 
-      // Set prefetch to 1 to ensure fair work distribution
-      await this.channel.prefetch(1);
+    // Set prefetch to control concurrency
+    await this.channel.prefetch(prefetch);
 
       return this.channel.consume(
         queue,

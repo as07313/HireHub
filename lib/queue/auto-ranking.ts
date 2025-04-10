@@ -3,6 +3,7 @@ import connectToDatabase from '../mongodb';
 import { Resume } from '../../models/Resume';
 import { Job } from '../../models/Job';
 import { logInfo, logError } from '../logger';
+import { Applicant } from '../../models/Applicant';
 import RabbitMQClient from './rabbitmq';
 import redis from '../redis';
 
@@ -36,6 +37,28 @@ export async function queueApplicationForRanking(jobId: string, applicantId: str
     if (!resume) {
       logError(`Resume not found: ${resumeId}`);
       return;
+    }
+
+    if (resume.processingStatus === 'completed') {
+      logInfo(`Resume ${resumeId} already processed, skipping processing`);
+      
+      // Update the applicant to mark the resume as processed
+      if (applicantId) {
+        await Applicant.findByIdAndUpdate(applicantId, {
+          resumeProcessed: true,
+          resumeProcessedAt: new Date()
+        });
+      }
+      
+      // Return the existing task ID if available
+      const processingInfo = await redis.get(`resume:processing:${resumeId}`);
+      if (processingInfo) {
+        const parsed = JSON.parse(processingInfo);
+        return parsed.taskId;
+      }
+      
+      // If no task ID in Redis, generate a new one for tracking
+      return uuidv4();
     }
     
     // Generate task ID
