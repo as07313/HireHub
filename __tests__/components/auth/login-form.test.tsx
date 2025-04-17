@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { LoginForm } from "../../components/auth/login-form";
+import { LoginForm } from "@/components/auth/login-form";
 
 describe("LoginForm", () => {
   it("renders email and password fields", () => {

@@ -164,7 +164,7 @@ export class ResumeProcessor {
         const timeout = 30000 + (batchData.resumes.length * 5000); // Base + 5s per resume
         
         const response = await axios.post<RankingResponse>(
-          `${process.env.LOCAL_URL}/api/rank-job-applicants`,
+          `${process.env.SERVER_URL}/api/rank-job-applicants`,
           batchData,
           {
             headers: { "Content-Type": "application/json" },

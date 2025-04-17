@@ -6,7 +6,7 @@
   "scripts": {
     "analyze": "cross-env ANALYZE=true npm run build",
     "typecheck": "tsc --noEmit",
-    "dev": "npm run typecheck && nodemon --watch models --exec next dev",
+    "dev": "npm run typecheck && ts-node -P tsconfig.worker.json lib/queue/workers/index.ts && nodemon --watch models --exec next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

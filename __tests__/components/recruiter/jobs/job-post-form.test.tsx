@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { JobPostForm } from "../../components/recruiter/jobs/jobs-post-form";
+import { JobPostForm } from "@/components/recruiter/jobs/jobs-post-form";
 import { useForm } from "react-hook-form";
 
 // Mock options for select fields

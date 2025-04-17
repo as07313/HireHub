@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SecurityForm } from "../../components/candidate/settings/security-form";
+import { SecurityForm } from "@/components/candidate/settings/security-form";
 
 describe("SecurityForm", () => {
   it("renders password change fields", () => {

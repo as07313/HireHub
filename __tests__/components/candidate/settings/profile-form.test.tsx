@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { ProfileForm } from "../../components/candidate/settings/profile-form";
+import { ProfileForm } from "@/components/candidate/settings/profile-form";
 
 jest.mock("next/navigation", () => ({
   useRouter() {
