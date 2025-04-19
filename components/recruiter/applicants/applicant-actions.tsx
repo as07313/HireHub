@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Calendar, Mail, Video, UserX } from 'lucide-react';
 import { toast } from 'sonner';
-import { InterviewDialog } from '@/components/recruiter/candidates/interview-dialog';
+import { InterviewDialog } from '@/components/recruiter/applicants/interview-dialog';
 
 interface ApplicantActionsProps {
   jobId: string;
