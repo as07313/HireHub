@@ -16,6 +16,7 @@ import { JobList } from "@/components/candidate/dashboard/job-list"
 import { saveJob, removeSavedJob } from "@/app/actions/save-jobs"
 import { toast } from "sonner"
 import { BaseJob, JobUI } from "@/app/types/job"
+import { motion } from "framer-motion"
 
 interface SavedJobsClientProps {
   initialJobs: BaseJob[]
@@ -62,12 +63,17 @@ export function SavedJobsClient({ initialJobs }: SavedJobsClientProps) {
 
   return (
     <div className="container max-w-6xl py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Saved Jobs</h1>
-        <p className="text-muted-foreground">
-          Keep track of jobs you're interested in and apply when you're ready
+      <motion.div
+        className="mb-6" // Reduced mb-10
+        initial={{ opacity: 0, y: 15 }} // Reduced y
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }} // Reduced duration
+      >
+        <h1 className="text-2xl font-semibold text-gray-900 mb-1.5">Saved Jobs</h1> {/* Updated heading */}
+        <p className="text-base text-gray-600 max-w-xl"> {/* Updated description */}
+          Review and manage the jobs you've saved.
         </p>
-      </div>
+      </motion.div>
 
       <Card className="mb-6 p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

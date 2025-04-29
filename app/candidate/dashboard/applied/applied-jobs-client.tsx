@@ -10,6 +10,7 @@ import { Search, SlidersHorizontal } from "lucide-react"
 import { JobList } from "@/components/candidate/dashboard/job-list"
 import { BaseJob } from "@/app/types/job"
 import { JobUI } from "@/app/types/job"
+import { motion } from "framer-motion"
 
 interface AppliedJobsClientProps {
   initialJobs: BaseJob[]
@@ -42,6 +43,18 @@ export function AppliedJobsClient({ initialJobs }: AppliedJobsClientProps) {
 
   return (
     <div className="container max-w-6xl py-8">
+      <motion.div
+        className="mb-6" // Reduced mb-10
+        initial={{ opacity: 0, y: 15 }} // Reduced y
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }} // Reduced duration
+      >
+        <h1 className="text-2xl font-semibold text-gray-900 mb-1.5">My Applications</h1>
+        <p className="text-base text-gray-600 max-w-xl">
+          Track the status of your job applications.
+        </p>
+      </motion.div>
+
       <Card className="mb-6 p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1">

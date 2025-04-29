@@ -152,15 +152,5 @@ CandidateSchema.pre<ICandidate>('save', async function(next) {
   next();
 });
 
-// Add indexes
-// CandidateSchema.index({ email: 1 });
-// CandidateSchema.index({ skills: 1 });
-// CandidateSchema.index({ 'applications': 1 });
-// CandidateSchema.index({ 'savedJobs': 1 });
-
-// RecruiterSchema.index({ email: 1 });
-//RecruiterSchema.index({ companyId: 1 });
-
-// Export models
 export const Candidate = mongoose.models.Candidate || mongoose.model<ICandidate>('Candidate', CandidateSchema);
 export const Recruiter = mongoose.models.Recruiter || mongoose.model<IRecruiter>('Recruiter', RecruiterSchema);

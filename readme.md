@@ -111,6 +111,7 @@ cd Nextjs-app
 npm install
 # or
 yarn install
+```
 
 #### Backend Parser Setup
 ```bash
@@ -199,10 +200,10 @@ Deployment instructions will vary based on your hosting provider. For production
 ## 👥 Project Team
 
 **Final Year Project Group Members:**
-- Ahmed Shoaib
-- Vania Imran
-- Asad Muhammad
-- Syed Nisar Hussain
+- **Ahmed Shoaib**
+- **Vania Imran**
+- **Asad Muhammad**
+- **Syed Nisar Hussain**
 
 ---
 
