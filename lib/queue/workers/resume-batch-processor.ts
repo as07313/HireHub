@@ -8,6 +8,10 @@ import redis from '../../redis';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import axios from 'axios';
 import { config } from 'dotenv';
+import { Readable } from 'stream';
+import { r2Client, R2_BUCKET_NAME } from '../../r2-client'; // Assuming R2 client setup is here
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { streamToBuffer } from '../../utils'; // Assuming streamToBuffer is here
 
 config(); // Load environment variables from .env file
 
@@ -52,37 +56,63 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
   const { taskId, resumeId, applicantId, jobId } = message;
   let parsedData: ParsedResumeData | null = null;
   let parsingError: string | null = null;
-  
+  let fileBuffer: Buffer | null = null; // To store file content from R2
+
   try {
     logInfo(`Batch processing resume ${resumeId} for application ${applicantId}`);
-    
+
     // Update status to processing
     await updateResumeStatus(resumeId, taskId, 'processing', 10);
-    
-    // Find the resume with all fields including filePath
-    const resume = await Resume.findById(resumeId).select('+filePath');
-    
+
+    // Find the resume to get the R2 key (filePath)
+    const resume = await Resume.findById(resumeId).select('filePath fileName'); // Select filePath and fileName
+
     if (!resume) {
       throw new Error(`Resume ${resumeId} not found`);
     }
-    
+
     if (!resume.filePath) {
-      throw new Error(`Resume ${resumeId} has no file path`);
+      throw new Error(`Resume ${resumeId} has no file path (R2 key)`);
     }
-    
-    // Check if file exists
-    if (!fs.existsSync(resume.filePath)) {
-      throw new Error(`Resume file ${resume.filePath} does not exist`);
+
+    // Remove the local file existence check - file is now in R2
+    // if (!fs.existsSync(resume.filePath)) {
+    //   throw new Error(`Resume file ${resume.filePath} does not exist`);
+    // }
+
+    // --- Start: Fetch file from R2 ---
+    try {
+      logInfo(`Fetching resume ${resume.filePath} from R2 bucket ${R2_BUCKET_NAME}`);
+      const command = new GetObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key: resume.filePath,
+      });
+      const { Body } = await r2Client.send(command);
+
+      if (!Body || !(Body instanceof Readable)) {
+        throw new Error(`Failed to get readable stream for R2 object: ${resume.filePath}`);
+      }
+      fileBuffer = await streamToBuffer(Body); // Read stream into buffer
+      logInfo(`Successfully fetched resume ${resume.filePath} from R2`);
+    } catch (r2Error) {
+      logError(`Failed to fetch resume ${resume.filePath} from R2:`, r2Error);
+      throw new Error(`Failed to fetch resume from R2: ${resume.filePath}`);
     }
+    // --- End: Fetch file from R2 ---
 
     // --- Start: Call Python Parser ---
     try {
       logInfo(`Calling Python parser for resume ${resumeId}`);
       await updateResumeStatus(resumeId, taskId, 'processing', 20, 'Parsing with OpenAI'); // Update progress
 
-      const fileStream = fs.createReadStream(resume.filePath);
+      if (!fileBuffer) {
+        throw new Error('File buffer is null after fetching from R2');
+      }
+
+      // const fileStream = fs.createReadStream(resume.filePath); // REMOVED: Don't read from local path
       const formData = new FormData();
-      formData.append('file', fileStream, { filename: resume.fileName });
+      // Use the buffer directly
+      formData.append('file', fileBuffer, { filename: resume.fileName });
 
       const parseResponse = await axios.post<ParsedResumeData>(PYTHON_PARSER_URL, formData, {
         headers: {
@@ -119,9 +149,13 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     const { default: fetch } = await import('node-fetch');
     
     // Create form data for LlamaCloud API
-    const formData = new FormData();
-    const fileStream = fs.createReadStream(resume.filePath);
-    formData.append('files', fileStream, { 
+    const formDataLlama = new FormData(); // Use a different FormData instance
+    if (!fileBuffer) { // Check buffer again
+      throw new Error('File buffer is null before sending to LlamaCloud');
+    }
+    // const fileStream = fs.createReadStream(resume.filePath); // REMOVED: Don't read from local path
+    // Use the buffer directly
+    formDataLlama.append('files', fileBuffer, { 
       filename: resume.fileName || 'resume.pdf'
     });
     
@@ -136,8 +170,8 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
           'https://hirehub-api-795712866295.europe-west4.run.app/api/upload', 
           {
             method: 'POST',
-            body: formData,
-            headers: formData.getHeaders()
+            body: formDataLlama, // Use the correct FormData instance
+            headers: formDataLlama.getHeaders() // Use headers from the correct instance
           }
         );
         
