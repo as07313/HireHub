@@ -38,7 +38,6 @@ export async function findJobById(jobId: string): Promise<BaseJob | null> {
 
     const jobDoc = await Job.findOne({ 
       _id: jobId,
-      status: 'active' 
     })
     .select('-applicants')
     .lean<PopulatedJob>(); // ✅ Correctly types lean() output

@@ -16,7 +16,7 @@ export default async function ApplicantDetailsPage({ params }: PageProps) {
   try {
     // Fetch real applicant data using the server action
     const applicant = await getApplicantDetail(id, applicantsId);
-    
+    console.log("applicant data", applicant)
     return (
       <ApplicantDetailsClient 
         jobId={id} 

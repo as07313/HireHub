@@ -17,7 +17,7 @@ interface PopulatedApplicationData {
   _id: Types.ObjectId;
   candidateId: Types.ObjectId; 
   jobId: BaseJob;
-  status: string;
+  status: string; // Applicant status (e.g., 'new', 'screening')
   appliedDate: Date;
   resumeId?: {
     _id: Types.ObjectId;
@@ -71,7 +71,9 @@ export async function getAppliedJobs(): Promise<BaseJob[]> {
       benefits: Array.isArray(app.jobId.benefits) ? app.jobId.benefits : [],
       skills: Array.isArray(app.jobId.skills) ? app.jobId.skills : [],
       postedDate: app.jobId.postedDate,
-      appliedDate: app.appliedDate
+      appliedDate: app.appliedDate,
+      applicationStatus: app.status // <-- Assign the applicant's status to applicationStatus
+
     }))
 
     return jobs
@@ -120,7 +122,8 @@ export async function getAppliedJob(jobId: string): Promise<AppliedJob | null> {
         : [],
       postedDate: application.jobId.postedDate,
       appliedDate: application.appliedDate,
-      resumeFilename: application.resumeId?.fileName || null
+      resumeFilename: application.resumeId?.fileName || null,
+      applicationStatus: application.status // <-- Assign the applicant's status to applicationStatus
     }
   } catch (error) {
     console.error('Error:', error)

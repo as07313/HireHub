@@ -18,6 +18,7 @@ export interface BaseJob {
   skills: string[];
   postedDate: Date;
   appliedDate?: Date;
+  applicationStatus?: string;
 }
 
 // UI specific job interface

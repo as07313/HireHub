@@ -1,30 +1,31 @@
 {
   "Name": "Ahmed Shoaib",
-  "Contact Information": "(92) 33731-66804 | ahmedshoaib.25967@gmail.com | www.linkedin.com/in/ahmed-shoaib-178021219/",
+  "Summary": "Detail-oriented, enthusiastic team player with a strong work ethic seeking a software engineering role in computer science. Eager to push boundaries, learn new concepts, and contribute innovative ideas to drive team success in a dynamic work environment.",      
+  "Contact Information": "(92) 33731-66804, ahmedshoaib.25967@gmail.com",
   "Education": [
     {
-      "Degree": "BACHELOR\u2019S IN COMPUTER SCIENCE",
+      "Degree": "BACHELORS IN COMPUTER SCIENCE",
       "Institution": "HABIB UNIVERSITY",
-      "Year": "2025"
+      "Year": "Expected Graduation May 2025"
     },
     {
       "Degree": "A LEVELS",
       "Institution": "NIXOR COLLEGE",
-      "Year": "2021"
+      "Year": "AUGUST 2019 - MAY 2021"
     }
   ],
   "Work Experience": [
     {
       "Job Title": "Data Analyst Intern",
       "Company": "JAFFER BUSINESS SYSTEMS",
-      "Duration": "AUGUST 2023 \u2013 DECEMBER 2023",
+      "Duration": "AUGUST 2023 - DECEMBER 2023",
       "Description": "Developed a comprehensive HR dashboard using Power BI to visualize employee data efficiently. Transformed raw HR data into intuitive visualizations for employee demographics city and company retention rates, company demographics, and attrition demographics. Enabled data-driven HR decision-making by providing real-time analytics on retention and organizational insights."
     },
     {
       "Job Title": "Data Engineer Intern",
       "Company": "FOLIO3",
-      "Duration": "JUNE 2023 \u2013 AUGUST 2023",
-      "Description": "Led a transformative project bridging data consistency between Microsoft Dynamics 365 (D365) and AX2012, ensuring seamless alignment of critical business data. Collaborated with a cross-functional team of industry professionals, gaining practical insights into ERP systems and real-world dynamics. Explored the fusion of technology and business operations within ERP systems, highlighting their strategic role in optimizing business functions"
+      "Duration": "JUNE 2023 - AUGUST 2023",
+      "Description": "Led a transformative project bridging data consistency between Microsoft Dynamics 365 (D365) and AX2012, ensuring seamless alignment of critical business data. Collaborated with a cross-functional team of industry professionals, gaining practical insights into ERP systems and real-world dynamics. Explored the fusion of technology and business operations within ERP systems, highlighting their strategic role in optimizing business functions."
     }
   ],
   "Skills": [
@@ -40,6 +41,7 @@
   "metadata": {
     "file_name": "ahmedshoaib_resume_fse.pdf",
     "text_length": 3079,
+    "parser_type": "openai",
     "has_contact": true,
     "education_count": 2,
     "experience_count": 2,

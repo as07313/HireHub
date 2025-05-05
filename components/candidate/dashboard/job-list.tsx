@@ -27,20 +27,41 @@ interface JobListProps {
 }
 
 // Enhanced status styles with better contrast and modern look
-const statusStyles = {
+const statusStyles: Record<string, string> = {
+  // Job Statuses (used when type != 'applied')
   active: "bg-blue-100 text-blue-700 border border-blue-200",
-  interviewing: "bg-yellow-100 text-yellow-700 border border-yellow-200",
-  offered: "bg-green-100 text-green-700 border border-green-200",
+  closed: "bg-gray-100 text-gray-700 border border-gray-200", // Use gray for closed jobs
+  inactive: "bg-gray-100 text-gray-700 border border-gray-200",
+
+  // Application Statuses (used when type == 'applied')
+  new: "bg-cyan-100 text-cyan-700 border border-cyan-200",
+  screening: "bg-purple-100 text-purple-700 border border-purple-200",
+  shortlist: "bg-indigo-100 text-indigo-700 border border-indigo-200", // Added shortlist
+  interview: "bg-yellow-100 text-yellow-700 border border-yellow-200",
+  offer: "bg-lime-100 text-lime-700 border border-lime-200", // Changed offer color
+  hired: "bg-green-100 text-green-700 border border-green-200", // Changed hired color
   rejected: "bg-red-100 text-red-700 border border-red-200",
+
   default: "bg-gray-100 text-gray-700 border border-gray-200", // Default style
 }
 
-const statusLabels = {
-  active: "Under Review",
-  interviewing: "Interviewing",
-  offered: "Offer Received",
-  rejected: "Not Selected",
+// Labels for different statuses
+const statusLabels: Record<string, string> = {
+  // Job Statuses
+  active: "Active", // Label for the job itself being active
+  closed: "Closed", // Label for the job itself being closed
+  inactive: "Inactive",
+
+  // Application Statuses (using user-friendly labels)
+  new: "Applied", // More user-friendly label for 'new' application
+  screening: "Screening",
+  shortlist: "Shortlisted",
+  interview: "Interview",
+  offer: "Offer Received",
+  hired: "Hired",
+  rejected: "Not Selected", // More user-friendly label for 'rejected'
 }
+
 
 export function JobList({
   jobs = [],
@@ -75,6 +96,7 @@ export function JobList({
       case "saved":
         return formatDate(job.savedDate);
       default:
+        // For 'all' jobs (like find-jobs), use postedDate
         return formatDate(job.postedDate);
     }
   }
@@ -82,11 +104,11 @@ export function JobList({
   const getDateColumnLabel = () => {
     switch (type) {
       case "applied":
-        return "Applied";
+        return "Date Applied"; // Changed label for clarity
       case "saved":
-        return "Saved";
+        return "Date Saved"; // Changed label for clarity
       default:
-        return "Posted";
+        return "Date Posted"; // Changed label for clarity
     }
   }
 
@@ -106,9 +128,9 @@ export function JobList({
         {/* Ensure no whitespace is rendered between TableHeader and TableBody */}
         <TableBody>
           {jobsArray.length === 0 ? (
-            <TableRow>
+             <TableRow>
               <TableCell colSpan={showStatus ? 4 : 3} className="h-24 text-center text-muted-foreground">
-                No jobs found.
+                {searchQuery ? `No jobs found matching "${searchQuery}"` : (type === 'applied' ? 'You have not applied to any jobs yet.' : (type === 'saved' ? 'You have not saved any jobs yet.' : 'No jobs found.'))}
               </TableCell>
             </TableRow>
           ) : (
@@ -155,14 +177,17 @@ export function JobList({
                 </TableCell>
                 {showStatus && (
                   <TableCell className={cn("py-3 px-4", compact && "py-2")}>
+                    {/* Ensure job.status is treated as string | undefined */}
+                    {/* Use lowercase status for lookup, provide default */}
                     <Badge
                       variant="secondary"
                       className={cn(
-                        "px-2 py-0.5 text-xs font-medium rounded-full capitalize", // Rounded pill shape
-                        statusStyles[job.status as keyof typeof statusStyles] ?? statusStyles.default
+                        "px-2 py-0.5 text-xs font-medium rounded-full capitalize whitespace-nowrap", // Added whitespace-nowrap
+                        statusStyles[(job.status?.toLowerCase() ?? 'default')] ?? statusStyles.default
                       )}
                     >
-                      {statusLabels[job.status as keyof typeof statusLabels] ?? job.status ?? "Pending"}
+                      {/* Use lowercase status for lookup, provide default/fallback label */}
+                      {statusLabels[(job.status?.toLowerCase() ?? 'default')] ?? job.status ?? "Pending"}
                     </Badge>
                   </TableCell>
                 )}

@@ -27,6 +27,8 @@ interface IApplicantPopulated {
     fileName: string;
     filePath: string;
     uploadDate: Date;
+    parsedData?: Record<string, any>; // Add parsedData here
+
   };
   coverLetter?: string;
   interviews?: Array<{
@@ -83,7 +85,7 @@ export async function getApplicantDetail(jobId: string, applicantId: string) {
     .populate({
       path: 'resumeId',
       model: Resume,
-      select: 'fileName filePath uploadDate'
+      select: 'fileName filePath uploadDate parsedData'
     })
     .lean<IApplicantPopulated>()
 
@@ -132,7 +134,9 @@ export async function getApplicantDetail(jobId: string, applicantId: string) {
         id: application.resumeId._id.toString(),
         fileName: application.resumeId.fileName || '',
         filePath: application.resumeId.filePath || '',
-        uploadDate: new Date(application.resumeId.uploadDate).toISOString().split('T')[0]
+        uploadDate: new Date(application.resumeId.uploadDate).toISOString().split('T')[0],
+        parsedData: application.resumeId.parsedData || null // Add parsedData here
+
       } : null,
       interviews: (application.interviews || []).map((interview) => ({
         scheduledDate: new Date(interview.scheduledDate).toISOString().split('T')[0],

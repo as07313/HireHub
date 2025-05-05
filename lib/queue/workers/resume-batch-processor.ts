@@ -1,26 +1,29 @@
 import fs from 'fs';
 import FormData from 'form-data';
 import { ResumeProcessingMessage } from '../auto-ranking';
-import connectToDatabase from '../../mongodb';
 import { Resume } from '../../../models/Resume';
 import { Applicant } from '../../../models/Applicant';
 import { logInfo, logError } from '../../logger';
 import redis from '../../redis';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import axios from 'axios';
+import { config } from 'dotenv';
 
-// S3 configuration
-const s3Client = new S3Client({
-  endpoint: process.env.S3_ENDPOINT || undefined,
-  region: process.env.AWS_REGION || '',
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || ''
-  },
-  forcePathStyle: true
-});
+config(); // Load environment variables from .env file
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || 'fypbucket';
-const PARSED_FOLDER = 'parsed';
+interface ParsedResumeData {
+  Name?: string;
+  Summary?: string;
+  'Contact Information'?: string;
+  Education?: any[];
+  'Work Experience'?: any[];
+  Skills?: string[];
+  metadata?: Record<string, any>;
+  error?: string; 
+}
+
+const PYTHON_PARSER_URL = process.env.PYTHON_PARSER_URL || 'http://localhost:8000/parse-resume'; // Use env var
+
 
 /**
  * Process a batch of resumes concurrently
@@ -47,6 +50,8 @@ export async function processBatchOfResumes(batch: ResumeProcessingMessage[]): P
  */
 async function processResumeInBatch(message: ResumeProcessingMessage): Promise<void> {
   const { taskId, resumeId, applicantId, jobId } = message;
+  let parsedData: ParsedResumeData | null = null;
+  let parsingError: string | null = null;
   
   try {
     logInfo(`Batch processing resume ${resumeId} for application ${applicantId}`);
@@ -69,6 +74,43 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     if (!fs.existsSync(resume.filePath)) {
       throw new Error(`Resume file ${resume.filePath} does not exist`);
     }
+
+    // --- Start: Call Python Parser ---
+    try {
+      logInfo(`Calling Python parser for resume ${resumeId}`);
+      await updateResumeStatus(resumeId, taskId, 'processing', 20, 'Parsing with OpenAI'); // Update progress
+
+      const fileStream = fs.createReadStream(resume.filePath);
+      const formData = new FormData();
+      formData.append('file', fileStream, { filename: resume.fileName });
+
+      const parseResponse = await axios.post<ParsedResumeData>(PYTHON_PARSER_URL, formData, {
+        headers: {
+          ...formData.getHeaders(),
+        },
+        timeout: 60000, // 60 second timeout for parsing
+      });
+
+      if (parseResponse.status === 200) {
+          //console.log("parseResponse", parseResponse)
+          parsedData = parseResponse.data;
+          console.log("parsedData", parsedData)
+          logInfo(`Successfully parsed resume ${resumeId} with Python parser.`);
+          // Check if the parser itself returned an error message within the JSON
+      } else {
+          parsingError = `Python parser returned status ${parseResponse.status}`;
+          logError(parsingError);
+      }
+    } 
+    catch (err: any) {
+      parsingError = `Failed to call Python parser: ${err.message || err}`;
+      logError(`Error calling Python parser for ${resumeId}:`, err);
+      // Decide if this error is fatal for the whole process or just log and continue
+      // For now, we'll log it and store the error, but continue with LlamaCloud
+    }
+    // --- End: Call Python Parser ---
+
+
     
     // Update status to uploading
     await updateResumeStatus(resumeId, taskId, 'processing', 30);
@@ -86,6 +128,7 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     // Send to LlamaCloud API with retry mechanism
     let retries = 0;
     let llamaResponse;
+    let llamaError = null;
     
     while (retries < 3) {
       try {
@@ -98,63 +141,72 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
           }
         );
         
-        if (llamaResponse.ok) break;
-        
+        if (llamaResponse.ok) {
+          llamaError = null;
+          logInfo("Successfully sent resume to LlamaCloud API");
+          break;
+        }
+
+        const errorText = await llamaResponse.text();
+        llamaError = `LlamaCloud API returned status ${llamaResponse.status}: ${errorText}`;
+        logError(`${llamaError} (Attempt ${retries + 1}/3)`);        
         retries++;
-        logInfo(`Retry ${retries}/3 for resume ${resumeId}`);
+        if (retries >= 2) break; 
         await new Promise(resolve => setTimeout(resolve, 1000 * retries));
-      } catch (error) {
+      } 
+      
+      catch (error: any) {
+        llamaError = `Network error: ${error.message || error}`;
+        logError(`${llamaError} (Attempt ${retries + 1}/3)`);
         if (retries >= 2) throw error;
         retries++;
-        logInfo(`Network error, retry ${retries}/3 for resume ${resumeId}`);
         await new Promise(resolve => setTimeout(resolve, 1000 * retries));
       }
     }
     
     if (!llamaResponse || !llamaResponse.ok) {
+      logError(`Final LlamaCloud processing failed for ${resumeId}: ${llamaError}`);
+
       const error = await llamaResponse?.text() || 'Failed to contact LlamaCloud API';
       throw new Error(`LlamaCloud API error: ${error}`);
+    }
+    else {
+      logInfo(`LlamaCloud processed resume ${resumeId} successfully`);
+
+
     }
     
     // Update status to parsing
     await updateResumeStatus(resumeId, taskId, 'processing', 60);
     
     // Parse response
-    const responseData = await llamaResponse.json();
+    //const responseData = await llamaResponse.json();
     logInfo(`LlamaCloud processed resume ${resumeId} successfully`);
-    
-    // Extract the parsed content (uncomment if needed)
-    // const parsedContent = responseData.results[0]?.parsed_content || '';
-    
+        
     // Update status to storing
     await updateResumeStatus(resumeId, taskId, 'processing', 80);
     
-    // Store the parsed content in S3 (uncomment if needed)
-    // if (parsedContent) {
-    //   const mdFileName = `${PARSED_FOLDER}/${resume.fileName.replace(/\.[^/.]+$/, "")}.md`;
-    //   await s3Client.send(new PutObjectCommand({
-    //     Bucket: BUCKET_NAME,
-    //     Key: mdFileName,
-    //     Body: parsedContent,
-    //     ContentType: 'text/markdown'
-    //   }));
-    //   logInfo(`Stored parsed resume in S3: ${mdFileName}`);
-    // }
-    
-    // Update resume with parsed data
+    // Determine final status based on errors
+    const finalProcessingStatus = llamaError || parsingError ? 'error' : 'completed';
+    const finalStatus = finalProcessingStatus === 'error' ? 'error' : 'completed';
+    const combinedError = [parsingError, llamaError].filter(Boolean).join('; ');
+
     await Resume.findByIdAndUpdate(resumeId, {
-      status: 'completed',
-      processingStatus: 'completed',
+      status: finalStatus,
+      processingStatus: finalProcessingStatus,
+      parsedData: parsedData, 
+      processingError: combinedError || undefined, 
       lastModified: new Date()
     });
-    
-    // Update applicant to mark resume as processed
-    if (applicantId !== 'direct-upload') {
+
+    // Update applicant only if the overall process didn't have critical errors (adjust as needed)
+    if (finalProcessingStatus === 'completed' && applicantId !== 'direct-upload') {
       await Applicant.findByIdAndUpdate(applicantId, {
         resumeProcessed: true,
         resumeProcessedAt: new Date()
       });
     }
+    
     
     // Update final status
     await updateResumeStatus(resumeId, taskId, 'completed', 100);

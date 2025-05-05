@@ -6,6 +6,9 @@ import formidable from 'formidable';
 import fs from 'fs';
 import FormData from 'form-data'; // Correct FormData import
 import fetch from 'node-fetch'; // Ensure you're using node-fetch for backend API calls
+import os from 'os'; // Import the 'os' module
+
+
 
 export const config = {
   api: {
@@ -44,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Initialize formidable first
         const form = formidable({
-          uploadDir: './uploads',
+          uploadDir: os.tmpdir(), // Use the system's temporary directory
           keepExtensions: true,
           maxFileSize: 5 * 1024 * 1024, // 5MB
           filter: (part) => {
@@ -77,24 +80,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           filePath: file.filepath, // Store the file path
           uploadDate: new Date(),
           lastModified: new Date(),
-          status: 'completed',
+          status: 'pending',
           processingStatus: 'queued',
-          parsedData: {
-            Name: 'Pending Parse',
-            'Contact Information': 'Pending Parse',
-            Education: [{
-              Degree: 'Pending Parse',
-              Institution: 'Pending Parse',
-              Year: 'Pending Parse'
-            }],
-            'Work Experience': [{
-              'Job Title': 'Pending Parse',
-              Company: 'Pending Parse',
-              Duration: 'Pending Parse',
-              Description: 'Pending Parse'
-            }],
-            Skills: ['Pending Parse']
-          }
+          parsedData: null, // Initialize parsedData as null
+          processingError: null, // Initialize processingError as null
+          
+            
         });
         
         console.log('Resume record created:', resume);

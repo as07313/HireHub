@@ -66,7 +66,6 @@ export function JobDetails({ job }: JobDetailsProps) {
       >
         Edit Job
       </Button>
-      <Button>View Applicants</Button>
       </div>
     </div>
   )

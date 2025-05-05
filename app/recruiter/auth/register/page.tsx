@@ -85,6 +85,8 @@ export default function RecruiterRegisterPage() {
   useEffect(() => {
     if (watchPassword) {
       calculateStrength(watchPassword);
+    } else {
+      setPasswordStrength(0); 
     }
   }, [watchPassword]);
 
@@ -99,17 +101,19 @@ export default function RecruiterRegisterPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error);
+        throw new Error(error.error || 'Registration failed'); 
       }
 
       const data = await response.json();
+
       localStorage.setItem('verifyEmail', data.email);
       localStorage.setItem('verifyToken', data.token);
 
       toast.success('Account created! Please verify your email.');
-      router.push('/auth/verify/recruiter');
+      // Redirect to recruiter verification page
+      router.push('/auth/verify/recruiter'); 
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Registration failed');
+      toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setIsLoading(false);
     }
@@ -117,26 +121,22 @@ export default function RecruiterRegisterPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-slate-100 bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,transparent_10%,black_75%)]"></div>
       
-      {/* Decorative elements */}
       <div className="absolute top-32 -left-24 h-96 w-96 rounded-full bg-blue-400/20 mix-blend-multiply filter blur-[80px]" />
       <div className="absolute bottom-32 -right-24 h-96 w-96 rounded-full bg-indigo-400/20 mix-blend-multiply filter blur-[80px]" />
       <div className="absolute -top-24 right-[45%] h-64 w-64 rounded-full bg-purple-300/10 mix-blend-multiply filter blur-[80px]" />
 
       <div className="container relative z-10 flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        {/* Left Panel with Image */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="relative hidden h-full flex-col bg-muted p-12 text-white lg:flex overflow-hidden"
         >
-          {/* Background Image */}
           <div className="absolute inset-0 overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=80&w=1600&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=80&w=1600&auto=format&fit=crop" // Recruiter relevant image
               alt="Office team collaborating"
               fill
               priority
@@ -145,15 +145,13 @@ export default function RecruiterRegisterPage() {
             />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-indigo-600/80 to-blue-700/90" />
           </div>
-          
-          {/* Floating elements */}
+
           <motion.div 
             initial={{ y: 0, opacity: 0.7 }}
             animate={{ y: [-15, 5, -15], opacity: [0.7, 0.9, 0.7] }}
             transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
             className="absolute right-12 top-32 h-32 w-32 bg-white/10 backdrop-blur-md rounded-2xl rotate-12 shadow-xl border border-white/20"
           />
-          
           <motion.div 
             initial={{ y: 0, opacity: 0.7 }}
             animate={{ y: [10, -10, 10], opacity: [0.7, 0.8, 0.7] }}
@@ -161,13 +159,13 @@ export default function RecruiterRegisterPage() {
             className="absolute left-10 bottom-40 w-40 h-40 bg-white/10 backdrop-blur-md rounded-2xl -rotate-12 shadow-xl border border-white/20"
           />
           
-          {/* Logo Header */}
+
           <div className="relative z-20 flex items-center gap-2.5 text-2xl">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-md shadow-inner">
-              <Building2 className="h-5 w-5" />
+              <Building2 className="h-5 w-5" /> 
             </div>
             <span className="font-bold tracking-tight">HireHub</span>
-            <Badge className="ml-2 bg-white/20 text-white hover:bg-white/30">For Recruiters</Badge>
+            <Badge className="ml-2 bg-white/20 text-white hover:bg-white/30">For Recruiters</Badge> 
           </div>
 
           <motion.div 
@@ -176,7 +174,6 @@ export default function RecruiterRegisterPage() {
             transition={{ delay: 0.4, duration: 0.8 }}
             className="relative z-20 mt-auto space-y-8"
           >
-            {/* Banner text */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -189,8 +186,7 @@ export default function RecruiterRegisterPage() {
               </p>
             </motion.div>
             
-            {/* Features */}
-            <div className="rounded-2xl p-6  shadow-xl">
+            <div className="rounded-2xl p-6 shadow-xl">
               <div className="mb-5 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-medium">
                 <Sparkles className="mr-1.5 h-3.5 w-3.5" />
                 Premium Features
@@ -210,7 +206,7 @@ export default function RecruiterRegisterPage() {
                     <Briefcase className="h-3.5 w-3.5" />
                   </div>
                   <p className="text-sm leading-tight">
-                    <span className="font-semibold">Premium templates</span> - Customizable workflows and job postings
+                    <span className="font-semibold">Streamlined workflows</span> - Manage job postings and applicants easily
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
@@ -227,34 +223,32 @@ export default function RecruiterRegisterPage() {
           </motion.div>
         </motion.div>
 
-        {/* Right Panel with Form */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="p-6 sm:p-8 lg:p-12 backdrop-blur-sm"
+          className="p-6 sm:p-8 lg:p-12 backdrop-blur-sm" 
         >
-          <div className="mx-auto flex w-full max-w-md flex-col justify-center space-y-8">
-            <div className="flex flex-col space-y-4 text-center">
-              {/* Enhanced logo/icon */}
+          <div className="mx-auto flex w-full max-w-md flex-col justify-center space-y-6"> 
+            <div className="flex flex-col space-y-3 text-center"> 
               <div className="relative mx-auto">
-                <div className="absolute inset-0 -z-10 h-20 w-20 rounded-full bg-blue-600/20 blur-lg"></div>
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 shadow-lg shadow-blue-600/30 transform transition-transform hover:scale-105 duration-300">
-                  <Users className="h-10 w-10 text-white" strokeWidth={1.5} />
+                <div className="absolute inset-0 -z-10 h-16 w-16 rounded-full bg-blue-600/20 blur-lg"></div> 
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 shadow-lg shadow-blue-600/30 transform transition-transform hover:scale-105 duration-300"> 
+                  <Users className="h-8 w-8 text-white" strokeWidth={1.5} /> 
                 </div>
               </div>
               
-              <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900">
-                Create Your Account
+              <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900"> 
+                Create Your Recruiter Account
               </h1>
               
-              <p className="text-md text-slate-600">
+              <p className="text-sm text-slate-600"> 
                 Join as a recruiter and start finding top talent
               </p>
             </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"> 
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -264,16 +258,16 @@ export default function RecruiterRegisterPage() {
                     control={form.control}
                     name="fullName"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="space-y-1"> 
                         <FormLabel className="text-sm font-medium text-slate-700">Full Name</FormLabel>
                         <FormControl>
                           <Input 
                             placeholder="John Doe" 
                             {...field} 
-                            className="h-12 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200"
+                            className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
                           />
                         </FormControl>
-                        <FormMessage className="text-red-500" />
+                        <FormMessage className="text-xs text-red-500" /> 
                       </FormItem>
                     )}
                   />
@@ -288,20 +282,20 @@ export default function RecruiterRegisterPage() {
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="space-y-1"> 
                         <FormLabel className="text-sm font-medium text-slate-700">Work Email</FormLabel>
                         <FormControl>
                           <Input 
                             type="email"
                             placeholder="you@company.com"
-                            className="h-12 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200"
+                            className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription className="text-xs text-slate-500">
+                        <FormDescription className="text-xs text-slate-500 pt-1"> 
                           We'll send a verification code to this email
                         </FormDescription>
-                        <FormMessage className="text-red-500" />
+                        <FormMessage className="text-xs text-red-500" /> 
                       </FormItem>
                     )}
                   />
@@ -316,19 +310,21 @@ export default function RecruiterRegisterPage() {
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="space-y-1"> 
                         <FormLabel className="text-sm font-medium text-slate-700">Password</FormLabel>
                         <FormControl>
                           <div className="relative transition-all duration-200">
                             <Input
                               type={showPassword ? 'text' : 'password'}
-                              className="h-12 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200"
+                              // Compact Input
+                              className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
                               {...field}
                               onChange={(e) => {
                                 field.onChange(e);
                                 calculateStrength(e.target.value);
                               }}
                             />
+
                             <Button
                               type="button"
                               variant="ghost"
@@ -345,17 +341,17 @@ export default function RecruiterRegisterPage() {
                           </div>
                         </FormControl>
                         
-                        {/* Enhanced password strength indicator */}
                         {watchPassword && (
-                          <div className="mt-3">
-                            <div className="flex gap-2 mb-2">
+                          <div className="pt-2"> 
+                            <div className="flex gap-1.5 mb-1"> 
                               {[1, 2, 3, 4].map((level) => (
                                 <div
                                   key={level}
-                                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                                  // Compact strength bar: Reduced height
+                                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${ 
                                     passwordStrength >= level
                                       ? level <= 1
-                                        ? 'bg-red-400 animate-pulse'
+                                        ? 'bg-red-400' // Removed pulse for compactness
                                         : level <= 2
                                         ? 'bg-amber-400'
                                         : level <= 3
@@ -367,21 +363,52 @@ export default function RecruiterRegisterPage() {
                               ))}
                             </div>
                             <p className="text-xs text-slate-500 flex items-center">
-                              {passwordStrength === 0 && 'Very weak - add more characters'}
-                              {passwordStrength === 1 && 'Weak - add numbers or symbols'}
-                              {passwordStrength === 2 && 'Moderate - getting better!'}
-                              {passwordStrength === 3 && 'Strong - well done!'}
+                              {passwordStrength === 0 && 'Use 8+ chars, upper/lower case, numbers'}
+                              {passwordStrength === 1 && 'Weak - add complexity'}
+                              {passwordStrength === 2 && 'Moderate strength'}
+                              {passwordStrength === 3 && 'Strong password'}
                               {passwordStrength === 4 && (
                                 <span className="flex items-center text-green-600">
                                   <CheckCircle2 className="mr-1 h-3 w-3" />
-                                  Very strong password
+                                  Very strong
                                 </span>
                               )}
                             </p>
                           </div>
                         )}
                         
-                        <FormMessage className="text-red-500" />
+                        <FormMessage className="text-xs text-red-500" /> 
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
+
+                 <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <FormField
+                    control={form.control}
+                    name="terms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 p-3 shadow-sm bg-white/50 backdrop-blur-sm"> 
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            id="terms" 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5 leading-none"> 
+                          <FormLabel htmlFor="terms" className="text-sm font-medium text-slate-700 cursor-pointer">
+                            Accept terms and conditions
+                          </FormLabel>
+                          <FormDescription className="text-xs text-slate-500">
+                            You agree to our Terms of Service and Privacy Policy.
+                          </FormDescription>
+                           <FormMessage className="text-xs text-red-500 pt-1" /> 
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -391,12 +418,13 @@ export default function RecruiterRegisterPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  className="pt-2"
+                  transition={{ delay: 0.7 }} // Adjusted delay
+                  className="pt-2" 
                 >
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-base font-medium rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200"
+                    // Compact Button: Adjusted height, rounding
+                    className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-base font-medium rounded-lg shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -415,7 +443,7 @@ export default function RecruiterRegisterPage() {
               </form>
             </Form>
 
-            <div className="space-y-4 pt-2">
+            <div className="space-y-3 pt-2">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-slate-200" />
@@ -429,7 +457,8 @@ export default function RecruiterRegisterPage() {
 
               <p className="text-center">
                 <Link
-                  href="/recruiter/auth/login"
+                  // Link to recruiter login page
+                  href="/recruiter/auth/login" 
                   className="inline-flex text-indigo-600 hover:text-indigo-800 font-medium text-sm hover:underline transition-colors"
                 >
                   Sign in to your account →
