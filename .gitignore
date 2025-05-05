@@ -48,3 +48,8 @@ server/*
 next-env.d.ts
 
 .qodo
+.dist/*
+/dist/*
+
+# pyenv
+lib/python/__pycache__
