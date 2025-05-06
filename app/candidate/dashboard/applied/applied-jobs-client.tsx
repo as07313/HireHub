@@ -97,10 +97,10 @@ export function AppliedJobsClient({ initialJobs }: AppliedJobsClientProps) {
 
       <JobList
         jobs={filteredJobs}
-        type="applied" // Pass the correct type
+        type="applied" 
         searchQuery={searchQuery}
-        onViewDetails={(id) => router.push(`/candidate/dashboard/find-jobs/${id}`)} // Link to job details
-        showStatus={true} // Ensure status column is shown
+        onViewDetails={(id) => router.push(`/candidate/dashboard/applied/${id}`)}
+        showStatus={true} 
       />
     </div>
   )
