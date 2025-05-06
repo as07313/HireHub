@@ -136,6 +136,15 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
           parsedData = parseResponse.data;
           console.log("parsedData from Python service", parsedData);
           logInfo(`Successfully parsed resume ${resumeId} with Python parser.`);
+          // Store parsedData immediately
+          await Resume.findByIdAndUpdate(resumeId, {
+            parsedData: parsedData,
+            processingStatus: 'processing', // Or a more specific status like 'parsed_internally'
+            lastModified: new Date(),
+            // Clear any previous parsingError if this step is successful
+            processingError: null 
+          });
+          await updateResumeStatus(resumeId, taskId, 'processing', 25, 'Internal parsing complete, data stored');
       } else {
           // Attempt to get more detailed error from response if available
           const errorDetail = parseResponse.data?.error || parseResponse.statusText;
@@ -234,8 +243,9 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     await updateResumeStatus(resumeId, taskId, 'processing', 80);
     
     // Determine final status based on errors
-    const finalProcessingStatus = llamaError || parsingError ? 'error' : 'completed';
-    const finalStatus = finalProcessingStatus === 'error' ? 'error' : 'completed';
+
+    const finalProcessingStatus = parsingError ? 'error' : 'completed';
+    const finalStatus = llamaError ? 'error' : 'completed';
     const combinedError = [parsingError, llamaError].filter(Boolean).join('; ');
 
     await Resume.findByIdAndUpdate(resumeId, {
@@ -247,7 +257,7 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     });
 
     // Update applicant only if the overall process didn't have critical errors (adjust as needed)
-    if (finalProcessingStatus === 'completed' && applicantId !== 'direct-upload') {
+    if (applicantId !== 'direct-upload') {
       await Applicant.findByIdAndUpdate(applicantId, {
         resumeProcessed: true,
         resumeProcessedAt: new Date()
