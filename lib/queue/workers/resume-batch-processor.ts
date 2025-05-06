@@ -26,7 +26,7 @@ interface ParsedResumeData {
   error?: string; 
 }
 
-const PYTHON_PARSER_URL = process.env.PYTHON_PARSER_URL || 'http://localhost:8080/parse-resume'; // Use env var
+const PYTHON_PARSER_URL = process.env.PYTHON_PARSER_URL || 'http://localhost:8080/api/parse-resume'; // Use env var
 
 
 /**
