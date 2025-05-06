@@ -102,43 +102,56 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
 
     // --- Start: Call Python Parser ---
     try {
-      logInfo(`Calling Python parser for resume ${resumeId}`);
-      await updateResumeStatus(resumeId, taskId, 'processing', 20, 'Parsing with OpenAI'); // Update progress
+      logInfo(`Calling Python parser for resume ${resumeId} with R2 key: ${resume.filePath}`);
+      await updateResumeStatus(resumeId, taskId, 'processing', 20, 'Requesting OpenAI Parsing via Python Service'); // Update progress
 
-      if (!fileBuffer) {
-        throw new Error('File buffer is null after fetching from R2');
-      }
+      // REMOVED: No longer need to check fileBuffer here for this specific call,
+      // as we are sending the R2 key, not the buffer.
+      // if (!fileBuffer) {
+      //   throw new Error('File buffer is null after fetching from R2');
+      // }
 
-      // const fileStream = fs.createReadStream(resume.filePath); // REMOVED: Don't read from local path
-      const formData = new FormData();
-      // Use the buffer directly
-      formData.append('file', fileBuffer, { filename: resume.fileName });
+      // REMOVED: FormData creation for Python parser
+      // const formData = new FormData();
+      // formData.append('file', fileBuffer, { filename: resume.fileName });
 
-      const parseResponse = await axios.post<ParsedResumeData>(PYTHON_PARSER_URL, formData, {
-        headers: {
-          ...formData.getHeaders(),
-        },
-        timeout: 60000, // 60 second timeout for parsing
-      });
+      // NEW: Prepare JSON payload for the Python parser
+      const pythonParserPayload = {
+        r2_object_key: resume.filePath, // This is the key for the file in R2
+        file_name: resume.fileName     // The original filename
+      };
+
+      const parseResponse = await axios.post<ParsedResumeData>(
+        PYTHON_PARSER_URL, 
+        pythonParserPayload, 
+        {
+          headers: {
+            'Content-Type': 'application/json', // Set content type to JSON
+          },
+          timeout: 60000, // 60 second timeout for parsing
+        }
+      );
 
       if (parseResponse.status === 200) {
-          //console.log("parseResponse", parseResponse)
           parsedData = parseResponse.data;
-          console.log("parsedData", parsedData)
+          console.log("parsedData from Python service", parsedData);
           logInfo(`Successfully parsed resume ${resumeId} with Python parser.`);
-          // Check if the parser itself returned an error message within the JSON
       } else {
-          parsingError = `Python parser returned status ${parseResponse.status}`;
-          logError(parsingError);
+          // Attempt to get more detailed error from response if available
+          const errorDetail = parseResponse.data?.error || parseResponse.statusText;
+          logError(`Python parser returned status ${parseResponse.status}: ${errorDetail}`);
       }
-    } 
-    catch (err: any) {
-      parsingError = `Failed to call Python parser: ${err.message || err}`;
-      logError(`Error calling Python parser for ${resumeId}:`, err);
-      // Decide if this error is fatal for the whole process or just log and continue
-      // For now, we'll log it and store the error, but continue with LlamaCloud
     }
-    // --- End: Call Python Parser ---
+    catch (err: any) {
+      // Log more detailed error from axios if available
+      if (axios.isAxiosError(err) && err.response) {
+        const errorDetail = err.response.data?.detail || err.message;
+        parsingError = `Failed to call Python parser (status ${err.response.status}): ${errorDetail}`;
+      } else {
+        parsingError = `Failed to call Python parser: ${err.message || err}`;
+      }
+      logError(`Error calling Python parser for ${resumeId}:`, err);
+    }
 
 
     
