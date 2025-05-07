@@ -50,9 +50,7 @@ export function ApplicantDocuments({ applicant }: ApplicantDocumentsProps) {
 
   const handleDownloadDocument = (doc: any) => {
     if (doc.type === "resume" && doc.id) { // Check for doc.id (resumeId)
-      // The API endpoint is /api/resume/download/[id]
-      // doc.id should be the resumeId
-      const downloadUrl = `/api/resumes/download/${doc.filePath}`;
+      const downloadUrl = `/api/resume/download/${doc.filePath}`;
       window.open(downloadUrl, '_self'); // Use _self to attempt download in the same tab
     } else if (doc.type === "cover_letter" && doc.content) {
       // For cover letters stored as text content
