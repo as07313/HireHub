@@ -158,9 +158,6 @@ export function JobApplicants({ jobId, initialApplicants }: JobApplicantsProps) 
                   </div>
                   <div>
                     <p className="font-medium">{applicant.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {applicant.experience}
-                    </p>
                   </div>
                 </div>
               </TableCell>
