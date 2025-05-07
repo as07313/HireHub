@@ -45,13 +45,6 @@ export default function SettingsPage() {
             <FileText className="h-4 w-4" />
             Resume
           </TabsTrigger>
-          <TabsTrigger
-            value="notifications"
-            className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
-          >
-            <Bell className="h-4 w-4" />
-            Notifications
-          </TabsTrigger>
         </TabsList>
 
         {/* Tab Content */}

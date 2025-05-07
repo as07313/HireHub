@@ -2,7 +2,13 @@
 
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Brain, CheckCircle2, AlertTriangle, Lightbulb } from "lucide-react";
+import { Brain, CheckCircle2, AlertTriangle, Lightbulb, HelpCircle } from "lucide-react"; // Added HelpCircle
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Added Tooltip components
 
 interface AnalysisSection {
   score: number;
@@ -30,6 +36,28 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">AI Analysis</h2>
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent className="w-80 p-3">
+                <p className="text-sm font-medium mb-1">Job Fit Score Calculation:</p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  The Job Fit Score is determined by an AI model (GPT) analyzing the candidate's resume against the job description.
+                </p>
+                <ul className="list-disc list-inside text-xs space-y-1">
+                  <li><strong>Technical Skills:</strong> Up to 40 points</li>
+                  <li><strong>Experience:</strong> Up to 30 points</li>
+                  <li><strong>Education:</strong> Up to 15 points</li>
+                  <li><strong>Soft Skills:</strong> Up to 15 points</li>
+                </ul>
+                <p className="text-xs text-muted-foreground mt-2">
+                  The AI provides scores for each category, along with identified strengths and areas for improvement. The total score reflects the overall alignment.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <Card className="p-6 text-center">
           <p className="text-muted-foreground">No AI analysis data available for this candidate</p>
@@ -60,6 +88,28 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
       <div className="flex items-center gap-2">
         <Brain className="h-5 w-5 text-primary" />
         <h2 className="text-xl font-semibold">AI Analysis</h2>
+        <TooltipProvider>
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent className="w-80 p-3">
+              <p className="text-sm font-medium mb-1">Job Fit Score Calculation:</p>
+              <p className="text-xs text-muted-foreground mb-2">
+                The Job Fit Score is determined by an AI model (GPT) analyzing the candidate's resume against the job description.
+              </p>
+              <ul className="list-disc list-inside text-xs space-y-1">
+                <li><strong>Technical Skills:</strong> Up to 40 points</li>
+                <li><strong>Experience:</strong> Up to 30 points</li>
+                <li><strong>Education:</strong> Up to 15 points</li>
+                <li><strong>Soft Skills:</strong> Up to 15 points</li>
+              </ul>
+              <p className="text-xs text-muted-foreground mt-2">
+                The AI provides scores for each category, along with identified strengths and areas for improvement. The total score reflects the overall alignment.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <Card className="p-6 bg-primary/5 border-none">
@@ -145,7 +195,7 @@ export function ApplicantAIAnalysis({ applicant }: ApplicantAIAnalysisProps) {
 
 // Helper function to generate recommendation based on score
 function getRecommendation(score: number): string {
-  if (score >= 90) {
+  if (score >= 85) {
     return "Exceptional candidate match. Strongly recommended for next stage. Consider fast-tracking for interview with hiring team.";
   } else if (score >= 75) {
     return "Strong candidate with good alignment to job requirements. Recommended to proceed to next stage.";

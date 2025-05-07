@@ -1,7 +1,7 @@
 // app/recruiter/company/setup/page.tsx
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react" // Added useEffect
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -78,6 +78,8 @@ const INDUSTRIES = [
 export default function CompanySetupPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(true); // To track initial data fetch
+  const [isEditMode, setIsEditMode] = useState(false); // To track if updating existing company
   const [expandedSection, setExpandedSection] = useState("basic-info")
   const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({
     "basic-info": false,
@@ -112,6 +114,46 @@ export default function CompanySetupPage() {
       }
     }
   })
+
+  // Fetch existing company data
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      setIsFetching(true);
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch("/api/company/setup", {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data._id) { // Check if company data exists
+            form.reset(data); // Pre-fill the form
+            setPreviewLogo(data.logo || "");
+            setIsEditMode(true);
+            // Trigger progress update after form reset
+            // Small timeout to ensure form state is updated before calculating progress
+            setTimeout(updateProgress, 0);
+          }
+        } else if (response.status === 404) {
+          // No company profile found, proceed with setup mode
+          setIsEditMode(false);
+        } else {
+          // Handle other errors
+          toast.error("Failed to load company data.");
+        }
+      } catch (error) {
+        toast.error("An error occurred while fetching company data.");
+        console.error("Fetch company data error:", error);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchCompanyData();
+  }, [form]); // form is a dependency for form.reset
 
   // Track form completion progress
   const updateProgress = () => {
@@ -148,8 +190,9 @@ export default function CompanySetupPage() {
     setIsLoading(true)
     try {
       const token = localStorage.getItem('token');
+      const method = isEditMode ? "PUT" : "POST";
       const response = await fetch("/api/company/setup", {
-        method: "POST",
+        method: method,
         headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -159,10 +202,10 @@ export default function CompanySetupPage() {
   
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error)
+        throw new Error(error.error || (isEditMode ? "Failed to update company profile." : "Failed to create company profile."))
       }
   
-      toast.success("Company profile created successfully!")
+      toast.success(isEditMode ? "Company profile updated successfully!" : "Company profile created successfully!")
       router.push("/recruiter/dashboard")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong")
@@ -172,14 +215,14 @@ export default function CompanySetupPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-10">
+    <div className="container py-10">
       <Card className="border-0 shadow-lg">
         <CardHeader className="bg-primary/5 rounded-t-lg border-b pb-8">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-3xl">Company Setup</CardTitle>
+              <CardTitle className="text-3xl">{isEditMode ? "Update Company Profile" : "Company Setup"}</CardTitle>
               <CardDescription className="text-base mt-2">
-                Complete your company profile to start attracting top talent
+                {isEditMode ? "Keep your company information up to date." : "Complete your company profile to start attracting top talent"}
               </CardDescription>
             </div>
             <div className="text-center">
@@ -559,16 +602,16 @@ export default function CompanySetupPage() {
           </Button>
           <Button 
             onClick={form.handleSubmit(onSubmit)}
-            disabled={isLoading || completionPercentage < 80}
+            disabled={isLoading || isFetching || (completionPercentage < 80 && !isEditMode)} // Allow update even if not 80% for edit mode, but still disable during fetch/load
             className="min-w-[140px]"
           >
             {isLoading ? (
               <>
                 <div className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                Setting Up...
+                {isEditMode ? "Updating..." : "Setting Up..."}
               </>
             ) : (
-              "Complete Setup"
+              isEditMode ? "Update Profile" : "Complete Setup"
             )}
           </Button>
         </CardFooter>
