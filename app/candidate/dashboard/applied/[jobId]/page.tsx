@@ -7,71 +7,13 @@ import { getAppliedJob } from "@/app/actions/applied-jobs";
 import { auth } from "@/app/middleware/auth";
 import SkillAnalysis from "@/models/Analysis";
 import connectToDatabase from "@/lib/mongodb";
+import { SkillAnalysisSection } from "@/components/candidate/jobs/skill-analysis-section"; // Import the new component
+
 
 interface PageProps {
   params: Promise<{
     jobId: string;
   }>;
-}
-
-// Update the interface to match the actual structure
-interface SkillAnalysisResult {
-  skill_gaps: {
-    content: string;
-  };
-  course_recommendations: {
-    content: string;
-  };
-}
-
-// Fixed the parameter list to match how it's called
-async function getSkillAnalysis(jobId: string, jobDescription: string, resumeFilePath: string): Promise<SkillAnalysisResult> {
-  await connectToDatabase();
-
-  // Check for existing analysis
-  const existingAnalysis = await SkillAnalysis.findOne({
-    jobId: jobId,
-  });
-  
-  if (existingAnalysis) {
-    console.log("Existing analysis found:", existingAnalysis.result);
-    return existingAnalysis.result;
-  }
-  
-  console.log("No existing analysis found, creating a new one.");
-
-  // Call the external API to get the skill analysis
-  const res = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/analyze-skills", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
-      job_description: jobDescription, 
-      file_path: resumeFilePath 
-    }),
-  });
-
-  if (!res.ok) throw new Error("Failed to call the external API");
-
-  const data = await res.json();
-  console.log("API response:", data);
-  
-  // Save the analysis result to the database
-  const result = {
-    skill_gaps: data.skill_gaps,
-    course_recommendations: data.course_recommendations,
-  };
-  
-  const newAnalysis = new SkillAnalysis({
-    jobId: jobId,
-    filePath: resumeFilePath,
-    result: result,
-  });
-
-  await newAnalysis.save();
-  console.log("New analysis saved:", newAnalysis.result);
-
-  // Return the properly structured result
-  return result;
 }
 
 export default async function AppliedJobDetailsPage({ params }: PageProps) {
@@ -93,8 +35,6 @@ export default async function AppliedJobDetailsPage({ params }: PageProps) {
   const transformedFilename = `parsed/${filename.replace(/\.[^/.]+$/, "")}.md`;
   console.log("Transformed Resume filename:", transformedFilename);
 
-  const apiResult = await getSkillAnalysis(jobId, job.description, transformedFilename);
-  console.log("API Result:", apiResult);
 
   const transformedJob = {
     id: job._id,
@@ -134,12 +74,14 @@ export default async function AppliedJobDetailsPage({ params }: PageProps) {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <Suspense fallback={<div>Loading recommendations...</div>}>
-            <SkillsRecommendation
-              skillGaps={apiResult.skill_gaps}
-              courseRecommendations={apiResult.course_recommendations}
-            />
-          </Suspense>
+        <div className="lg:col-span-2 space-y-6">
+           {/* Pass necessary props for the API call */}
+           <SkillAnalysisSection
+             jobId={jobId}
+             jobDescription={job.description}
+             resumeFilePath={transformedFilename}
+           />
+        </div>
         </div>
       </div>
     </div>
