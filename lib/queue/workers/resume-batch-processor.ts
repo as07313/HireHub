@@ -75,11 +75,6 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
       throw new Error(`Resume ${resumeId} has no file path (R2 key)`);
     }
 
-    // Remove the local file existence check - file is now in R2
-    // if (!fs.existsSync(resume.filePath)) {
-    //   throw new Error(`Resume file ${resume.filePath} does not exist`);
-    // }
-
     // --- Start: Fetch file from R2 ---
     try {
       logInfo(`Fetching resume ${resume.filePath} from R2 bucket ${R2_BUCKET_NAME}`);
@@ -165,7 +160,7 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
 
     
     // Update status to uploading
-    await updateResumeStatus(resumeId, taskId, 'processing', 30);
+    await updateResumeStatus(resumeId, taskId, 'processing', 30, 'Sending to LlamaCloud');
     
     // Dynamically import fetch to avoid ESM issues
     const { default: fetch } = await import('node-fetch');
@@ -185,62 +180,77 @@ async function processResumeInBatch(message: ResumeProcessingMessage): Promise<v
     let retries = 0;
     let llamaResponse;
     let llamaError = null;
-    
+    const LLAMA_API_TIMEOUT = 120000; // 120 seconds timeout for LlamaCloud API
+
     while (retries < 3) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), LLAMA_API_TIMEOUT);
+
       try {
+        logInfo(`Attempt ${retries + 1}/3: Sending resume ${resumeId} to LlamaCloud API.`);
         llamaResponse = await fetch(
           'https://hirehub-api-795712866295.europe-west4.run.app/api/upload', 
           {
             method: 'POST',
-            body: formDataLlama, // Use the correct FormData instance
-            headers: formDataLlama.getHeaders() // Use headers from the correct instance
+            body: formDataLlama, 
+            headers: formDataLlama.getHeaders(), 
+            signal: controller.signal as any, 
           }
         );
+        clearTimeout(timeoutId); 
         
         if (llamaResponse.ok) {
           llamaError = null;
-          logInfo("Successfully sent resume to LlamaCloud API");
+          logInfo(`Successfully sent resume ${resumeId} to LlamaCloud API on attempt ${retries + 1}`);
           break;
         }
 
         const errorText = await llamaResponse.text();
         llamaError = `LlamaCloud API returned status ${llamaResponse.status}: ${errorText}`;
-        logError(`${llamaError} (Attempt ${retries + 1}/3)`);        
-        retries++;
-        if (retries >= 2) break; 
-        await new Promise(resolve => setTimeout(resolve, 1000 * retries));
-      } 
-      
-      catch (error: any) {
-        llamaError = `Network error: ${error.message || error}`;
-        logError(`${llamaError} (Attempt ${retries + 1}/3)`);
-        if (retries >= 2) throw error;
-        retries++;
-        await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+        logError(`${llamaError} (Attempt ${retries + 1}/3 for resume ${resumeId})`);
+        
+        // Break on non-retryable errors or if it's the last attempt
+        if (llamaResponse.status >= 400 && llamaResponse.status < 500) { // Client errors are usually not retryable
+            logError(`Non-retryable client error ${llamaResponse.status} from LlamaCloud. Aborting retries for ${resumeId}.`);
+            break;
+        }
+        
+      } catch (error: any) {
+        clearTimeout(timeoutId); // Clear timeout if request fails
+        if (error.name === 'AbortError') {
+          llamaError = `LlamaCloud API request timed out after ${LLAMA_API_TIMEOUT / 1000}s.`;
+        } else {
+          llamaError = `Network error during LlamaCloud API call: ${error.message || error}`;
+        }
+        logError(`${llamaError} (Attempt ${retries + 1}/3 for resume ${resumeId})`);
       }
+      
+      retries++;
+      if (retries >= 3) {
+        logError(`All ${retries} attempts to send resume ${resumeId} to LlamaCloud failed.`);
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 2000 * retries)); // Exponential backoff
     }
     
     if (!llamaResponse || !llamaResponse.ok) {
       logError(`Final LlamaCloud processing failed for ${resumeId}: ${llamaError}`);
-
-      const error = await llamaResponse?.text() || 'Failed to contact LlamaCloud API';
-      throw new Error(`LlamaCloud API error: ${error}`);
+      // Use the last captured llamaError
+      throw new Error(llamaError || `Failed to process resume ${resumeId} with LlamaCloud after multiple retries.`);
     }
     else {
-      logInfo(`LlamaCloud processed resume ${resumeId} successfully`);
-
-
+      logInfo(`LlamaCloud processed resume ${resumeId} successfully after LlamaCloud call.`);
     }
     
     // Update status to parsing
-    await updateResumeStatus(resumeId, taskId, 'processing', 60);
+    await updateResumeStatus(resumeId, taskId, 'processing', 60, 'LlamaCloud processing complete');
     
     // Parse response
-    //const responseData = await llamaResponse.json();
-    logInfo(`LlamaCloud processed resume ${resumeId} successfully`);
+    //const responseData = await llamaResponse.json(); // Assuming LlamaCloud returns JSON
+    logInfo(`LlamaCloud response processed for resume ${resumeId}`);
         
     // Update status to storing
-    await updateResumeStatus(resumeId, taskId, 'processing', 80);
+    await updateResumeStatus(resumeId, taskId, 'processing', 80, 'Storing final data');
     
     // Determine final status based on errors
 
@@ -306,24 +316,33 @@ async function updateResumeStatus(
   taskId: string, 
   status: string, 
   progress: number, 
-  error?: string
+  message?: string // Changed 'error' to 'message' for more general use
 ): Promise<void> {
   try {
     const statusKey = `resume:processing:${resumeId}`;
     
+    const statusPayload: any = {
+      taskId,
+      status,
+      progress,
+      timestamp: Date.now()
+    };
+
+    if (message) {
+      if (status === 'error') {
+        statusPayload.error = message;
+      } else {
+        statusPayload.message = message;
+      }
+    }
+    
     // Update status
     await redis.set(
       statusKey,
-      JSON.stringify({
-        taskId,
-        status,
-        progress,
-        error,
-        timestamp: Date.now()
-      }),
+      JSON.stringify(statusPayload),
       { EX: 24 * 60 * 60 } // 24 hours expiry
     );
   } catch (error) {
-    logError(`Failed to update resume status in Redis:`, error);
+    logError(`Failed to update resume status in Redis for ${resumeId}:`, error);
   }
 }
