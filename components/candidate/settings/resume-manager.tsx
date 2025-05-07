@@ -154,9 +154,6 @@ export function ResumeManager() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="icon">
-                  <Download className="h-4 w-4" />
-                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">

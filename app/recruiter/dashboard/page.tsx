@@ -186,7 +186,7 @@ export default function RecruiterDashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [stats, setStats] = useState<DashboardStat[]>([
     { label: 'Total Candidates', value: '0', trend: '0%', icon: UsersIcon, iconColor: "text-blue-500" }, // Adjusted icon color
-    { label: 'Shortlisted', value: '0', trend: '0%', icon: UserCheckIcon, iconColor: "text-indigo-500" }, // Adjusted icon color
+    { label: 'Screening', value: '0', trend: '0%', icon: UserCheckIcon, iconColor: "text-indigo-500" }, // Adjusted icon color
     { label: 'Interviews', value: '0', trend: '0%', icon: UserCogIcon, iconColor: "text-sky-500" }, // Adjusted icon color
     { label: 'Hired', value: '0', trend: '0%', icon: UserPlusIcon, iconColor: "text-green-500" }
   ]);

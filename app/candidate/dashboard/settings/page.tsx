@@ -1,6 +1,4 @@
-// Removed "use client" directive
 
-// Removed client-side imports: useState, zodResolver, useForm, motion
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProfileForm } from "@/components/candidate/settings/profile-form"
 import { SecurityForm } from "@/components/candidate/settings/security-form"
@@ -21,15 +19,15 @@ export default function SettingsPage() {
         <p className="text-muted-foreground mt-1">Manage your account settings and preferences.</p>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-8">
+      <Tabs defaultValue="resume" className="space-y-8">
         {/* Modern Tabs List */}
-        <TabsList className="grid grid-cols-4 w-full max-w-md bg-muted p-1 rounded-lg h-auto">
+        <TabsList className="grid grid-cols-2 w-full max-w-md bg-muted p-1 rounded-lg h-auto">
           <TabsTrigger
-            value="profile"
+            value="resume"
             className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
           >
-            <UserCog className="h-4 w-4" />
-            Profile
+            <FileText className="h-4 w-4" />
+            Resume
           </TabsTrigger>
           <TabsTrigger
             value="security"
@@ -38,35 +36,27 @@ export default function SettingsPage() {
             <ShieldCheck className="h-4 w-4" />
             Security
           </TabsTrigger>
-          <TabsTrigger
-            value="resume"
+          {/* <TabsTrigger
+            value="profile"
             className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-muted-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
           >
-            <FileText className="h-4 w-4" />
-            Resume
-          </TabsTrigger>
+            <UserCog className="h-4 w-4" />
+            Profile
+          </TabsTrigger> */}
         </TabsList>
 
         {/* Tab Content */}
-        <TabsContent value="profile">
-          {/* ProfileForm remains a client component */}
-          <ProfileForm />
-        </TabsContent>
-
-        <TabsContent value="security">
-          {/* SecurityForm remains a client component */}
-          <SecurityForm />
-        </TabsContent>
-
-        <TabsContent value="notifications">
-          {/* NotificationSettings remains a client component */}
-          <NotificationSettings />
-        </TabsContent>
-
         <TabsContent value="resume">
           {/* ResumeManager remains a client component */}
           <ResumeManager />
         </TabsContent>
+        <TabsContent value="security">
+          {/* SecurityForm remains a client component */}
+          <SecurityForm />
+        </TabsContent>
+        {/* <TabsContent value="profile">
+          <ProfileForm />
+        </TabsContent> */}
       </Tabs>
     </div>
   )

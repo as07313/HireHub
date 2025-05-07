@@ -121,7 +121,7 @@ export function DashboardClient({ initialData, appliedJobs }: DashboardClientPro
             <AlertTitle className="font-medium text-sm mb-0.5">Complete Your Profile</AlertTitle> {/* Reduced size/margin */}
             <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs"> {/* Smaller text */}
               <span>
-                Enhance your job matches by completing your profile details.
+                Enhance your job matches by managing resumes, and updating security settings.
               </span>
               <Button
                 variant="link" // Use link variant for less emphasis

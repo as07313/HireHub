@@ -19,8 +19,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Camera } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Camera, UserCircle } from "lucide-react"
 
 const profileFormSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -108,8 +108,9 @@ export function ProfileForm() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <Avatar className="h-24 w-24">
-                <AvatarImage src="https://github.com/shadcn.png" alt="Profile" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback>
+                  <UserCircle className="h-16 w-16 text-muted-foreground" />
+                </AvatarFallback>
               </Avatar>
               <Button
                 size="icon"

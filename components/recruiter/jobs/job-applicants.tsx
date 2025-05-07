@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Search, Star } from "lucide-react"
+import { Search, Star, UserCircle } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { JobApplicant } from "@/app/types/applicant"
 import { RankingButton } from "@/components/recruiter/jobs/ranking-button"
@@ -154,13 +153,9 @@ export function JobApplicants({ jobId, initialApplicants }: JobApplicantsProps) 
             <TableRow key={applicant.id}>
               <TableCell>
                 <div className="flex items-center gap-4">
-                  <Image
-                    src={applicant.avatar}
-                    alt={applicant.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                    <UserCircle className="h-6 w-6 text-muted-foreground" />
+                  </div>
                   <div>
                     <p className="font-medium">{applicant.name}</p>
                     <p className="text-sm text-muted-foreground">

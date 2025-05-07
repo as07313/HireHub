@@ -11,6 +11,12 @@ import { ApplicantDocuments } from '@/components/recruiter/applicants/applicant-
 import { ApplicantAIAnalysis } from '@/components/recruiter/applicants/applicant-ai-analysis'
 import { Progress } from '@/components/ui/progress'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Added Tooltip components
+import {
   UserCircle,
   Brain,
   FileText,
@@ -20,6 +26,7 @@ import {
   MapPin,
   Star,
   ChevronLeft,
+  HelpCircle, // Added HelpCircle
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -44,14 +51,32 @@ export function ApplicantDetailsClient({ jobId, applicant }: ApplicantDetailsCli
   const technicalScore = applicant?.aiAnalysis?.technicalSkills?.score ?? 0;
   const experienceScore = applicant?.aiAnalysis?.experience?.score ?? 0;
   const educationScore = applicant?.aiAnalysis?.education?.score ?? 0;
-  const overallScore = Math.round((technicalScore + experienceScore + educationScore) / 3);
+
   const jobFitScore = applicant?.jobFitScore ?? 0;
   const applicantName = applicant?.resume?.parsedData?.Name ?? applicant?.name ?? 'Unnamed Applicant';
-  const applicantEmail = applicant?.email ?? '';
-  const applicantPhone = applicant?.phone ?? '';
+
+  let applicantEmail = applicant?.email ?? '';
+  let applicantPhone = applicant?.phone ?? '';
+
+  const contactInfo = applicant?.resume?.parsedData?.['Contact Information'];
+  if (typeof contactInfo === 'string') {
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+    const phoneRegex = /(?:\(\+\d{1,9}\)|\+\d{1,9})?[\s.-]?\d{3}[\s.-]?\d{3}[\.s.-]?\d{4}/; // More flexible phone regex
+
+    const emailMatch = contactInfo.match(emailRegex);
+    if (emailMatch) {
+      applicantEmail = emailMatch[0];
+    }
+
+    const phoneMatch = contactInfo.match(phoneRegex);
+    if (phoneMatch) {
+      applicantPhone = phoneMatch[0];
+    }
+  }
+  
   const applicantLocation = applicant?.location ?? ''; // Assuming location might be available
   const applicantAppliedDate = applicant?.appliedDate ? new Date(applicant.appliedDate) : null;
-
+  const softSkillsScore = jobFitScore - (technicalScore + experienceScore + educationScore); 
   return (
     <div className="min-h-screen bg-white"> {/* Simplified background */}
       <div className="container max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -140,22 +165,38 @@ export function ApplicantDetailsClient({ jobId, applicant }: ApplicantDetailsCli
                 <h2 className="flex items-center gap-2 text-lg font-semibold">
                   <Brain className="h-5 w-5 text-primary" />
                   AI Analysis Summary
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="w-80 p-3">
+                        <p className="text-sm font-medium mb-1">Job Fit Score Calculation:</p>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          The Job Fit Score is determined by GPT 4o model analyzing the candidate's resume against the job description.
+                        </p>
+                        <ul className="list-disc list-inside text-xs space-y-1">
+                          <li><strong>Technical Skills:</strong> Out of 40 %</li>
+                          <li><strong>Experience:</strong> Out of 30 %</li>
+                          <li><strong>Education:</strong> Out of 15 %</li>
+                          <li><strong>Soft Skills:</strong> Out of 15 %</li> {/* Added Soft Skills */}
+                        </ul>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          The AI provides scores for each category, along with identified strengths and areas for improvement. The total score reflects the overall alignment.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </h2>
               </div>
               <div className="space-y-4 p-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Overall Match</span>
-                  <span className="text-lg font-bold">{overallScore}%</span>
-                </div>
-                <Progress value={overallScore} className="h-2 bg-slate-100" />
-
                 <div className="space-y-3 pt-2">
                   <div>
                     <div className="flex items-center justify-between text-sm">
                       <span>Technical Skills</span>
                       <span className="font-medium">{technicalScore}%</span>
                     </div>
-                    <Progress value={technicalScore} className="mt-1 h-1.5 bg-slate-100" />
+                    <Progress value={(technicalScore/40)*100} className="mt-1 h-1.5 bg-slate-100" />
                   </div>
 
                   <div>
@@ -163,7 +204,7 @@ export function ApplicantDetailsClient({ jobId, applicant }: ApplicantDetailsCli
                       <span>Experience</span>
                       <span className="font-medium">{experienceScore}%</span>
                     </div>
-                    <Progress value={experienceScore} className="mt-1 h-1.5 bg-slate-100" />
+                    <Progress value={(experienceScore/30)*100} className="mt-1 h-1.5 bg-slate-100" />
                   </div>
 
                   <div>
@@ -171,17 +212,17 @@ export function ApplicantDetailsClient({ jobId, applicant }: ApplicantDetailsCli
                       <span>Education</span>
                       <span className="font-medium">{educationScore}%</span>
                     </div>
-                    <Progress value={educationScore} className="mt-1 h-1.5 bg-slate-100" />
+                    <Progress value={(educationScore/15)*100} className="mt-1 h-1.5 bg-slate-100" />
+                  </div>
+
+                  <div> {/* Added Soft Skills Card */}
+                    <div className="flex items-center justify-between text-sm">
+                      <span>Soft Skills</span>
+                      <span className="font-medium">{softSkillsScore < 0 ? 0 : softSkillsScore}%</span> {/* Ensure score is not negative */}
+                    </div>
+                    <Progress value={softSkillsScore < 0 ? 0 : (softSkillsScore/15)*100} className="mt-1 h-1.5 bg-slate-100" />
                   </div>
                 </div>
-
-                <Button
-                  variant="outline"
-                  className="mt-4 w-full" /* Added margin-top */
-                  onClick={() => setActiveTab('ai-analysis')}
-                >
-                  View Full Analysis
-                </Button>
               </div>
             </Card>
 

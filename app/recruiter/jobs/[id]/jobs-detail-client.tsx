@@ -80,10 +80,6 @@ export function JobDetailsClient({ job, applicants }: JobDetailsClientProps) {
               initialApplicants={applicants}
               />
               </TabsContent>
-
-              {/* <TabsContent value="insights">
-                <JobInsights jobId={job.id} />
-              </TabsContent> */}
             </div>
           </Tabs>
         </Card>
