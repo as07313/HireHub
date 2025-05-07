@@ -129,13 +129,6 @@ export function JobsList({ jobs, searchQuery, statusFilter, viewType }: JobsList
                     <p className="text-2xl font-semibold">{job.applicantStats.total}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <BarChart className="h-5 w-5 text-green-500" />
-                  <div>
-                    <p className="text-sm font-medium">Qualified</p>
-                    <p className="text-2xl font-semibold">{job.applicantStats.qualified}</p>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -147,14 +140,6 @@ export function JobsList({ jobs, searchQuery, statusFilter, viewType }: JobsList
               >
                 View Details
               </Button>
-              {/* <Button 
-                variant="outline" 
-                className="w-full lg:w-auto"
-                onClick={() => matchJD(job.description, job.id)}
-                disabled={loadingJobs[job.id]}
-              >
-                {loadingJobs[job.id] ? "Loading..." : "Find Applicants"}
-              </Button> */}
             </div>
           </div>
 

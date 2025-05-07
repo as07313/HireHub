@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,9 +27,12 @@ import {
   CheckCircle2, 
   Shield, 
   ArrowRight,
-  Loader2
+  Loader2,
+  Sparkles,
+  BarChart3,
+  Briefcase
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 
@@ -78,12 +82,13 @@ export default function RecruiterRegisterPage() {
     setPasswordStrength(strength);
   };
 
-  // Update strength when password changes
-  useState(() => {
+  useEffect(() => {
     if (watchPassword) {
       calculateStrength(watchPassword);
+    } else {
+      setPasswordStrength(0); 
     }
-  });
+  }, [watchPassword]);
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setIsLoading(true);
@@ -96,278 +101,370 @@ export default function RecruiterRegisterPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error);
+        throw new Error(error.error || 'Registration failed'); 
       }
 
       const data = await response.json();
-      // Store verification data in localStorage
+
       localStorage.setItem('verifyEmail', data.email);
       localStorage.setItem('verifyToken', data.token);
 
       toast.success('Account created! Please verify your email.');
-      // Redirect to the recruiter verification page
-      router.push('/auth/verify/recruiter');
+      // Redirect to recruiter verification page
+      router.push('/auth/verify/recruiter'); 
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Registration failed');
+      toast.error(error instanceof Error ? error.message : 'An unknown error occurred');
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-background">
-      <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        {/* Enhanced Left Panel */}
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <div className="absolute inset-0 bg-grid-slate-100 bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_at_center,transparent_10%,black_75%)]"></div>
+      
+      <div className="absolute top-32 -left-24 h-96 w-96 rounded-full bg-blue-400/20 mix-blend-multiply filter blur-[80px]" />
+      <div className="absolute bottom-32 -right-24 h-96 w-96 rounded-full bg-indigo-400/20 mix-blend-multiply filter blur-[80px]" />
+      <div className="absolute -top-24 right-[45%] h-64 w-64 rounded-full bg-purple-300/10 mix-blend-multiply filter blur-[80px]" />
+
+      <div className="container relative z-10 flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex overflow-hidden"
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="relative hidden h-full flex-col bg-muted p-12 text-white lg:flex overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700" />
-          {/* Decorative circles */}
-          <div className="absolute -top-20 -left-20 h-64 w-64 rounded-full bg-blue-500 opacity-20 blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-indigo-500 opacity-20 blur-3xl" />
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?q=80&w=1600&auto=format&fit=crop" // Recruiter relevant image
+              alt="Office team collaborating"
+              fill
+              priority
+              className="object-cover object-center"
+              sizes="50vw"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/90 via-indigo-600/80 to-blue-700/90" />
+          </div>
+
+          <motion.div 
+            initial={{ y: 0, opacity: 0.7 }}
+            animate={{ y: [-15, 5, -15], opacity: [0.7, 0.9, 0.7] }}
+            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+            className="absolute right-12 top-32 h-32 w-32 bg-white/10 backdrop-blur-md rounded-2xl rotate-12 shadow-xl border border-white/20"
+          />
+          <motion.div 
+            initial={{ y: 0, opacity: 0.7 }}
+            animate={{ y: [10, -10, 10], opacity: [0.7, 0.8, 0.7] }}
+            transition={{ repeat: Infinity, duration: 7, delay: 1, ease: "easeInOut" }}
+            className="absolute left-10 bottom-40 w-40 h-40 bg-white/10 backdrop-blur-md rounded-2xl -rotate-12 shadow-xl border border-white/20"
+          />
           
-          <div className="relative z-20 flex items-center gap-2 text-xl font-medium">
-            <Building2 className="h-8 w-8" />
-            <span className="font-bold tracking-tight">HireHub for Recruiters</span>
+
+          <div className="relative z-20 flex items-center gap-2.5 text-2xl">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-md shadow-inner">
+              <Building2 className="h-5 w-5" /> 
+            </div>
+            <span className="font-bold tracking-tight">HireHub</span>
+            <Badge className="ml-2 bg-white/20 text-white hover:bg-white/30">For Recruiters</Badge> 
           </div>
 
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="relative z-20 mt-auto space-y-6"
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="relative z-20 mt-auto space-y-8"
           >
-            <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30 transition-colors">
-              <Shield className="h-3 w-3 mr-1" /> Recruiter Benefits
-            </Badge>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-white/90 mt-1 shrink-0" />
-                <p className="text-sm">Advanced AI-powered candidate matching and screening</p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl font-bold mb-4">Transform Your Hiring Process</h2>
+              <p className="text-white/85 leading-relaxed">
+                Join thousands of companies finding top talent faster and smarter with our AI-powered recruiting platform.
+              </p>
+            </motion.div>
+            
+            <div className="rounded-2xl p-6 shadow-xl">
+              <div className="mb-5 inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-medium">
+                <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                Premium Features
               </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-white/90 mt-1 shrink-0" />
-                <p className="text-sm">Customizable job posting templates and workflows</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-white/90 mt-1 shrink-0" />
-                <p className="text-sm">Comprehensive analytics and reporting tools</p>
+              
+              <div className="space-y-4 text-white/90">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 mt-0.5">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-sm leading-tight">
+                    <span className="font-semibold">AI-powered matching</span> - Find perfect candidates with intelligent screening
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 mt-0.5">
+                    <Briefcase className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-sm leading-tight">
+                    <span className="font-semibold">Streamlined workflows</span> - Manage job postings and applicants easily
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20 mt-0.5">
+                    <BarChart3 className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-sm leading-tight">
+                    <span className="font-semibold">Advanced analytics</span> - Comprehensive reporting and insights
+                  </p>
+                </div>
               </div>
             </div>
             
-            <blockquote className="space-y-4 border-l-2 border-white/40 pl-4 mt-8">
-              <p className="text-lg leading-relaxed">
-                "Since implementing HireHub, we've reduced our time-to-hire by 40% and significantly improved the quality of our candidates."
-              </p>
-              <footer className="text-sm opacity-90">
-                <p className="font-semibold">Sarah Miller</p>
-                <p>Talent Acquisition Director</p>
-              </footer>
-            </blockquote>
           </motion.div>
         </motion.div>
 
-        {/* Enhanced Right Panel */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="p-4 lg:p-8"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="p-6 sm:p-8 lg:p-12 backdrop-blur-sm" 
         >
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[400px]">
-            <div className="flex flex-col space-y-2 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 shadow-lg">
-                <Users className="h-8 w-8 text-white" />
+          <div className="mx-auto flex w-full max-w-md flex-col justify-center space-y-6"> 
+            <div className="flex flex-col space-y-3 text-center"> 
+              <div className="relative mx-auto">
+                <div className="absolute inset-0 -z-10 h-16 w-16 rounded-full bg-blue-600/20 blur-lg"></div> 
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 shadow-lg shadow-blue-600/30 transform transition-transform hover:scale-105 duration-300"> 
+                  <Users className="h-8 w-8 text-white" strokeWidth={1.5} /> 
+                </div>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                Create a Recruiter Account
+              
+              <h1 className="mt-3 text-2xl font-bold tracking-tight text-gray-900"> 
+                Create Your Recruiter Account
               </h1>
-              <p className="text-sm text-muted-foreground px-4">
-                Start hiring top talent with HireHub's intelligent recruitment platform
+              
+              <p className="text-sm text-slate-600"> 
+                Join as a recruiter and start finding top talent
               </p>
             </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="John Doe" 
-                          {...field} 
-                          className="h-11"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Work Email</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email"
-                          placeholder="you@company.com"
-                          className="h-11"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        We'll send a verification code to this email
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            className="h-11"
-                            {...field}
-                            onChange={(e) => {
-                              field.onChange(e);
-                              calculateStrength(e.target.value);
-                            }}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"> 
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1"> 
+                        <FormLabel className="text-sm font-medium text-slate-700">Full Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="John Doe" 
+                            {...field} 
+                            className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
                           />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            ) : (
-                              <Eye className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      
-                      {/* Password strength indicator */}
-                      {watchPassword && (
-                        <div className="mt-2">
-                          <div className="flex gap-1 mb-1">
-                            {[1, 2, 3, 4].map((level) => (
-                              <div
-                                key={level}
-                                className={`h-1.5 flex-1 rounded-full ${
-                                  passwordStrength >= level
-                                    ? level <= 1
-                                      ? 'bg-red-500'
-                                      : level <= 2
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
-                                    : 'bg-gray-200'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {passwordStrength === 0 && 'Very weak password'}
-                            {passwordStrength === 1 && 'Weak password'}
-                            {passwordStrength === 2 && 'Moderate password'}
-                            {passwordStrength === 3 && 'Strong password'}
-                            {passwordStrength === 4 && 'Very strong password'}
-                          </p>
-                        </div>
-                      )}
-                      
-                      <FormDescription>
-                        At least 8 characters with uppercase and numbers
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        </FormControl>
+                        <FormMessage className="text-xs text-red-500" /> 
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
 
-                <FormField
-                  control={form.control}
-                  name="terms"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel>
-                          I agree to the{' '}
-                          <Link
-                            href="/terms"
-                            className="text-primary hover:underline"
-                          >
-                            terms and conditions
-                          </Link>
-                        </FormLabel>
-                        <FormDescription>
-                          By creating an account, you agree to our privacy policy
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1"> 
+                        <FormLabel className="text-sm font-medium text-slate-700">Work Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email"
+                            placeholder="you@company.com"
+                            className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs text-slate-500 pt-1"> 
+                          We'll send a verification code to this email
                         </FormDescription>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage className="text-xs text-red-500" /> 
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
 
-                <Button type="submit" className="w-full h-11" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    <>
-                      Create account
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </>
-                  )}
-                </Button>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1"> 
+                        <FormLabel className="text-sm font-medium text-slate-700">Password</FormLabel>
+                        <FormControl>
+                          <div className="relative transition-all duration-200">
+                            <Input
+                              type={showPassword ? 'text' : 'password'}
+                              // Compact Input
+                              className="h-11 rounded-lg border-slate-200 bg-white/80 backdrop-blur-sm focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-all duration-200" 
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                calculateStrength(e.target.value);
+                              }}
+                            />
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-slate-400 hover:text-slate-800"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        
+                        {watchPassword && (
+                          <div className="pt-2"> 
+                            <div className="flex gap-1.5 mb-1"> 
+                              {[1, 2, 3, 4].map((level) => (
+                                <div
+                                  key={level}
+                                  // Compact strength bar: Reduced height
+                                  className={`h-1 flex-1 rounded-full transition-all duration-300 ${ 
+                                    passwordStrength >= level
+                                      ? level <= 1
+                                        ? 'bg-red-400' // Removed pulse for compactness
+                                        : level <= 2
+                                        ? 'bg-amber-400'
+                                        : level <= 3
+                                        ? 'bg-emerald-400'
+                                        : 'bg-green-500'
+                                      : 'bg-slate-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className="text-xs text-slate-500 flex items-center">
+                              {passwordStrength === 0 && 'Use 8+ chars, upper/lower case, numbers'}
+                              {passwordStrength === 1 && 'Weak - add complexity'}
+                              {passwordStrength === 2 && 'Moderate strength'}
+                              {passwordStrength === 3 && 'Strong password'}
+                              {passwordStrength === 4 && (
+                                <span className="flex items-center text-green-600">
+                                  <CheckCircle2 className="mr-1 h-3 w-3" />
+                                  Very strong
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        )}
+                        
+                        <FormMessage className="text-xs text-red-500" /> 
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
+
+                 <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <FormField
+                    control={form.control}
+                    name="terms"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border border-slate-200 p-3 shadow-sm bg-white/50 backdrop-blur-sm"> 
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            id="terms" 
+                          />
+                        </FormControl>
+                        <div className="space-y-0.5 leading-none"> 
+                          <FormLabel htmlFor="terms" className="text-sm font-medium text-slate-700 cursor-pointer">
+                            Accept terms and conditions
+                          </FormLabel>
+                          <FormDescription className="text-xs text-slate-500">
+                            You agree to our Terms of Service and Privacy Policy.
+                          </FormDescription>
+                           <FormMessage className="text-xs text-red-500 pt-1" /> 
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </motion.div>
+
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }} // Adjusted delay
+                  className="pt-2" 
+                >
+                  <Button 
+                    type="submit" 
+                    // Compact Button: Adjusted height, rounding
+                    className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-base font-medium rounded-lg shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-600/30 transition-all duration-200" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <span>Creating account...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center">
+                        <span>Create account</span>
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </div>
+                    )}
+                  </Button>
+                </motion.div>
               </form>
             </Form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+            <div className="space-y-3 pt-2">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-200" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white/80 backdrop-blur-sm px-4 text-slate-400 rounded-full">
+                    Already registered?
+                  </span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Already registered?
-                </span>
-              </div>
-            </div>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Have an account?{' '}
-              <Link
-                href="/recruiter/auth/login"
-                className="text-blue-600 hover:text-blue-500 hover:underline font-medium transition-colors"
-              >
-                Sign in
-              </Link>
-            </p>
+              <p className="text-center">
+                <Link
+                  // Link to recruiter login page
+                  href="/recruiter/auth/login" 
+                  className="inline-flex text-indigo-600 hover:text-indigo-800 font-medium text-sm hover:underline transition-colors"
+                >
+                  Sign in to your account →
+                </Link>
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

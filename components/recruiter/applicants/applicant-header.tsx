@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Mail, Phone, Building2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, Phone, Building2, UserCircle } from 'lucide-react';
 
 interface ApplicantHeaderProps {
   jobId: string;
@@ -31,13 +30,9 @@ export function ApplicantHeader({ jobId, applicant }: ApplicantHeaderProps) {
       </Link>
 
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-        <Image
-          src={applicant.avatar}
-          alt={applicant.name}
-          width={100}
-          height={100}
-          className="rounded-full"
-        />
+        <div className="h-[100px] w-[100px] rounded-full bg-muted flex items-center justify-center">
+          <UserCircle className="h-16 w-16 text-muted-foreground" />
+        </div>
         
         <div className="space-y-2">
           <div className="flex items-center gap-3">

@@ -5,7 +5,8 @@ import { JobDetails } from "@/components/candidate/jobs/job-details";
 import { SkillsRecommendation } from "@/components/candidate/jobs/skills-recommendation";
 import { getAppliedJob } from "@/app/actions/applied-jobs";
 import { auth } from "@/app/middleware/auth";
-import { cache } from "react";
+import SkillAnalysis from "@/models/Analysis";
+import connectToDatabase from "@/lib/mongodb";
 
 interface PageProps {
   params: Promise<{
@@ -13,36 +14,70 @@ interface PageProps {
   }>;
 }
 
-// Cache applicant details API response
-const getCachedApplicantDetails = cache(async (jobId: string, userId: string) => {
-  const res = await fetch(`https://hirehub-lime.vercel.app/api/applicantDetails?jobId=${jobId}&candidateId=${userId}`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
+// Update the interface to match the actual structure
+interface SkillAnalysisResult {
+  skill_gaps: {
+    content: string;
+  };
+  course_recommendations: {
+    content: string;
+  };
+}
+
+// Fixed the parameter list to match how it's called
+async function getSkillAnalysis(jobId: string, jobDescription: string, resumeFilePath: string): Promise<SkillAnalysisResult> {
+  await connectToDatabase();
+
+  // Check for existing analysis
+  const existingAnalysis = await SkillAnalysis.findOne({
+    jobId: jobId,
   });
+  
+  if (existingAnalysis) {
+    console.log("Existing analysis found:", existingAnalysis.result);
+    return existingAnalysis.result;
+  }
+  
+  console.log("No existing analysis found, creating a new one.");
 
-  if (!res.ok) throw new Error("Failed to fetch applicant details");
-
-  return res.json();
-});
-
-//let's trigger a new build
-
-// Cache AI analysis API response
-const getCachedSkillAnalysis = cache(async (jobDescription: string, filePath: string) => {
+  // Call the external API to get the skill analysis
   const res = await fetch("https://hirehub-api-795712866295.europe-west4.run.app/api/analyze-skills", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ job_description: jobDescription, file_path: filePath }),
+    body: JSON.stringify({ 
+      job_description: jobDescription, 
+      file_path: resumeFilePath 
+    }),
   });
 
   if (!res.ok) throw new Error("Failed to call the external API");
 
-  return res.json();
-});
+  const data = await res.json();
+  console.log("API response:", data);
+  
+  // Save the analysis result to the database
+  const result = {
+    skill_gaps: data.skill_gaps,
+    course_recommendations: data.course_recommendations,
+  };
+  
+  const newAnalysis = new SkillAnalysis({
+    jobId: jobId,
+    filePath: resumeFilePath,
+    result: result,
+  });
+
+  await newAnalysis.save();
+  console.log("New analysis saved:", newAnalysis.result);
+
+  // Return the properly structured result
+  return result;
+}
 
 export default async function AppliedJobDetailsPage({ params }: PageProps) {
   const { jobId } = await params;
   const job = await getAppliedJob(jobId);
+  console.log("applied job:", job);
 
   const session = await auth();
 
@@ -54,15 +89,12 @@ export default async function AppliedJobDetailsPage({ params }: PageProps) {
     notFound();
   }
 
-  const { filename } = await getCachedApplicantDetails(jobId, session.userId);
-  console.log("Original Resume filename:", filename);
-
+  const filename = job.resumeFilename || '';
   const transformedFilename = `parsed/${filename.replace(/\.[^/.]+$/, "")}.md`;
   console.log("Transformed Resume filename:", transformedFilename);
 
-  const apiResult = await getCachedSkillAnalysis(job.description, transformedFilename);
+  const apiResult = await getSkillAnalysis(jobId, job.description, transformedFilename);
   console.log("API Result:", apiResult);
-
 
   const transformedJob = {
     id: job._id,
@@ -103,11 +135,10 @@ export default async function AppliedJobDetailsPage({ params }: PageProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
           <Suspense fallback={<div>Loading recommendations...</div>}>
-          <SkillsRecommendation
-            skillGaps={apiResult.skill_gaps}
-            courseRecommendations={apiResult.course_recommendations}
-            //jobSkills={job.skills}
-          />
+            <SkillsRecommendation
+              skillGaps={apiResult.skill_gaps}
+              courseRecommendations={apiResult.course_recommendations}
+            />
           </Suspense>
         </div>
       </div>

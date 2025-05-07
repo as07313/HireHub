@@ -114,12 +114,6 @@ const ApplicantSchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for query optimization
-ApplicantSchema.index({ candidateId: 1, jobId: 1 }, { unique: true });
-ApplicantSchema.index({ status: 1 });
-ApplicantSchema.index({ jobFitScore: -1 });
-ApplicantSchema.index({ appliedDate: -1 });
-
 // Virtual population
 ApplicantSchema.virtual('candidate', {
   ref: 'Candidate',

@@ -54,6 +54,9 @@ export function DashboardNav() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/candidate/logout', { method: 'POST' });
+      localStorage.removeItem('token'); // Clear token from local storage
+      localStorage.removeItem('userType'); // Clear user type from local storage
+      localStorage.removeItem('userData'); // Clear user data from local storag
       router.push('/candidate/auth/login');
     } catch (error) {
       console.error('Logout failed:', error);

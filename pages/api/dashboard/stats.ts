@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }),
       Applicant.countDocuments({ 
         jobId: { $in: jobIds }, 
-        status: 'shortlist' 
+        status: 'screening' 
       }),
       Applicant.countDocuments({ 
         jobId: { $in: jobIds }, 

@@ -11,26 +11,16 @@ interface ApplicantProfileProps {
 }
 
 export function ApplicantProfile({ applicant }: ApplicantProfileProps) {
+  console.log("applicant parsed data", applicant.resume.parsedData)
+  
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Job Fit Score</h2>
-        <Card className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Star className="h-8 w-8 fill-yellow-400 text-yellow-400" />
-            <div>
-              <p className="text-3xl font-bold">{applicant.jobFitScore}%</p>
-              <p className="text-sm text-muted-foreground">Match Score</p>
-            </div>
-          </div>
-          <Progress value={applicant.jobFitScore} className="h-2" />
-        </Card>
-      </div>
+      
 
       <div>
         <h2 className="text-xl font-semibold mb-4">About</h2>
         <Card className="p-6">
-          <p className="text-muted-foreground leading-relaxed">{applicant.bio}</p>
+          <p className="text-muted-foreground leading-relaxed">{applicant.resume.parsedData.Summary}</p>
         </Card>
       </div>
 
@@ -38,7 +28,7 @@ export function ApplicantProfile({ applicant }: ApplicantProfileProps) {
         <h2 className="text-xl font-semibold mb-4">Skills</h2>
         <Card className="p-6">
           <div className="flex flex-wrap gap-2">
-            {applicant.skills.map((skill: string) => (
+            {applicant.resume.parsedData.Skills.map((skill: string) => (
               <Badge key={skill} variant="secondary">
                 {skill}
               </Badge>
@@ -53,9 +43,9 @@ export function ApplicantProfile({ applicant }: ApplicantProfileProps) {
           <div className="flex items-start gap-3">
             <GraduationCap className="h-5 w-5 text-primary mt-1" />
             <div>
-              <p className="font-medium">{applicant.education.degree}</p>
+              <p className="font-medium">{applicant.resume.parsedData.Education[0].Degree}</p>
               <p className="text-sm text-muted-foreground">
-                {applicant.education.school} • {applicant.education.year}
+                {applicant.resume.parsedData.Education[0].Institution} • {applicant.resume.parsedData.Education[0].Year}
               </p>
             </div>
           </div>
@@ -66,17 +56,17 @@ export function ApplicantProfile({ applicant }: ApplicantProfileProps) {
         <h2 className="text-xl font-semibold mb-4">Work Experience</h2>
         <Card className="p-6">
           <div className="space-y-6">
-            {applicant.workHistory.map((work: any, index: number) => (
+            {applicant.resume.parsedData["Work Experience"].map((work: any, index: number) => (
               <div key={index}>
                 <div className="flex items-start gap-3">
                   <Briefcase className="h-5 w-5 text-primary mt-1" />
                   <div>
-                    <p className="font-medium">{work.role}</p>
+                    <p className="font-medium">{work['Job Title']}</p>
                     <p className="text-sm text-muted-foreground">
-                      {work.company} • {work.duration}
+                      {work.Company} • {work.Duration}
                     </p>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      {work.description}
+                      {work.Description}
                     </p>
                   </div>
                 </div>

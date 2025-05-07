@@ -110,7 +110,7 @@ export default function NewJobPage() {
   }, [router])
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container  py-6">
       <div className="flex items-center justify-between mb-8">
         <div>
           <Button 

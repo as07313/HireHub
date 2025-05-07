@@ -24,6 +24,20 @@ parser = ResumeParser()
 async def parse_resume(file: UploadFile = File(...)) -> Dict[str, Any]:
     print(f"Received file: {file.filename}, content-type: {file.content_type}")
     
+    # result = parser.parse_resume(file.filename)
+    # if "error" in result:
+    #     raise HTTPException(status_code=422, detail=result["error"])
+    
+    # metadata = result.get("metadata", {})
+    # has_experience = bool(metadata.get("Work Experience")) or metadata.get("experience_count",0) > 0
+    # has_skills = bool(result.get("Skills")) or metadata.get("skills_count", 0) > 0
+
+
+    # if not has_experience and not has_skills:
+    #     raise HTTPException(
+    #         status_code=422,
+    #         detail="File parsed, but does not appear to contain resume content (e.g., missing Work Experience or Skills)."
+    #     )
     # Validate file type
     allowed_types = [
         "application/pdf",

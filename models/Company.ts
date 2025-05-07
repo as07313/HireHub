@@ -87,11 +87,6 @@ const CompanySchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for better query performance
-CompanySchema.index({ name: 1 });
-CompanySchema.index({ industry: 1 });
-CompanySchema.index({ 'location.city': 1 });
-CompanySchema.index({ status: 1 });
 
 // Virtual for recruiters
 CompanySchema.virtual('recruiters', {

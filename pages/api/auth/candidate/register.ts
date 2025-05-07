@@ -3,6 +3,7 @@ import connectToDatabase from '@/lib/mongodb';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
+import { Candidate } from '@/models/User'; // Import Candidate model
 
 // Helper: generate a 6-digit code
 function generateVerificationCode() {
@@ -16,6 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectToDatabase();
     const { fullName, email, phone, skills, experience, password } = req.body;
+
+    // Check if a candidate with this email already exists
+    const existingCandidate = await Candidate.findOne({ email });
+    if (existingCandidate) {
+        return res.status(409).json({ error: 'Email already registered. Please login.' });
+    }
 
     // Generate a 6-digit verification code and set expiry (1 hour)
     const verificationCode = generateVerificationCode();

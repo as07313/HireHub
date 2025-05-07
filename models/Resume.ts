@@ -6,26 +6,14 @@ interface IResume extends Document {
   fileName: string;
   fileSize: string;
   filePath: string;
+  status: string;
   uploadDate: Date;
   lastModified: Date;
   processingStatus: 'queued' | 'processing' | 'completed' | 'error';
   processingError?: string;
-  parsedData: {
-    Name: string;
-    'Contact Information': string;
-    Education: Array<{
-      Degree: string;
-      Institution: string;
-      Year: string;
-    }>;
-    'Work Experience': Array<{
-      'Job Title': string;
-      Company: string;
-      Duration: string;
-      Description: string;
-    }>;
-    Skills: string[];
-  };
+  parsedData?: Record<string, any>; // Add this field to store the JSON object
+
+
 }
 
 const ResumeSchema = new Schema({
@@ -36,9 +24,10 @@ const ResumeSchema = new Schema({
   },
   fileName: { type: String, required: true },
   fileSize: { type: String, required: true },
-  filePath: { type: String, required: true }, // Add this field
+  filePath: { type: String, required: false }, // Add this field
   uploadDate: { type: Date, default: Date.now },
   lastModified: { type: Date, default: Date.now },
+  status: {type: String, required: false},
   processingStatus: {
     type: String,
     enum: ['queued', 'processing', 'completed', 'error'],
@@ -47,22 +36,7 @@ const ResumeSchema = new Schema({
   processingError: {
     type: String
   },
-  parsedData: {
-    Name: { type: String, required: false },
-    'Contact Information': { type: String, required: false },
-    Education: [{
-      Degree: { type: String, required: false },
-      Institution: { type: String, required: false },
-      Year: { type: String, required: false }
-    }],
-    'Work Experience': [{
-      'Job Title': { type: String, required: false },
-      Company: { type: String, required: false },
-      Duration: { type: String, required: false },
-      Description: { type: String, required: false }
-    }],
-    Skills: { type: [String], required: false }
-  }
+  parsedData: { type: Schema.Types.Mixed, required: false },
 }, {
   timestamps: true, // Adds createdAt and updatedAt fields
   toJSON: { virtuals: true },
@@ -72,4 +46,5 @@ const ResumeSchema = new Schema({
 export const Resume = mongoose.models.Resume || mongoose.model<IResume>('Resume', ResumeSchema);
 
 export default Resume;
+export type { IResume };
 

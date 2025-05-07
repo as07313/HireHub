@@ -6,8 +6,8 @@ services:
       - "5672:5672"   # AMQP protocol port
       - "15672:15672" # Management UI port
     environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
+      - RABBITMQ_DEFAULT_USER=tdbrjefi
+      - RABBITMQ_DEFAULT_PASS=QxL6Fkag7ufwn4tyT8bBTEz2wipKT_pu
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: unless-stopped

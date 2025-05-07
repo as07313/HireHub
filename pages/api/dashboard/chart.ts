@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import connectToDatabase from '@/lib/mongodb';
 import { Applicant } from '@/models/Applicant';
 import { Job } from '@/models/Job';
-import { Apiauth } from '@/app/middleware/auth';
+import { Apiauth } from '@/app/middleware/auth'; // Assuming Apiauth is correctly set up
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await connectToDatabase();
     const user = await Apiauth(req, res);
     
-    if (!user || user.type !== 'recruiter') {
+    if (!user || user.type !== 'recruiter' || !user.userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
@@ -24,8 +24,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get applications for last 6 months
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    sixMonthsAgo.setDate(1); // Start from the beginning of the month
+    sixMonthsAgo.setHours(0, 0, 0, 0); // Normalize time
 
-    // Get monthly applications count
+    // Get monthly applications count (total per month)
     const monthlyApplications = await Applicant.aggregate([
       {
         $match: {
@@ -35,19 +37,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       {
         $group: {
-          _id: {
-            month: { $month: '$appliedDate' },
+          _id: { // Group by year and month
             year: { $year: '$appliedDate' },
-            status: '$status'
+            month: { $month: '$appliedDate' }
           },
-          count: { $sum: 1 }
+          count: { $sum: 1 } // Sum of all applications in that month
         }
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1 }
+        $sort: { '_id.year': 1, '_id.month': 1 } // Sort by date
       }
     ]);
-
+    
     // Get applications by stage
     const applicationsByStage = await Applicant.aggregate([
       {
@@ -57,9 +58,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       {
         $group: {
-          _id: '$status',
+          _id: '$status', // Group by status
           count: { $sum: 1 }
         }
+      },
+      {
+        $sort: { count: -1 } // Optional: sort by count
       }
     ]);
 

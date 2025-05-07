@@ -100,10 +100,7 @@ const JobSchema = new Schema({
   timestamps: true
 });
 
-// Add indexes
-JobSchema.index({ title: 'text', description: 'text' });
-JobSchema.index({ status: 1 });
-JobSchema.index({ companyId: 1 });
-JobSchema.index({ recruiterId: 1 });
+
+
 
 export const Job = mongoose.models.Job || mongoose.model<IJob>('Job', JobSchema);

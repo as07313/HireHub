@@ -34,12 +34,20 @@ export function middleware(request: NextRequest) {
   }
 
   // Redirect logged in users away from auth pages
+  // In middleware.ts
+  // Redirect logged in users away from auth pages (but allow registration)
   if (isCandidateAuthRoute && token && userType?.value === 'candidate') {
-    return NextResponse.redirect(new URL('/candidate/dashboard', request.url));
+    // Only redirect away from login, not registration
+    if (request.nextUrl.pathname.startsWith('/candidate/auth/login')) {
+      return NextResponse.redirect(new URL('/candidate/dashboard', request.url));
+    }
   }
-  
+    
   if (isRecruiterAuthRoute && token && userType?.value === 'recruiter') {
-    return NextResponse.redirect(new URL('/recruiter/dashboard', request.url));
+    // Only redirect away from login, not registration
+    if (request.nextUrl.pathname.startsWith('/recruiter/auth/login')) {
+      return NextResponse.redirect(new URL('/recruiter/dashboard', request.url));
+    }
   }
 
   return NextResponse.next();

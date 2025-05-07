@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -66,6 +67,22 @@ export default function RecruiterLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [recruiterName, setRecruiterName] = useState("Recruiter");
+
+  useEffect(() => {
+    // Fetch user data from localStorage to display name
+    const storedUserData = localStorage.getItem("userData");
+    if (storedUserData) {
+      try {
+        const userData = JSON.parse(storedUserData);
+        if (userData && userData.fullName) {
+          setRecruiterName(userData.fullName);
+        }
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage", error);
+      }
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -150,7 +167,7 @@ export default function RecruiterLayout({
                   <Users className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">John Doe</p>
+                  <p className="text-sm font-medium">{recruiterName}</p>
                   <p className="text-xs text-muted-foreground">HR Manager</p>
                 </div>
               </div>

@@ -4,8 +4,13 @@ import { Resume } from '@/models/Resume';
 import { Apiauth } from '@/app/middleware/auth';
 import formidable from 'formidable';
 import fs from 'fs';
-import FormData from 'form-data'; // Correct FormData import
-import fetch from 'node-fetch'; // Ensure you're using node-fetch for backend API calls
+import FormData from 'form-data';
+import fetch from 'node-fetch'; 
+import os from 'os'; 
+import { PutObjectCommand } from '@aws-sdk/client-s3'; 
+import { r2Client, R2_BUCKET_NAME } from '../../../lib/r2-client';
+import { v4 as uuidv4 } from 'uuid'; 
+
 
 export const config = {
   api: {
@@ -44,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Initialize formidable first
         const form = formidable({
-          uploadDir: './uploads',
+          uploadDir: os.tmpdir(), // Use the system's temporary directory
           keepExtensions: true,
           maxFileSize: 5 * 1024 * 1024, // 5MB
           filter: (part) => {
@@ -68,71 +73,71 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           return res.status(400).json({ error: 'No file uploaded' });
         }
 
-
-        // Create resume record
+        // Create resume record *before* upload to get the ID
+        // Let Mongoose generate the _id
         const resume = await Resume.create({
           candidateId: user.userId,
           fileName: file.originalFilename,
           fileSize: `${Math.round(file.size / 1024)} KB`,
-          filePath: file.filepath, // Store the file path
+          // Store the R2 key instead of the local temporary path
+          // We will update filePath after creating the record and getting the ID
+          filePath: '', // Set temporary empty path
           uploadDate: new Date(),
           lastModified: new Date(),
-          status: 'completed',
+          status: 'uploading', // Set initial status to uploading
           processingStatus: 'queued',
-          parsedData: {
-            Name: 'Pending Parse',
-            'Contact Information': 'Pending Parse',
-            Education: [{
-              Degree: 'Pending Parse',
-              Institution: 'Pending Parse',
-              Year: 'Pending Parse'
-            }],
-            'Work Experience': [{
-              'Job Title': 'Pending Parse',
-              Company: 'Pending Parse',
-              Duration: 'Pending Parse',
-              Description: 'Pending Parse'
-            }],
-            Skills: ['Pending Parse']
-          }
+          parsedData: null, 
+          processingError: null, 
         });
         
+        // Construct the R2 key using the generated resume._id
+        const r2Key = `resumes/${user.userId}/${resume._id}/${file.originalFilename}`; 
+
+        // Update the resume record with the correct filePath
+        resume.filePath = r2Key;
+        await resume.save();
+
         console.log('Resume record created:', resume);
-        
-
         console.log(`Received file: ${file.originalFilename} (${file.size} bytes)`);
+        console.log(`Uploading to R2 with key: ${r2Key}`);
 
-        // ✅ Use FormData and append a stream instead of converting to Buffer
-      //   if (fields.isForApplication && fields.isForApplication[0] === 'true') {
-      //   const formData = new FormData();
-      //   const fileStream = fs.createReadStream(file.filepath);
+        try {
+          // Upload to R2
+          const fileStream = fs.createReadStream(file.filepath);
+          const uploadParams = {
+            Bucket: R2_BUCKET_NAME,
+            Key: r2Key,
+            Body: fileStream,
+            ContentType: file.mimetype || 'application/octet-stream',
+          };
+          await r2Client.send(new PutObjectCommand(uploadParams));
+          console.log(`Successfully uploaded ${r2Key} to R2 bucket ${R2_BUCKET_NAME}.`);
 
-      //   formData.append('files', fileStream, { filename: file.originalFilename || 'resume.pdf' });
+          // Update resume status to pending (ready for processing) after successful upload
+          await Resume.findByIdAndUpdate(resume._id, { status: 'pending' });
 
-      //   console.log('Sending file to FastAPI backend...');
+          // Clean up the temporary file
+          fs.unlink(file.filepath, (err) => {
+            if (err) {
+              console.error(`Error deleting temporary file ${file.filepath}:`, err);
+            } else {
+              console.log(`Temporary file ${file.filepath} deleted.`);
+            }
+          });
 
-      //   const llamaResponse = await fetch('https://hirehub-api-795712866295.europe-west4.run.app/api/upload', {
-      //     method: 'POST',
-      //     body: formData,
-      //     headers: formData.getHeaders(), // Important for multipart/form-data requests
-      //   });
+          // Respond to client
+          return res.status(201).json({ message: 'Resume uploaded successfully', resumeId: resume._id });
 
-      //   console.log(llamaResponse)
-
-      //   if (!llamaResponse.ok) {
-      //     console.error('Error response from LlamaCloud API');
-      //     const error = await llamaResponse.json();
-      //     console.error('LlamaCloud API Error:', error);
-      //     if (error instanceof Error) {
-      //       throw new Error(error.message || 'Failed to process resume');
-      //     } else {
-      //       throw new Error('Failed to process resume');
-      //     }
-      //   }
-      // }
-      //   await Resume.findByIdAndUpdate(resume._id, { status: 'completed' });
-      //   console.log('File successfully processed by LlamaCloud API.');
-          return res.status(201).json({ message: 'Successful' });
+        } catch (uploadError) {
+            console.error(`Failed to upload ${r2Key} to R2:`, uploadError);
+            // Optionally: Update resume status to 'error' in the database
+            await Resume.findByIdAndUpdate(resume._id, { status: 'error', processingError: 'R2 upload failed' });
+            // Clean up the temporary file even if upload fails
+            fs.unlink(file.filepath, (err) => {
+              if (err) console.error(`Error deleting temporary file ${file.filepath} after failed upload:`, err);
+            });
+            return res.status(500).json({ error: 'Failed to upload file to storage' });
+        }
       }
 
       default:
